@@ -1,0 +1,22 @@
+{
+  "name": "com.easytoolkit.core",
+  "version": "1.0.0",
+  "displayName": "EasyToolKit.Core",
+  "description": "",
+  "unity": "2022.3",
+  "unityRelease": "55f1",
+  "license": "MIT",
+  "author": {
+    "name": "easytoolkit-dev",
+    "email": "2907142541@qq.com",
+    "url": "https://github.com/easytoolkit-dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/easytoolkit-dev/com.easytoolkit.core"
+  },
+  "dependencies": {
+    "com.unity.modules.ui": "1.0.0",
+    "com.easytoolkit.odinserializer": "1.0.0"
+  }
+}
