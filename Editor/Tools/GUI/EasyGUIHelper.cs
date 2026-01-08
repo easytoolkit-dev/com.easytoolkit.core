@@ -2,13 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using EasyToolKit.OdinSerializer.Utilities;
+using EasyToolKit.Core;
 using UnityEditor;
 using UnityEngine;
 
 namespace EasyToolKit.Core.Editor
 {
-    //TODO 版权问题
     public static class EasyGUIHelper
     {
         private static readonly GUIScopeStack<bool> GUIEnabledStack = new GUIScopeStack<bool>();
@@ -21,24 +20,24 @@ namespace EasyToolKit.Core.Editor
         private static readonly GUIScopeStack<Color> LabelColorStack = new GUIScopeStack<Color>();
         private static readonly GUIScopeStack<int> LayoutMeasureInfoStack = new GUIScopeStack<int>();
 
-        private static readonly Func<Rect> EditorWindowRectGetter;
-        private static readonly Func<int> GUILayoutEntriesCursorIndexGetter;
-        private static readonly Func<IList> GUILayoutEntriesGetter;
-        private static readonly Func<object, Rect> GUILayoutEntryRectGetter;
+        private static readonly StaticGetter<Rect> EditorWindowRectGetter;
+        private static readonly StaticGetter<int> GUILayoutEntriesCursorIndexGetter;
+        private static readonly StaticGetter<IList> GUILayoutEntriesGetter;
+        private static readonly InstanceGetter<Rect> GUILayoutEntryRectGetter;
         private static readonly Type HostViewType;
-        private static readonly Func<object> GUIViewGetter;
-        private static readonly Func<object, EditorWindow> ActualViewGetter;
-        private static readonly Func<Vector2> EditorScreenPointOffsetGetter;
-        private static readonly Func<bool> CurrentWindowHasFocusGetter;
-        private static readonly Func<Rect> TopLevelLayoutRectGetter;
-        private static readonly Func<float> TopLevelLayoutMinHeightGetter;
-        private static readonly Func<float> TopLevelLayoutMaxHeightGetter;
-        private static readonly Func<float> ActualLabelWidthGetter;
-        private static readonly Func<object> TopLevelLayoutGetter;
+        private static readonly StaticGetter<object> GUIViewGetter;
+        private static readonly InstanceGetter<EditorWindow> ActualViewGetter;
+        private static readonly StaticGetter<Vector2> EditorScreenPointOffsetGetter;
+        private static readonly StaticGetter<bool> CurrentWindowHasFocusGetter;
+        private static readonly StaticGetter<Rect> TopLevelLayoutRectGetter;
+        private static readonly StaticGetter<float> TopLevelLayoutMinHeightGetter;
+        private static readonly StaticGetter<float> TopLevelLayoutMaxHeightGetter;
+        private static readonly StaticGetter<float> ActualLabelWidthGetter;
+        private static readonly StaticGetter<object> TopLevelLayoutGetter;
         private static readonly MethodInfo TopLevelLayoutCalcHeightMethod;
-        private static readonly Func<float> ContextWidthGetter;
-        private static readonly Action<float> ContextWidthSetter;
-        private static readonly Func<Stack<float>> ContextWidthStackGetter;
+        private static readonly StaticGetter<float> ContextWidthGetter;
+        private static readonly StaticSetter<float> ContextWidthSetter;
+        private static readonly StaticGetter<Stack<float>> ContextWidthStackGetter;
         private static readonly Func<MessageType, Texture> HelpIconGetter;
         private static float s_betterContextWidth;
 
@@ -52,31 +51,31 @@ namespace EasyToolKit.Core.Editor
             var guiViewType = Type.GetType("UnityEditor.GUIView, UnityEditor.CoreModule");
             var toolbarType = Type.GetType("UnityEditor.Toolbar, UnityEditor.CoreModule");
 
-            EditorWindowRectGetter = toolbarType.GetStaticValueGetter<Rect>("get.parent.screenPosition");
+            EditorWindowRectGetter = ReflectionFactory.CreateAccessor("get.parent.screenPosition").BuildStaticGetter<Rect>(toolbarType);
 
-            GUILayoutEntryRectGetter = guiLayoutEntryType.GetInstanceValueGetter<Rect>("rect");
-            CurrentWindowHasFocusGetter = guiViewType.GetStaticValueGetter<bool>("current.hasFocus");
+            GUILayoutEntryRectGetter = ReflectionFactory.CreateAccessor("rect").BuildInstanceGetter<Rect>(guiLayoutEntryType);
+            CurrentWindowHasFocusGetter = ReflectionFactory.CreateAccessor("current.hasFocus").BuildStaticGetter<bool>(guiViewType);
 
-            GUIViewGetter = guiViewType.GetStaticValueGetter<object>("current");
-            ActualViewGetter = HostViewType.GetInstanceValueGetter<EditorWindow>("actualView");
+            GUIViewGetter = ReflectionFactory.CreateAccessor("current").BuildStaticGetter<object>(guiViewType);
+            ActualViewGetter = ReflectionFactory.CreateAccessor("actualView").BuildInstanceGetter<EditorWindow>(HostViewType);
 
-            TopLevelLayoutGetter = typeof(GUILayoutUtility).GetStaticValueGetter<object>("current.topLevel");
-            TopLevelLayoutRectGetter = typeof(GUILayoutUtility).GetStaticValueGetter<Rect>("current.topLevel.rect");
-            TopLevelLayoutMinHeightGetter = typeof(GUILayoutUtility).GetStaticValueGetter<float>("current.topLevel.minHeight");
-            TopLevelLayoutMaxHeightGetter = typeof(GUILayoutUtility).GetStaticValueGetter<float>("current.topLevel.maxHeight");
+            TopLevelLayoutGetter = ReflectionFactory.CreateAccessor("current.topLevel").BuildStaticGetter<object>(typeof(GUILayoutUtility));
+            TopLevelLayoutRectGetter = ReflectionFactory.CreateAccessor("current.topLevel.rect").BuildStaticGetter<Rect>(typeof(GUILayoutUtility));
+            TopLevelLayoutMinHeightGetter = ReflectionFactory.CreateAccessor("current.topLevel.minHeight").BuildStaticGetter<float>(typeof(GUILayoutUtility));
+            TopLevelLayoutMaxHeightGetter = ReflectionFactory.CreateAccessor("current.topLevel.maxHeight").BuildStaticGetter<float>(typeof(GUILayoutUtility));
 
-            EditorScreenPointOffsetGetter = typeof(GUIUtility).GetStaticValueGetter<Vector2>("s_EditorScreenPointOffset");
-            ContextWidthGetter = typeof(EditorGUIUtility).GetStaticValueGetter<float>("contextWidth");
+            EditorScreenPointOffsetGetter = ReflectionFactory.CreateAccessor("s_EditorScreenPointOffset").BuildStaticGetter<Vector2>(typeof(GUIUtility));
+            ContextWidthGetter = ReflectionFactory.CreateAccessor("contextWidth").BuildStaticGetter<float>(typeof(EditorGUIUtility));
 
-            FieldInfo field = typeof(EditorGUIUtility).GetField("s_ContextWidth", BindingFlagsHelper.AllStatic);
+            FieldInfo field = typeof(EditorGUIUtility).GetField("s_ContextWidth", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
             if (field != null)
-                ContextWidthSetter = field.GetStaticValueSetter<float>();
+                ContextWidthSetter = ReflectionFactory.CreateAccessor("s_ContextWidth").BuildStaticSetter<float>(typeof(EditorGUIUtility));
             else
-                ContextWidthStackGetter = typeof(EditorGUIUtility).GetStaticValueGetter<Stack<float>>("s_ContextWidthStack");
+                ContextWidthStackGetter = ReflectionFactory.CreateAccessor("s_ContextWidthStack").BuildStaticGetter<Stack<float>>(typeof(EditorGUIUtility));
 
-            ActualLabelWidthGetter = typeof(EditorGUIUtility).GetStaticValueGetter<float>("s_LabelWidth");
+            ActualLabelWidthGetter = ReflectionFactory.CreateAccessor("s_LabelWidth").BuildStaticGetter<float>(typeof(EditorGUIUtility));
 
-            var method = typeof(EditorGUIUtility).GetMethod("GetHelpIcon", BindingFlagsHelper.AllStatic);
+            var method = typeof(EditorGUIUtility).GetMethod("GetHelpIcon", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
             HelpIconGetter = (messageType) =>
             {
                 return method.Invoke(null, new object[] { messageType }) as Texture;
@@ -84,8 +83,8 @@ namespace EasyToolKit.Core.Editor
 
             TopLevelLayoutCalcHeightMethod = layoutType.GetMethod("CalcHeight");
 
-            GUILayoutEntriesCursorIndexGetter = typeof(GUILayoutUtility).GetStaticValueGetter<int>("current.topLevel.m_Cursor");
-            GUILayoutEntriesGetter = typeof(GUILayoutUtility).GetStaticValueGetter<IList>("current.topLevel.entries");
+            GUILayoutEntriesCursorIndexGetter = ReflectionFactory.CreateAccessor("current.topLevel.m_Cursor").BuildStaticGetter<int>(typeof(GUILayoutUtility));
+            GUILayoutEntriesGetter = ReflectionFactory.CreateAccessor("current.topLevel.entries").BuildStaticGetter<IList>(typeof(GUILayoutUtility));
         }
 
         /// <summary>
@@ -114,7 +113,7 @@ namespace EasyToolKit.Core.Editor
                     return null;
                 }
 
-                return ActualViewGetter(view);
+                return ActualViewGetter(ref view);
             }
         }
 
@@ -272,7 +271,7 @@ namespace EasyToolKit.Core.Editor
                 if (from >= 0)
                 {
                     var entry = entries[from];
-                    var rect = GUILayoutEntryRectGetter(entry);
+                    var rect = GUILayoutEntryRectGetter(ref entry);
 
                     if (from == to)
                     {
@@ -284,7 +283,7 @@ namespace EasyToolKit.Core.Editor
                         for (int i = from + 1; i < to; i++)
                         {
                             var entry1 = entries[i];
-                            var tmpRect = GUILayoutEntryRectGetter(entry1);
+                            var tmpRect = GUILayoutEntryRectGetter(ref entry1);
 
                             rect.xMin = Mathf.Min(rect.xMin, tmpRect.xMin);
                             rect.yMin = Mathf.Min(rect.yMin, tmpRect.yMin);

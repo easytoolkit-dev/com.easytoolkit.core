@@ -3,13 +3,12 @@ namespace EasyToolKit.Core
     /// <summary>
     /// Defines a builder for configuring expression evaluators.
     /// </summary>
-    /// <typeparam name="TResult">The type of value to evaluate.</typeparam>
     /// <remarks>
     /// This builder provides a fluent API for configuring expression evaluators
     /// before building them. Use the <see cref="Build"/> method to create the
     /// final evaluator instance.
     /// </remarks>
-    public interface IExpressionEvaluatorBuilder<out TResult>
+    public interface IExpressionEvaluatorBuilder
     {
         /// <summary>
         /// Configures the evaluator to require an expression flag.
@@ -28,7 +27,7 @@ namespace EasyToolKit.Core
         /// <code>
         /// // With expression flag enabled
         /// var evaluator = ExpressionEvaluatorFactory
-        ///     .Evaluate&lt;string&gt;(labelText, targetType)
+        ///     .Evaluate(labelText, targetType)
         ///     .WithExpressionFlag();
         ///
         /// // Usage in attribute:
@@ -38,7 +37,7 @@ namespace EasyToolKit.Core
         /// </code>
         /// </example>
         /// </remarks>
-        IExpressionEvaluatorBuilder<TResult> WithExpressionFlag();
+        IExpressionEvaluatorBuilder WithExpressionFlag();
 
         /// <summary>
         /// Builds the configured expression evaluator.
@@ -48,6 +47,6 @@ namespace EasyToolKit.Core
         /// After calling this method, the evaluator is ready for use.
         /// The builder should not be used after calling <see cref="Build"/>.
         /// </remarks>
-        IExpressionEvaluator<TResult> Build();
+        IExpressionEvaluator Build();
     }
 }

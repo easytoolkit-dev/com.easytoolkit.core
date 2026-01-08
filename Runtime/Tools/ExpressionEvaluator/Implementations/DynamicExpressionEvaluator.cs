@@ -28,10 +28,9 @@ namespace EasyToolKit.Core.Implementations
         /// Initializes a new instance of the <see cref="DynamicExpressionEvaluator"/> class.
         /// </summary>
         /// <param name="expressionPath">The expression path to evaluate.</param>
-        /// <param name="expectedType">The expected result type.</param>
         /// <param name="sourceType">The type containing the member to evaluate (null for static members).</param>
-        public DynamicExpressionEvaluator(string expressionPath, [CanBeNull] Type expectedType, [CanBeNull] Type sourceType)
-            : base(expressionPath, expectedType)
+        public DynamicExpressionEvaluator(string expressionPath, [CanBeNull] Type sourceType)
+            : base(expressionPath)
         {
             _sourceType = sourceType;
         }
@@ -104,22 +103,22 @@ namespace EasyToolKit.Core.Implementations
             if (rootType != null)
             {
                 // Static member access
-                var getter = rootType.GetStaticValueGetter(ExpectedType, path);
+                var getter = ReflectionFactory.CreateAccessor(path).BuildStaticGetter(sourceType);
                 return o => getter();
             }
 
             // Instance member access
             try
             {
-                var getter = sourceType.GetInstanceValueGetter(ExpectedType, path);
-                return o => getter(o);
+                var getter = ReflectionFactory.CreateAccessor(path).BuildInstanceGetter(sourceType);
+                return o => getter(ref o);
             }
             catch (ArgumentException e)
             {
                 // Fallback to static member
                 try
                 {
-                    var getter = sourceType.GetStaticValueGetter(ExpectedType, path);
+                    var getter = ReflectionFactory.CreateAccessor(path).BuildStaticGetter(sourceType);
                     return o => getter();
                 }
                 catch (Exception)
@@ -197,71 +196,4 @@ namespace EasyToolKit.Core.Implementations
         }
     }
 
-    /// <summary>
-    /// Typed dynamic expression evaluator.
-    /// </summary>
-    /// <typeparam name="TResult">The type of value to evaluate.</typeparam>
-    /// <remarks>
-    /// This is a strongly-typed version of <see cref="DynamicExpressionEvaluator"/>
-    /// that implements <see cref="IExpressionEvaluator{TResult}"/>.
-    /// </remarks>
-    public sealed class DynamicExpressionEvaluator<TResult> : ExpressionEvaluatorBase<TResult>
-    {
-        private readonly DynamicExpressionEvaluator _evaluator;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DynamicExpressionEvaluator{TResult}"/> class.
-        /// </summary>
-        /// <param name="expressionPath">The expression path to evaluate.</param>
-        /// <param name="sourceType">The type containing the member to evaluate.</param>
-        public DynamicExpressionEvaluator(string expressionPath, [CanBeNull] Type sourceType)
-            : base(expressionPath)
-        {
-            _evaluator = new DynamicExpressionEvaluator(expressionPath, typeof(TResult), sourceType);
-        }
-
-        /// <summary>
-        /// Evaluates the literal value (returns the stored value).
-        /// </summary>
-        /// <param name="context">The context object to evaluate against.</param>
-        /// <returns>The evaluated value as the specified type.</returns>
-        /// <remarks>
-        /// This method delegates to the inner <see cref="DynamicExpressionEvaluator"/>
-        /// and casts the result to the specified type.
-        /// </remarks>
-        protected override TResult EvaluateCore(object context)
-        {
-            return (TResult)_evaluator.Evaluate(context);
-        }
-
-        /// <summary>
-        /// Performs validation by delegating to the inner evaluator.
-        /// </summary>
-        /// <remarks>
-        /// This method forwards validation to the wrapped <see cref="DynamicExpressionEvaluator"/>.
-        /// </remarks>
-        protected override void PerformValidation()
-        {
-            // Force validation of the inner evaluator
-            if (_evaluator.TryGetError(out var error))
-            {
-                SetError(error);
-            }
-        }
-
-        /// <summary>
-        /// Gets whether this evaluator has a validation error.
-        /// </summary>
-        /// <param name="errorMessage">The error message, if any.</param>
-        /// <returns>
-        /// <c>true</c> if there is a validation error; otherwise, <c>false</c>.
-        /// </returns>
-        /// <remarks>
-        /// This method delegates to the inner <see cref="DynamicExpressionEvaluator"/>.
-        /// </remarks>
-        public override bool TryGetError(out string errorMessage)
-        {
-            return _evaluator.TryGetError(out errorMessage);
-        }
-    }
 }

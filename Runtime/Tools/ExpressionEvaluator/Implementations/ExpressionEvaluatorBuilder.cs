@@ -4,21 +4,20 @@ using JetBrains.Annotations;
 namespace EasyToolKit.Core.Implementations
 {
     /// <summary>
-    /// Default implementation of <see cref="IExpressionEvaluatorBuilder{TResult}"/>.
+    /// Default implementation of <see cref="IExpressionEvaluatorBuilder"/>.
     /// </summary>
-    /// <typeparam name="TResult">The type of value to evaluate.</typeparam>
     /// <remarks>
     /// This builder provides a fluent API for configuring expression evaluators
     /// with options such as expression flag requirement.
     /// </remarks>
-    public sealed class ExpressionEvaluatorBuilder<TResult> : IExpressionEvaluatorBuilder<TResult>
+    public sealed class ExpressionEvaluatorBuilder : IExpressionEvaluatorBuilder
     {
         private readonly string _expressionPath;
         private readonly Type _sourceType;
         private bool _requireExpressionFlag;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExpressionEvaluatorBuilder{TResult}"/> class.
+        /// Initializes a new instance of the <see cref="ExpressionEvaluatorBuilder"/> class.
         /// </summary>
         /// <param name="expressionPath">The expression path to evaluate.</param>
         /// <param name="sourceType">The type containing the member to evaluate.</param>
@@ -43,7 +42,7 @@ namespace EasyToolKit.Core.Implementations
         /// can accept both static strings and dynamic expressions.
         /// </para>
         /// </remarks>
-        public IExpressionEvaluatorBuilder<TResult> WithExpressionFlag()
+        public IExpressionEvaluatorBuilder WithExpressionFlag()
         {
             _requireExpressionFlag = true;
             return this;
@@ -60,15 +59,12 @@ namespace EasyToolKit.Core.Implementations
         /// This method determines whether to create a literal or dynamic evaluator
         /// based on the builder configuration and expression path content.
         /// </remarks>
-        public IExpressionEvaluator<TResult> Build()
+        public IExpressionEvaluator Build()
         {
             // Handle null or whitespace expressions
             if (_expressionPath.IsNullOrWhiteSpace() || _sourceType == null)
             {
-                var value = typeof(TResult) == typeof(string)
-                    ? (TResult)(object)_expressionPath
-                    : default;
-                return new LiteralExpressionEvaluator<TResult>(value);
+                return new LiteralExpressionEvaluator(_expressionPath);
             }
 
             // Handle expression flag
@@ -78,20 +74,15 @@ namespace EasyToolKit.Core.Implementations
                 {
                     // Remove '@' prefix and create dynamic evaluator
                     var path = _expressionPath.Substring(1);
-                    return new DynamicExpressionEvaluator<TResult>(path, _sourceType);
+                    return new DynamicExpressionEvaluator(path, _sourceType);
                 }
 
                 // Return literal value (no '@' prefix)
-                if (typeof(TResult) != typeof(string))
-                {
-                    throw new ArgumentException(
-                        $"When using primitive expression, the result type '{typeof(TResult)}' must be string.");
-                }
-                return new LiteralExpressionEvaluator<TResult>((TResult)(object)_expressionPath);
+                return new LiteralExpressionEvaluator(_expressionPath);
             }
 
             // No expression flag - always evaluate
-            return new DynamicExpressionEvaluator<TResult>(_expressionPath, _sourceType);
+            return new DynamicExpressionEvaluator(_expressionPath, _sourceType);
         }
     }
 }

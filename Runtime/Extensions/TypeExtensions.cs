@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using EasyToolKit.OdinSerializer.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -134,9 +135,12 @@ namespace EasyToolKit.Core
 
         public static bool IsUnityBuiltInType(this Type type)
         {
-            return type == typeof(Vector2) || type == typeof(Vector2Int) || type == typeof(Vector3) || type == typeof(Vector3Int) ||
-                   type == typeof(Vector4) || type == typeof(Quaternion) || type == typeof(Color) || type == typeof(Color32) ||
-                   type == typeof(Rect) || type == typeof(RectInt) || type == typeof(Bounds) || type == typeof(BoundsInt);
+            return type == typeof(Vector2) || type == typeof(Vector2Int) || type == typeof(Vector3) ||
+                   type == typeof(Vector3Int) ||
+                   type == typeof(Vector4) || type == typeof(Quaternion) || type == typeof(Color) ||
+                   type == typeof(Color32) ||
+                   type == typeof(Rect) || type == typeof(RectInt) || type == typeof(Bounds) ||
+                   type == typeof(BoundsInt);
         }
 
         public static bool IsIntegerType(this Type type)
@@ -194,7 +198,8 @@ namespace EasyToolKit.Core
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
-            return type.IsEnum || type.IsStringType() || type.IsBooleanType() || type.IsFloatingPointType() || type.IsIntegerType();
+            return type.IsEnum || type.IsStringType() || type.IsBooleanType() || type.IsFloatingPointType() ||
+                   type.IsIntegerType();
         }
 
         public static bool IsUnityObjectType([NotNull] this Type type)
@@ -210,29 +215,32 @@ namespace EasyToolKit.Core
             return !(type.IsPrimitive || type.IsValueType || type.IsEnum);
         }
 
-        public static MethodInfo GetMethodEx(this Type type, string methodName, BindingFlags flags, params Type[] argTypes)
+        public static MethodInfo ResolveOverloadMethod([NotNull] this Type targetType, [NotNull] string methodName,
+            BindingFlags flags, params Type[] parameterTypes)
         {
-            var method = type.GetMethods(flags).FirstOrDefault(m =>
-            {
-                if (m.Name != methodName)
-                {
-                    return false;
-                }
+            if (targetType == null)
+                throw new ArgumentNullException(nameof(targetType));
+            if (string.IsNullOrWhiteSpace(methodName))
+                throw new ArgumentException("Method name cannot be null or whitespace.", nameof(methodName));
 
-                var parameters = m.GetParameters();
-                if (argTypes == null)
+            var candidates = targetType.GetMethods(flags).Where(info => info.Name == methodName).ToArray();
+
+            var result = candidates.FirstOrDefault(info =>
+            {
+                var parameters = info.GetParameters();
+                if (parameterTypes == null)
                 {
                     return parameters.Length == 0;
                 }
 
-                if (argTypes.Length != parameters.Length)
+                if (parameterTypes.Length != parameters.Length)
                 {
                     return false;
                 }
 
                 for (int i = 0; i < parameters.Length; i++)
                 {
-                    if (!parameters[i].ParameterType.IsAssignableFrom(argTypes[i]))
+                    if (!parameters[i].ParameterType.IsAssignableFrom(parameterTypes[i]))
                     {
                         return false;
                     }
@@ -240,12 +248,26 @@ namespace EasyToolKit.Core
 
                 return true;
             });
-            if (method == null)
+            if (result == null)
             {
-                throw new ArgumentException($"Cannot find method '{methodName}'");
+                // Build error message
+                string paramTypeNames = parameterTypes.Length > 0
+                    ? string.Join(", ", parameterTypes.Select(t => t.GetNiceName()))
+                    : "none";
+
+                string availableSignatures = string.Join("\n  ",
+                    candidates.Select(m =>
+                    {
+                        var parameters = m.GetParameters();
+                        return $"{m.Name}({string.Join(", ", parameters.Select(p => p.ParameterType.GetNiceName()))})";
+                    }));
+
+                throw new ArgumentException(
+                    $"No matching method overload found for '{methodName}({paramTypeNames})' on type '{targetType.GetNiceName()}'.\n" +
+                    $"Available overloads:\n  {availableSignatures}");
             }
 
-            return method;
+            return result;
         }
 
         public static Type[] GetAllBaseTypes(this Type type, bool includeInterface = true,
@@ -284,30 +306,31 @@ namespace EasyToolKit.Core
 
         public static bool IsInheritsFrom(this Type type, Type baseType)
         {
-            return EasyToolKit.OdinSerializer.Utilities.TypeExtensions.InheritsFrom(type, baseType);
+            return OdinSerializer.Utilities.TypeExtensions.InheritsFrom(type, baseType);
         }
 
         public static Type[] GetArgumentsOfInheritedOpenGenericType(this Type candidateType, Type openGenericType)
         {
-            return EasyToolKit.OdinSerializer.Utilities.TypeExtensions.GetArgumentsOfInheritedOpenGenericType(
+            return OdinSerializer.Utilities.TypeExtensions.GetArgumentsOfInheritedOpenGenericType(
                 candidateType, openGenericType);
         }
 
         public static bool AreGenericConstraintsSatisfiedBy(this Type genericType, params Type[] parameters)
         {
-            return EasyToolKit.OdinSerializer.Utilities.TypeExtensions.AreGenericConstraintsSatisfiedBy(
+            return OdinSerializer.Utilities.TypeExtensions.AreGenericConstraintsSatisfiedBy(
                 genericType, parameters);
         }
 
-        public static bool TryInferGenericParameters(this Type genericTypeDefinition, out Type[] inferredParams, params Type[] knownParameters)
+        public static bool TryInferGenericParameters(this Type genericTypeDefinition, out Type[] inferredParams,
+            params Type[] knownParameters)
         {
-            return EasyToolKit.OdinSerializer.Utilities.TypeExtensions.TryInferGenericParameters(genericTypeDefinition,
+            return OdinSerializer.Utilities.TypeExtensions.TryInferGenericParameters(genericTypeDefinition,
                 out inferredParams, knownParameters);
         }
 
         public static bool IsImplementsOpenGenericType(this Type candidateType, Type openGenericType)
         {
-            return EasyToolKit.OdinSerializer.Utilities.TypeExtensions.ImplementsOpenGenericType(candidateType,
+            return OdinSerializer.Utilities.TypeExtensions.ImplementsOpenGenericType(candidateType,
                 openGenericType);
         }
 
@@ -450,7 +473,8 @@ namespace EasyToolKit.Core
                 return new Type[] { };
             }
 
-            if (!targetType.IsGenericType || sourceType.GetGenericTypeDefinition() != targetType.GetGenericTypeDefinition())
+            if (!targetType.IsGenericType ||
+                sourceType.GetGenericTypeDefinition() != targetType.GetGenericTypeDefinition())
             {
                 if (!allowInheritance)
                 {
@@ -477,84 +501,6 @@ namespace EasyToolKit.Core
             }
 
             return missingArgs.ToArray();
-        }
-
-        public static bool TryGetStaticValueGetter<TResult>(this Type type, string path, out Func<TResult> getter)
-        {
-            getter = null;
-            try
-            {
-                getter = type.GetStaticValueGetter<TResult>(path);
-                return getter != null;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
-        public static bool TryGetStaticValueGetter(this Type type, Type resultType, string path, out Func<object> getter)
-        {
-            getter = null;
-            try
-            {
-                getter = type.GetStaticValueGetter(resultType, path);
-                return getter != null;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
-        public static Func<TResult> GetStaticValueGetter<TResult>(this Type type, string path)
-        {
-            var getter = ReflectionUtility.CreateStaticValueGetter(typeof(TResult), type, path);
-            return () => (TResult)getter();
-        }
-
-        public static Func<object> GetStaticValueGetter(this Type type, Type resultType, string path)
-        {
-            return ReflectionUtility.CreateStaticValueGetter(resultType, type, path);
-        }
-
-        public static bool TryGetInstanceValueGetter<TResult>(this Type type, string path, out Func<object, TResult> getter)
-        {
-            getter = null;
-            try
-            {
-                getter = type.GetInstanceValueGetter<TResult>(path);
-                return getter != null;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
-        public static Func<object, TResult> GetInstanceValueGetter<TResult>(this Type type, string path)
-        {
-            var getter = ReflectionUtility.CreateInstanceValueGetter(type, typeof(TResult), path);
-            return (obj) => (TResult)getter(obj);
-        }
-
-        public static bool TryGetInstanceValueGetter(this Type type, Type resultType, string path, out Func<object, object> getter)
-        {
-            getter = null;
-            try
-            {
-                getter = type.GetInstanceValueGetter(resultType, path);
-                return getter != null;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
-        public static Func<object, object> GetInstanceValueGetter(this Type type, Type resultType, string path)
-        {
-            return ReflectionUtility.CreateInstanceValueGetter(type, resultType, path);
         }
     }
 }
