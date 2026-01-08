@@ -26,7 +26,7 @@ namespace EasyToolKit.Core.Editor
         {
             if (s_methodOfFindTexture == null)
             {
-                s_methodOfFindTexture = typeof(EditorGUIUtility).GetMethodEx("FindTexture",
+                s_methodOfFindTexture = typeof(EditorGUIUtility).ResolveOverloadMethod("FindTexture",
                     BindingFlagsHelper.NonPublicStatic, new[] { typeof(Type) });
             }
 

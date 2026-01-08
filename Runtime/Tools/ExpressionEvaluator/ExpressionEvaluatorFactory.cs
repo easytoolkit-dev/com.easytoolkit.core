@@ -18,17 +18,17 @@ namespace EasyToolKit.Core
     /// <code>
     /// // Example 1: Literal expression (static string)
     /// var evaluator1 = ExpressionEvaluatorFactory.Literal("Hello World");
-    /// string result1 = evaluator1.Evaluate(null); // Returns "Hello World"
+    /// string result1 = evaluator1.Evaluate&lt;string&gt;(null); // Returns "Hello World"
     ///
     /// // Example 2: Simple property access
     /// var evaluator2 = ExpressionEvaluatorFactory
-    ///     .Evaluate&lt;string&gt;("Name", typeof(Player))
+    ///     .Evaluate("Name", typeof(Player))
     ///     .Build();
-    /// string name = evaluator2.Evaluate(player); // Returns player.Name
+    /// string name = evaluator2.Evaluate&lt;string&gt;(player); // Returns player.Name
     ///
     /// // Example 3: Nested expression with expression flag
     /// var evaluator3 = ExpressionEvaluatorFactory
-    ///     .Evaluate&lt;string&gt;(labelText, targetType)
+    ///     .Evaluate(labelText, targetType)
     ///     .WithExpressionFlag()
     ///     .Build();
     ///
@@ -38,15 +38,15 @@ namespace EasyToolKit.Core
     ///
     /// // Example 4: Method call
     /// var evaluator4 = ExpressionEvaluatorFactory
-    ///     .Evaluate&lt;int&gt;("Inventory.GetCount('sword')", typeof(Player))
+    ///     .Evaluate("Inventory.GetCount('sword')", typeof(Player))
     ///     .Build();
-    /// int swordCount = evaluator4.Evaluate(player);
+    /// int swordCount = evaluator4.Evaluate&lt;int&gt;(player);
     ///
     /// // Example 5: Static member access
     /// var evaluator5 = ExpressionEvaluatorFactory
-    ///     .Evaluate&lt;int&gt;("-t:GameConfig -p:MaxLevel", null)
+    ///     .Evaluate("-t:GameConfig -p:MaxLevel", null)
     ///     .Build();
-    /// int maxLevel = evaluator5.Evaluate(null);
+    /// int maxLevel = evaluator5.Evaluate&lt;int&gt;(null);
     /// </code>
     /// </example>
     /// </remarks>
@@ -69,19 +69,18 @@ namespace EasyToolKit.Core
         /// <example>
         /// <code>
         /// var evaluator = ExpressionEvaluatorFactory.Literal("Hello World");
-        /// string result = evaluator.Evaluate(null); // Returns "Hello World"
+        /// string result = evaluator.Evaluate&lt;string&gt;(null); // Returns "Hello World"
         /// </code>
         /// </example>
         [PublicAPI]
-        public static IExpressionEvaluator<string> Literal([CanBeNull] string value)
+        public static IExpressionEvaluator Literal([CanBeNull] string value)
         {
-            return new Implementations.LiteralExpressionEvaluator<string>(value);
+            return new Implementations.LiteralExpressionEvaluator(value);
         }
 
         /// <summary>
         /// Creates a builder for evaluating an expression path.
         /// </summary>
-        /// <typeparam name="TResult">The expected result type.</typeparam>
         /// <param name="expressionPath">The expression path to evaluate.</param>
         /// <param name="sourceType">The type containing the member to evaluate.</param>
         /// <returns>A configured evaluator builder.</returns>
@@ -106,14 +105,17 @@ namespace EasyToolKit.Core
         /// <example>
         /// <code>
         /// var evaluator = ExpressionEvaluatorFactory
-        ///     .Evaluate&lt;string&gt;("Player.Name", typeof(Player))
+        ///     .Evaluate("Player.Name", typeof(Player))
         ///     .Build();
+        ///
+        /// // Type-safe evaluation using extension method
+        /// string name = evaluator.Evaluate&lt;string&gt;(player);
         /// </code>
         /// </example>
         [PublicAPI]
-        public static IExpressionEvaluatorBuilder<TResult> Evaluate<TResult>(string expressionPath, Type sourceType)
+        public static IExpressionEvaluatorBuilder Evaluate(string expressionPath, Type sourceType)
         {
-            return new Implementations.ExpressionEvaluatorBuilder<TResult>(expressionPath, sourceType);
+            return new Implementations.ExpressionEvaluatorBuilder(expressionPath, sourceType);
         }
     }
 }

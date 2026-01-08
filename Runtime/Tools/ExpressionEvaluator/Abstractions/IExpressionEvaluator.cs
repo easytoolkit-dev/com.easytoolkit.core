@@ -63,40 +63,4 @@ namespace EasyToolKit.Core
         /// </exception>
         object Evaluate(object context);
     }
-
-    /// <summary>
-    /// Defines a typed value evaluator that computes values from expression paths.
-    /// </summary>
-    /// <typeparam name="TResult">The type of value to evaluate.</typeparam>
-    /// <remarks>
-    /// This interface provides type-safe evaluation with automatic casting.
-    /// Use the non-generic <see cref="IExpressionEvaluator"/> interface when the
-    /// result type is not known at compile time.
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// // Create a typed evaluator
-    /// var evaluator = ExpressionEvaluatorFactory
-    ///     .Evaluate&lt;string&gt;("Player.Name", typeof(Player))
-    ///     .Build();
-    ///
-    /// // Type-safe evaluation
-    /// string name = evaluator.Evaluate(player);
-    /// </code>
-    /// </example>
-    public interface IExpressionEvaluator<out TResult> : IExpressionEvaluator
-    {
-        /// <summary>
-        /// Evaluates the expression against the specified context object.
-        /// </summary>
-        /// <param name="context">The context object to evaluate against.</param>
-        /// <returns>The evaluated value as the specified type.</returns>
-        /// <exception cref="InvalidOperationException">
-        /// Thrown when the evaluator has a validation error.
-        /// </exception>
-        /// <exception cref="InvalidCastException">
-        /// Thrown when the evaluated value cannot be cast to <typeparamref name="TResult"/>.
-        /// </exception>
-        new TResult Evaluate(object context);
-    }
 }

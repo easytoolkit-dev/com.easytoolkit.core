@@ -17,11 +17,6 @@ namespace EasyToolKit.Core.Implementations
         /// </summary>
         protected readonly string ExpressionPath;
 
-        /// <summary>
-        /// The expected result type of the evaluation.
-        /// </summary>
-        protected readonly Type ExpectedType;
-
         private string _errorMessage;
         private bool _isValidated;
 
@@ -29,11 +24,9 @@ namespace EasyToolKit.Core.Implementations
         /// Initializes a new instance of the <see cref="ExpressionEvaluatorBase"/> class.
         /// </summary>
         /// <param name="expressionPath">The expression path to evaluate.</param>
-        /// <param name="expectedType">The expected result type.</param>
-        protected ExpressionEvaluatorBase(string expressionPath, Type expectedType)
+        protected ExpressionEvaluatorBase(string expressionPath)
         {
             ExpressionPath = expressionPath;
-            ExpectedType = expectedType;
         }
 
         /// <summary>
@@ -100,69 +93,4 @@ namespace EasyToolKit.Core.Implementations
         protected bool IsValidated() => _isValidated;
     }
 
-    /// <summary>
-    /// Provides a base implementation for typed expression evaluators.
-    /// </summary>
-    /// <typeparam name="TResult">The type of value to evaluate.</typeparam>
-    /// <remarks>
-    /// This abstract class extends <see cref="ExpressionEvaluatorBase"/> with
-    /// type-safe evaluation. Subclasses must implement the typed evaluation logic.
-    /// </remarks>
-    public abstract class ExpressionEvaluatorBase<TResult> : ExpressionEvaluatorBase, IExpressionEvaluator<TResult>
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ExpressionEvaluatorBase{TResult}"/> class.
-        /// </summary>
-        /// <param name="expressionPath">The expression path to evaluate.</param>
-        protected ExpressionEvaluatorBase(string expressionPath)
-            : base(expressionPath, typeof(TResult))
-        {
-        }
-
-        /// <summary>
-        /// Evaluates the expression as an untyped object.
-        /// </summary>
-        /// <param name="context">The context object to evaluate against.</param>
-        /// <returns>The evaluated value as an untyped object.</returns>
-        /// <remarks>
-        /// This implementation calls the typed <see cref="EvaluateCore"/> method
-        /// and returns the result as an object. Subclasses should override
-        /// <see cref="EvaluateCore"/> to provide type-specific evaluation logic.
-        /// </remarks>
-        public sealed override object Evaluate(object context)
-        {
-            return EvaluateCore(context);
-        }
-
-        /// <summary>
-        /// Evaluates the expression against the specified context object with type-safe return.
-        /// </summary>
-        /// <param name="context">The context object to evaluate against.</param>
-        /// <returns>The evaluated value as the specified type.</returns>
-        /// <remarks>
-        /// Explicit interface implementation for <see cref="IExpressionEvaluator{TResult}"/>.
-        /// This implementation calls <see cref="EvaluateCore"/> to perform the actual evaluation.
-        /// </remarks>
-        TResult IExpressionEvaluator<TResult>.Evaluate(object context)
-        {
-            return EvaluateCore(context);
-        }
-
-        /// <summary>
-        /// Evaluates the expression against the specified context object.
-        /// </summary>
-        /// <param name="context">The context object to evaluate against.</param>
-        /// <returns>The evaluated value as the specified type.</returns>
-        /// <exception cref="InvalidOperationException">
-        /// Thrown when the evaluator has a validation error.
-        /// </exception>
-        /// <exception cref="InvalidCastException">
-        /// Thrown when the evaluated value cannot be cast to <typeparamref name="TResult"/>.
-        /// </exception>
-        /// <remarks>
-        /// Subclasses must implement this method to provide type-specific evaluation logic.
-        /// This method is called by the public <see cref="Evaluate(object)"/> methods.
-        /// </remarks>
-        protected abstract TResult EvaluateCore(object context);
-    }
 }
