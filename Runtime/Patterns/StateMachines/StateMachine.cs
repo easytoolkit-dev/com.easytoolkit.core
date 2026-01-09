@@ -5,7 +5,7 @@ using System.Linq;
 using EasyToolKit.Core.Reflection;
 using UnityEngine;
 
-namespace EasyToolKit.Core.StateMachines
+namespace EasyToolKit.Core.Patterns
 {
     public class StateMachine<T> : IEnumerable<KeyValuePair<T, IState>>
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using EasyToolKit.Core.Reflection;
 
-namespace EasyToolKit.Core.Lifecycle
+namespace EasyToolKit.Core.Patterns
 {
     public interface ISingleton : IDisposable
     {

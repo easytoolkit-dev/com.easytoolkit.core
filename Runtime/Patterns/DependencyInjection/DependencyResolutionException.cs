@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EasyToolKit.Core.DependencyInjection
+namespace EasyToolKit.Core.Patterns
 {
     /// <summary>
     /// Exception thrown when a service cannot be resolved.

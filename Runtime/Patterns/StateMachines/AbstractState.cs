@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.StateMachines
+namespace EasyToolKit.Core.Patterns
 {
     public interface IState
     {

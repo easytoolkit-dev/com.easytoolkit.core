@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace EasyToolKit.Core.DependencyInjection
+namespace EasyToolKit.Core.Patterns
 {
     /// <summary>
     /// Builder for creating service containers.

@@ -1,5 +1,5 @@
 using System;
-using EasyToolKit.Core.Lifecycle;
+using EasyToolKit.Core.Patterns;
 
 namespace EasyToolKit.Core.Threading
 {

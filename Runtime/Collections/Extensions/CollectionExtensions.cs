@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EasyToolKit.Core.Common
+namespace EasyToolKit.Core.Collections
 {
     /// <summary>
     /// Provides extension methods for collections and enumerables to enhance functionality
