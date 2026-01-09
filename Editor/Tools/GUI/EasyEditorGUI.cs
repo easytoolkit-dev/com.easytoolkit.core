@@ -114,7 +114,7 @@ namespace EasyToolKit.Core.Editor
             if (Event.current.type == EventType.Repaint)
             {
                 rect.y -= 1;
-                icon.Draw(rect.AlignCenter(16, 16));
+                icon.Draw(rect.WithCenterAligned(16, 16));
             }
 
             if (ignoreGUIEnabled)
@@ -233,7 +233,7 @@ namespace EasyToolKit.Core.Editor
             if (Event.current.type == EventType.Repaint)
             {
                 float size = Mathf.Min(rect.height, rect.width);
-                icon.Draw(rect.AlignCenter(size, size));
+                icon.Draw(rect.WithCenterAligned(size, size));
             }
 
             return false;
@@ -474,7 +474,7 @@ namespace EasyToolKit.Core.Editor
 
             if (horizontalLine)
             {
-                DrawSolidRect(rect.AlignBottom(1), EasyGUIStyles.LightBorderColor);
+                DrawSolidRect(rect.WithBottomAligned(1), EasyGUIStyles.LightBorderColor);
                 GUILayout.Space(3f);
             }
         }

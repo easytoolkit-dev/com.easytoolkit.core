@@ -61,31 +61,6 @@ namespace EasyToolKit.Core.Mathematics
             return new Vector2(v.x, v.y);
         }
 
-        public static Vector2 Rotate(this Vector2 v, float angle)
-        {
-            float rad = angle * Mathf.Deg2Rad; // 将角度转换为弧度
-            float cos = Mathf.Cos(rad);
-            float sin = Mathf.Sin(rad);
-
-            // 计算旋转后的新向量
-            float newX = v.x * cos - v.y * sin;
-            float newY = v.x * sin + v.y * cos;
-
-            return new Vector2(newX, newY);
-        }
-
-
-        public static Vector2 Round(this Vector2 v)
-        {
-            return new Vector2(Mathf.Round(v.x), Mathf.Round(v.y));
-        }
-
-
-        public static Vector3 Round(this Vector3 v)
-        {
-            return new Vector3(Mathf.Round(v.x), Mathf.Round(v.y), Mathf.Round(v.z));
-        }
-
         public static Vector2 ToVector2(this Vector2Int v)
         {
             return new Vector2(v.x, v.y);
@@ -166,27 +141,50 @@ namespace EasyToolKit.Core.Mathematics
             return new Vector2Int(Mathf.FloorToInt(v.x), Mathf.FloorToInt(v.y));
         }
 
-        public static Vector2 SetX(this Vector2 v, float x)
+        public static Vector2 WithRotated(this Vector2 v, float angle)
+        {
+            float rad = angle * Mathf.Deg2Rad;
+            float cos = Mathf.Cos(rad);
+            float sin = Mathf.Sin(rad);
+
+            float newX = v.x * cos - v.y * sin;
+            float newY = v.x * sin + v.y * cos;
+
+            return new Vector2(newX, newY);
+        }
+
+
+        public static Vector2 WithRounded(this Vector2 v)
+        {
+            return new Vector2(Mathf.Round(v.x), Mathf.Round(v.y));
+        }
+
+        public static Vector3 WithRounded(this Vector3 v)
+        {
+            return new Vector3(Mathf.Round(v.x), Mathf.Round(v.y), Mathf.Round(v.z));
+        }
+
+        public static Vector2 WithX(this Vector2 v, float x)
         {
             return new Vector2(x, v.y);
         }
 
-        public static Vector2 SetY(this Vector2 v, float y)
+        public static Vector2 WithY(this Vector2 v, float y)
         {
             return new Vector2(v.x, y);
         }
 
-        public static Vector3 SetX(this Vector3 v, float x)
+        public static Vector3 WithX(this Vector3 v, float x)
         {
             return new Vector3(x, v.y, v.z);
         }
 
-        public static Vector3 SetY(this Vector3 v, float y)
+        public static Vector3 WithY(this Vector3 v, float y)
         {
             return new Vector3(v.x, y, v.z);
         }
 
-        public static Vector3 SetZ(this Vector3 v, float z)
+        public static Vector3 WithZ(this Vector3 v, float z)
         {
             return new Vector3(v.x, v.y, z);
         }
