@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace EasyToolKit.Core
+namespace EasyToolKit.Core.Serialization
 {
     public static class CompressionUtility
     {

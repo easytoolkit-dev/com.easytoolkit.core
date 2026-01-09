@@ -1,3 +1,4 @@
+using EasyToolKit.Core.Mathematics;
 using UnityEngine;
 
 namespace EasyToolKit.Core.Unity

@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using EasyToolKit.Core.Common;
 
-namespace EasyToolKit.Core
+namespace EasyToolKit.Core.Diagnostics
 {
     public class AssertException : Exception
     {

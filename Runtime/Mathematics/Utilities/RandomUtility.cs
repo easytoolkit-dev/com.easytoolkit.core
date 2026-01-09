@@ -1,7 +1,7 @@
 ﻿using System;
 using EasyToolKit.Core.ThirdParty.xxHash;
 
-namespace EasyToolKit.Core
+namespace EasyToolKit.Core.Mathematics
 {
     public static class RandomUtility
     {
