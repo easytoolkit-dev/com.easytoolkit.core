@@ -3,7 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using EasyToolKit.Core.Common;
+using EasyToolKit.Core.Collections;
+using EasyToolKit.Core.Textual;
 
 namespace EasyToolKit.Core.Diagnostics
 {

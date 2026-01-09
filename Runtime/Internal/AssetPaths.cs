@@ -1,6 +1,6 @@
 
 using System.IO;
-using EasyToolKit.Core.Lifecycle;
+using EasyToolKit.Core.Patterns;
 
 namespace EasyToolKit.Core.Internal
 {

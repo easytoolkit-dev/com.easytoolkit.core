@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System;
-using EasyToolKit.Core.Lifecycle;
+using EasyToolKit.Core.Patterns;
 using EasyToolKit.Core.Threading;
 
 namespace EasyToolKit.Core.Events

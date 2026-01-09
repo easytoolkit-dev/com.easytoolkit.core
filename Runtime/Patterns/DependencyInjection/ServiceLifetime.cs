@@ -1,4 +1,4 @@
-﻿namespace EasyToolKit.Core.DependencyInjection
+﻿namespace EasyToolKit.Core.Patterns
 {
     /// <summary>
     /// Specifies the lifetime of a service in the container.

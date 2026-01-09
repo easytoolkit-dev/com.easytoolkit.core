@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Common
+namespace EasyToolKit.Core.Textual
 {
     public enum InvalidIdentifierTypes
     {

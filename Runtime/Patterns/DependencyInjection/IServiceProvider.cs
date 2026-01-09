@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EasyToolKit.Core.DependencyInjection
+namespace EasyToolKit.Core.Patterns
 {
     /// <summary>
     /// Defines a mechanism for retrieving service objects.

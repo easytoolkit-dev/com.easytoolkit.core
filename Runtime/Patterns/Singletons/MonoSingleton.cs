@@ -3,7 +3,7 @@ using System.Reflection;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace EasyToolKit.Core.Lifecycle
+namespace EasyToolKit.Core.Patterns
 {
     public enum SingletonInitialModes
     {

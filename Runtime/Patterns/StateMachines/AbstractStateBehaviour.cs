@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace EasyToolKit.Core.StateMachines
+namespace EasyToolKit.Core.Patterns
 {
     public abstract class AbstractStateBehaviour : MonoBehaviour, IState
     {

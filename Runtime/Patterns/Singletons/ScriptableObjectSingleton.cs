@@ -1,10 +1,10 @@
 using System;
 using System.Reflection;
-using EasyToolKit.Core.Common;
+using EasyToolKit.Core.Textual;
 using EasyToolKit.OdinSerializer;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Lifecycle
+namespace EasyToolKit.Core.Patterns
 {
     internal partial class SingletonCreator
     {

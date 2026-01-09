@@ -1,5 +1,5 @@
 using System;
-using EasyToolKit.Core.Common;
+using EasyToolKit.Core.Textual;
 using EasyToolKit.OdinSerializer;
 using JetBrains.Annotations;
 

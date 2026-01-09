@@ -1,7 +1,7 @@
 using System.IO;
 using EasyToolKit.Core.Internal;
 using EasyToolKit.Core.IO;
-using EasyToolKit.Core.Lifecycle;
+using EasyToolKit.Core.Patterns;
 using UnityEditor;
 
 namespace EasyToolKit.Core.Editor.Internal
