@@ -1,4 +1,5 @@
 using System.IO;
+using EasyToolKit.Core.Lifecycle;
 using UnityEditor;
 using UnityEngine;
 
@@ -15,7 +16,7 @@ namespace EasyToolKit.Core.Editor
             }
 
             var assetFilePath = assetDirectory + assetName + ".asset";
-            
+
             var instance = AssetDatabase.LoadAssetAtPath<T>(assetFilePath);
 
             if (instance != null)
@@ -32,7 +33,7 @@ namespace EasyToolKit.Core.Editor
                     return instance;
                 }
             }
-                
+
             instance = ScriptableObject.CreateInstance<T>();
 
             if (!Directory.Exists(assetDirectory))

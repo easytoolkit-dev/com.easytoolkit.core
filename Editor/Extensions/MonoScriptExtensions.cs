@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EasyToolKit.Core.Common;
 using UnityEditor;
 
 namespace EasyToolKit.Core.Editor
@@ -8,7 +9,7 @@ namespace EasyToolKit.Core.Editor
     public static class MonoScriptExtensions
     {
         private static MonoScript[] s_allScriptsCache;
-        private static readonly Dictionary<Type, MonoScript> ScriptsCacheByType = new Dictionary<Type, MonoScript>(); 
+        private static readonly Dictionary<Type, MonoScript> ScriptsCacheByType = new Dictionary<Type, MonoScript>();
 
         public static MonoScript GetMonoScript(this Type type)
         {
