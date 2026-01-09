@@ -13,7 +13,7 @@ namespace EasyToolKit.Core.Editor
 
         public static void CenterWindow(this EditorWindow window, float width, float height)
         {
-            window.position = EasyGUIHelper.GetEditorWindowRect().AlignCenter(width, height);
+            window.position = EasyGUIHelper.GetEditorWindowRect().WithCenterAligned(width, height);
         }
     }
 }

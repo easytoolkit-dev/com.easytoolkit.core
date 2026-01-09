@@ -14,7 +14,7 @@ namespace EasyToolKit.Core.Mathematics
         /// <param name="color">The source color</param>
         /// <param name="r">The new red value (0-1)</param>
         /// <returns>The modified color with updated red component</returns>
-        public static Color SetR(this Color color, float r)
+        public static Color WithR(this Color color, float r)
         {
             color.r = r;
             return color;
@@ -26,7 +26,7 @@ namespace EasyToolKit.Core.Mathematics
         /// <param name="color">The source color</param>
         /// <param name="g">The new green value (0-1)</param>
         /// <returns>The modified color with updated green component</returns>
-        public static Color SetG(this Color color, float g)
+        public static Color WithG(this Color color, float g)
         {
             color.g = g;
             return color;
@@ -38,7 +38,7 @@ namespace EasyToolKit.Core.Mathematics
         /// <param name="color">The source color</param>
         /// <param name="b">The new blue value (0-1)</param>
         /// <returns>The modified color with updated blue component</returns>
-        public static Color SetB(this Color color, float b)
+        public static Color WithB(this Color color, float b)
         {
             color.b = b;
             return color;
@@ -50,73 +50,142 @@ namespace EasyToolKit.Core.Mathematics
         /// <param name="color">The source color</param>
         /// <param name="a">The new alpha value (0-1)</param>
         /// <returns>The modified color with updated alpha component</returns>
-        public static Color SetA(this Color color, float a)
+        public static Color WithA(this Color color, float a)
         {
             color.a = a;
             return color;
         }
 
+        #region Multiplied Operations
+
         /// <summary>
-        /// Multiplies the red component by the specified ratio and returns the modified color for fluent chaining.
+        /// Multiplies the red component by a factor and returns the modified color for fluent chaining.
         /// </summary>
         /// <param name="color">The source color</param>
-        /// <param name="ratio">The multiplication ratio</param>
-        /// <returns>The modified color with red component multiplied</returns>
-        public static Color MulR(this Color color, float ratio)
+        /// <param name="factor">The multiplication factor</param>
+        /// <returns>The modified color with multiplied red component</returns>
+        public static Color WithRMultiplied(this Color color, float factor)
         {
-            color.r *= ratio;
+            color.r *= factor;
             return color;
         }
 
         /// <summary>
-        /// Multiplies the green component by the specified ratio and returns the modified color for fluent chaining.
+        /// Multiplies the green component by a factor and returns the modified color for fluent chaining.
         /// </summary>
         /// <param name="color">The source color</param>
-        /// <param name="ratio">The multiplication ratio</param>
-        /// <returns>The modified color with green component multiplied</returns>
-        public static Color MulG(this Color color, float ratio)
+        /// <param name="factor">The multiplication factor</param>
+        /// <returns>The modified color with multiplied green component</returns>
+        public static Color WithGMultiplied(this Color color, float factor)
         {
-            color.g *= ratio;
+            color.g *= factor;
             return color;
         }
 
         /// <summary>
-        /// Multiplies the blue component by the specified ratio and returns the modified color for fluent chaining.
+        /// Multiplies the blue component by a factor and returns the modified color for fluent chaining.
         /// </summary>
         /// <param name="color">The source color</param>
-        /// <param name="ratio">The multiplication ratio</param>
-        /// <returns>The modified color with blue component multiplied</returns>
-        public static Color MulB(this Color color, float ratio)
+        /// <param name="factor">The multiplication factor</param>
+        /// <returns>The modified color with multiplied blue component</returns>
+        public static Color WithBMultiplied(this Color color, float factor)
         {
-            color.b *= ratio;
+            color.b *= factor;
             return color;
         }
 
         /// <summary>
-        /// Multiplies the alpha component by the specified ratio and returns the modified color for fluent chaining.
+        /// Multiplies the alpha component by a factor and returns the modified color for fluent chaining.
         /// </summary>
         /// <param name="color">The source color</param>
-        /// <param name="ratio">The multiplication ratio</param>
-        /// <returns>The modified color with alpha component multiplied</returns>
-        public static Color MulA(this Color color, float ratio)
+        /// <param name="factor">The multiplication factor</param>
+        /// <returns>The modified color with multiplied alpha component</returns>
+        public static Color WithAMultiplied(this Color color, float factor)
         {
-            color.a *= ratio;
+            color.a *= factor;
             return color;
         }
 
         /// <summary>
-        /// Multiplies the RGB components (red, green, blue) by the specified ratio and returns the modified color for fluent chaining.
-        /// The alpha component remains unchanged.
+        /// Multiplies all RGB components by a factor and returns the modified color for fluent chaining.
         /// </summary>
         /// <param name="color">The source color</param>
-        /// <param name="ratio">The multiplication ratio for RGB components</param>
-        /// <returns>The modified color with RGB components multiplied</returns>
-        public static Color MulRGB(this Color color, float ratio)
+        /// <param name="factor">The multiplication factor</param>
+        /// <returns>The modified color with multiplied RGB components</returns>
+        public static Color WithRgbMultiplied(this Color color, float factor)
         {
-            color.r *= ratio;
-            color.g *= ratio;
-            color.b *= ratio;
+            color.r *= factor;
+            color.g *= factor;
+            color.b *= factor;
             return color;
         }
+
+        #endregion
+
+        #region OffsetBy Operations
+
+        /// <summary>
+        /// Adds an offset to the red component and returns the modified color for fluent chaining.
+        /// </summary>
+        /// <param name="color">The source color</param>
+        /// <param name="offset">The offset value to add</param>
+        /// <returns>The modified color with offset red component</returns>
+        public static Color WithROffsetBy(this Color color, float offset)
+        {
+            color.r += offset;
+            return color;
+        }
+
+        /// <summary>
+        /// Adds an offset to the green component and returns the modified color for fluent chaining.
+        /// </summary>
+        /// <param name="color">The source color</param>
+        /// <param name="offset">The offset value to add</param>
+        /// <returns>The modified color with offset green component</returns>
+        public static Color WithGOffsetBy(this Color color, float offset)
+        {
+            color.g += offset;
+            return color;
+        }
+
+        /// <summary>
+        /// Adds an offset to the blue component and returns the modified color for fluent chaining.
+        /// </summary>
+        /// <param name="color">The source color</param>
+        /// <param name="offset">The offset value to add</param>
+        /// <returns>The modified color with offset blue component</returns>
+        public static Color WithBOffsetBy(this Color color, float offset)
+        {
+            color.b += offset;
+            return color;
+        }
+
+        /// <summary>
+        /// Adds an offset to the alpha component and returns the modified color for fluent chaining.
+        /// </summary>
+        /// <param name="color">The source color</param>
+        /// <param name="offset">The offset value to add</param>
+        /// <returns>The modified color with offset alpha component</returns>
+        public static Color WithAOffsetBy(this Color color, float offset)
+        {
+            color.a += offset;
+            return color;
+        }
+
+        /// <summary>
+        /// Adds an offset to all RGB components and returns the modified color for fluent chaining.
+        /// </summary>
+        /// <param name="color">The source color</param>
+        /// <param name="offset">The offset value to add to each component</param>
+        /// <returns>The modified color with offset RGB components</returns>
+        public static Color WithRgbOffsetBy(this Color color, float offset)
+        {
+            color.r += offset;
+            color.g += offset;
+            color.b += offset;
+            return color;
+        }
+
+        #endregion
     }
 }

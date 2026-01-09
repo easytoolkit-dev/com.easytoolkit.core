@@ -2,62 +2,114 @@ using UnityEngine;
 
 namespace EasyToolKit.Core.Mathematics
 {
+    /// <summary>
+    /// Provides extension methods for Unity's Rect struct to enable fluent API operations
+    /// for rectangle manipulation, alignment, padding, and subdivision.
+    /// </summary>
     public static class RectExtensions
     {
-        /// <summary>Returns a Rect with the specified width.</summary>
-        /// <param name="rect">The original Rect.</param>
+        #region Size
+
+        /// <summary>
+        /// Sets the width of the Rect to the specified value and returns the modified Rect for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
         /// <param name="width">The desired width of the new Rect.</param>
-        public static Rect SetWidth(this Rect rect, float width)
+        /// <returns>The modified Rect with updated width.</returns>
+        public static Rect WithWidth(this Rect rect, float width)
         {
             rect.width = width;
             return rect;
         }
 
-        /// <summary>Returns a Rect with the specified height.</summary>
-        /// <param name="rect">The original Rect.</param>
+        /// <summary>
+        /// Sets the height of the Rect to the specified value and returns the modified Rect for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
         /// <param name="height">The desired height of the new Rect.</param>
-        public static Rect SetHeight(this Rect rect, float height)
+        /// <returns>The modified Rect with updated height.</returns>
+        public static Rect WithHeight(this Rect rect, float height)
         {
             rect.height = height;
             return rect;
         }
 
-        /// <summary>Returns a Rect with the specified size.</summary>
-        /// <param name="rect">The original Rect.</param>
+        /// <summary>
+        /// Sets the size of the Rect to the specified width and height and returns the modified Rect for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
         /// <param name="width">The desired width of the new Rect.</param>
         /// <param name="height">The desired height of the new Rect.</param>
-        public static Rect SetSize(this Rect rect, float width, float height)
+        /// <returns>The modified Rect with updated size.</returns>
+        public static Rect WithSize(this Rect rect, float width, float height)
         {
             rect.width = width;
             rect.height = height;
             return rect;
         }
 
-        /// <summary>Returns a Rect with the specified size.</summary>
-        /// <param name="rect">The original Rect.</param>
+        /// <summary>
+        /// Sets the width and height of the Rect to the same value and returns the modified Rect for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
         /// <param name="widthAndHeight">The desired width and height of the new Rect.</param>
-        public static Rect SetSize(this Rect rect, float widthAndHeight)
+        /// <returns>The modified Rect with updated size.</returns>
+        public static Rect WithSize(this Rect rect, float widthAndHeight)
         {
             rect.width = widthAndHeight;
             rect.height = widthAndHeight;
             return rect;
         }
 
-        /// <summary>Returns a Rect with the specified size.</summary>
-        /// <param name="rect">The original Rect.</param>
+        /// <summary>
+        /// Sets the size of the Rect to the specified Vector2 and returns the modified Rect for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
         /// <param name="size">The desired size of the new Rect.</param>
-        public static Rect SetSize(this Rect rect, Vector2 size)
+        /// <returns>The modified Rect with updated size.</returns>
+        public static Rect WithSize(this Rect rect, Vector2 size)
         {
             rect.size = size;
             return rect;
         }
 
         /// <summary>
-        /// Returns a Rect that has been inserted by the specified amount on the X-axis.
+        /// Clamps the Rect's width between the specified minimum and maximum values and returns the modified Rect for fluent chaining.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="padding">The desired padding.</param>
-        public static Rect HorizontalPadding(this Rect rect, float padding)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="minWidth">The minimum width to enforce.</param>
+        /// <param name="maxWidth">The maximum width to enforce.</param>
+        /// <returns>The modified Rect with width clamped between minimum and maximum values.</returns>
+        public static Rect WithWidthClamped(this Rect rect, float minWidth, float maxWidth)
+        {
+            rect.width = Mathf.Clamp(rect.width, minWidth, maxWidth);
+            return rect;
+        }
+
+        /// <summary>
+        /// Clamps the Rect's height between the specified minimum and maximum values and returns the modified Rect for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="minHeight">The minimum height to enforce.</param>
+        /// <param name="maxHeight">The maximum height to enforce.</param>
+        /// <returns>The modified Rect with height clamped between minimum and maximum values.</returns>
+        public static Rect WithHeightClamped(this Rect rect, float minHeight, float maxHeight)
+        {
+            rect.height = Mathf.Clamp(rect.height, minHeight, maxHeight);
+            return rect;
+        }
+
+        #endregion
+
+        #region Padding
+
+        /// <summary>
+        /// Applies horizontal padding to the Rect by reducing its width and adjusting its X position.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="padding">The padding amount to apply on both left and right sides.</param>
+        /// <returns>The modified Rect with horizontal padding applied.</returns>
+        public static Rect WithHorizontalPadding(this Rect rect, float padding)
         {
             rect.x += padding;
             rect.width -= padding * 2f;
@@ -65,12 +117,13 @@ namespace EasyToolKit.Core.Mathematics
         }
 
         /// <summary>
-        /// Returns a Rect that has been inserted by the specified amount on the X-axis.
+        /// Applies asymmetric horizontal padding to the Rect by reducing its width and adjusting its X position.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="left">Desired padding on the left side.</param>
-        /// <param name="right">Desired padding on the right side.</param>
-        public static Rect HorizontalPadding(this Rect rect, float left, float right)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="left">The padding amount to apply on the left side.</param>
+        /// <param name="right">The padding amount to apply on the right side.</param>
+        /// <returns>The modified Rect with horizontal padding applied.</returns>
+        public static Rect WithHorizontalPadding(this Rect rect, float left, float right)
         {
             rect.x += left;
             rect.width -= left + right;
@@ -78,11 +131,12 @@ namespace EasyToolKit.Core.Mathematics
         }
 
         /// <summary>
-        /// Returns a Rect that has been inserted by the specified amount on the Y-axis.
+        /// Applies vertical padding to the Rect by reducing its height and adjusting its Y position.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="padding">The desired padding.</param>
-        public static Rect VerticalPadding(this Rect rect, float padding)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="padding">The padding amount to apply on both top and bottom sides.</param>
+        /// <returns>The modified Rect with vertical padding applied.</returns>
+        public static Rect WithVerticalPadding(this Rect rect, float padding)
         {
             rect.y += padding;
             rect.height -= padding * 2f;
@@ -90,12 +144,13 @@ namespace EasyToolKit.Core.Mathematics
         }
 
         /// <summary>
-        /// Returns a Rect that has been inserted by the specified amount on the Y-axis.
+        /// Applies asymmetric vertical padding to the Rect by reducing its height and adjusting its Y position.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="top">The desired padding on the top.</param>
-        /// <param name="bottom">The desired padding on the bottom.</param>
-        public static Rect VerticalPadding(this Rect rect, float top, float bottom)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="top">The padding amount to apply on the top side.</param>
+        /// <param name="bottom">The padding amount to apply on the bottom side.</param>
+        /// <returns>The modified Rect with vertical padding applied.</returns>
+        public static Rect WithVerticalPadding(this Rect rect, float top, float bottom)
         {
             rect.y += top;
             rect.height -= top + bottom;
@@ -103,11 +158,12 @@ namespace EasyToolKit.Core.Mathematics
         }
 
         /// <summary>
-        /// Returns a Rect that has been inserted by the specified amount.
+        /// Applies uniform padding to the Rect on all sides.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="padding">The desired padding.</param>
-        public static Rect Padding(this Rect rect, float padding)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="padding">The padding amount to apply on all sides.</param>
+        /// <returns>The modified Rect with padding applied.</returns>
+        public static Rect WithPadding(this Rect rect, float padding)
         {
             rect.position += new Vector2(padding, padding);
             rect.size -= new Vector2(padding, padding) * 2f;
@@ -115,12 +171,13 @@ namespace EasyToolKit.Core.Mathematics
         }
 
         /// <summary>
-        /// Returns a Rect that has been inserted by the specified amount.
+        /// Applies asymmetric padding to the Rect with different horizontal and vertical values.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="horizontal">The desired horizontal padding.</param>
-        /// <param name="vertical">The desired vertical padding.</param>
-        public static Rect Padding(this Rect rect, float horizontal, float vertical)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="horizontal">The padding amount to apply on left and right sides.</param>
+        /// <param name="vertical">The padding amount to apply on top and bottom sides.</param>
+        /// <returns>The modified Rect with padding applied.</returns>
+        public static Rect WithPadding(this Rect rect, float horizontal, float vertical)
         {
             rect.position += new Vector2(horizontal, vertical);
             rect.size -= new Vector2(horizontal, vertical) * 2f;
@@ -128,64 +185,73 @@ namespace EasyToolKit.Core.Mathematics
         }
 
         /// <summary>
-        /// Returns a Rect that has been inserted by the specified amount.
+        /// Applies fully asymmetric padding to the Rect with different values for each side.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="left">The desired padding on the left.</param>
-        /// <param name="right">The desired padding on the right.</param>
-        /// <param name="top">The desired padding on the top.</param>
-        /// <param name="bottom">The desired padding on the bottom.</param>
-        public static Rect Padding(this Rect rect, float left, float right, float top, float bottom)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="left">The padding amount to apply on the left side.</param>
+        /// <param name="right">The padding amount to apply on the right side.</param>
+        /// <param name="top">The padding amount to apply on the top side.</param>
+        /// <param name="bottom">The padding amount to apply on the bottom side.</param>
+        /// <returns>The modified Rect with padding applied.</returns>
+        public static Rect WithPadding(this Rect rect, float left, float right, float top, float bottom)
         {
             rect.position += new Vector2(left, top);
             rect.size -= new Vector2(left + right, top + bottom);
             return rect;
         }
 
+        #endregion
+
+        #region Alignment
+
         /// <summary>
-        /// Returns a Rect, with the specified width, that has been aligned to the left of the original Rect.
+        /// Aligns a Rect with the specified width to the left edge of the original Rect and returns it for fluent chaining.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="width">The desired width of the new Rect.</param>
-        public static Rect AlignLeft(this Rect rect, float width)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="width">The desired width of the aligned Rect.</param>
+        /// <returns>The modified Rect aligned to the left edge.</returns>
+        public static Rect WithLeftAligned(this Rect rect, float width)
         {
             rect.width = width;
             return rect;
         }
 
         /// <summary>
-        /// Returns a Rect, with the specified width, that has been aligned to horizontal center of the original Rect.
+        /// Aligns a Rect with the specified width to the horizontal center of the original Rect and returns it for fluent chaining.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="width">The desired width of the new Rect.</param>
-        public static Rect AlignCenter(this Rect rect, float width)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="width">The desired width of the aligned Rect.</param>
+        /// <returns>The modified Rect aligned to the horizontal center.</returns>
+        public static Rect WithCenterAligned(this Rect rect, float width)
         {
-            rect.x = (float)((double)rect.x + (double)rect.width * 0.5 - (double)width * 0.5);
+            rect.x = rect.x + rect.width * 0.5f - width * 0.5f;
             rect.width = width;
             return rect;
         }
 
         /// <summary>
-        /// Returns a Rect, with the specified width and height in the center of the provided rect.
+        /// Aligns a Rect with the specified width and height to the center of the original Rect and returns it for fluent chaining.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="width">The desired width of the new Rect.</param>
-        /// <param name="height">The desired height of the new Rect.</param>
-        public static Rect AlignCenter(this Rect rect, float width, float height)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="width">The desired width of the aligned Rect.</param>
+        /// <param name="height">The desired height of the aligned Rect.</param>
+        /// <returns>The modified Rect aligned to the center.</returns>
+        public static Rect WithCenterAligned(this Rect rect, float width, float height)
         {
-            rect.x = (float)((double)rect.x + (double)rect.width * 0.5 - (double)width * 0.5);
-            rect.y = (float)((double)rect.y + (double)rect.height * 0.5 - (double)height * 0.5);
+            rect.x = rect.x + rect.width * 0.5f - width * 0.5f;
+            rect.y = rect.y + rect.height * 0.5f - height * 0.5f;
             rect.width = width;
             rect.height = height;
             return rect;
         }
 
         /// <summary>
-        /// Returns a Rect, with the specified width, that has been aligned to the right of the original Rect.
+        /// Aligns a Rect with the specified width to the right edge of the original Rect and returns it for fluent chaining.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="width">The desired width of the new Rect.</param>
-        public static Rect AlignRight(this Rect rect, float width)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="width">The desired width of the aligned Rect.</param>
+        /// <returns>The modified Rect aligned to the right edge.</returns>
+        public static Rect WithRightAligned(this Rect rect, float width)
         {
             rect.x = rect.x + rect.width - width;
             rect.width = width;
@@ -193,9 +259,14 @@ namespace EasyToolKit.Core.Mathematics
         }
 
         /// <summary>
-        /// Returns a Rect, with the specified width, that has been aligned to the right of the original Rect.
+        /// Aligns a Rect with the specified width to the right edge of the original Rect and returns it for fluent chaining.
+        /// When clamped is true, ensures the aligned Rect does not extend beyond the original left edge.
         /// </summary>
-        public static Rect AlignRight(this Rect rect, float width, bool clamp)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="width">The desired width of the aligned Rect.</param>
+        /// <param name="clamp">If true, prevents the aligned Rect from extending beyond the original left edge.</param>
+        /// <returns>The modified Rect aligned to the right edge.</returns>
+        public static Rect WithRightAligned(this Rect rect, float width, bool clamp)
         {
             if (clamp)
             {
@@ -209,34 +280,37 @@ namespace EasyToolKit.Core.Mathematics
         }
 
         /// <summary>
-        /// Returns a Rect, with the specified height, that has been aligned to the top of the original Rect.
+        /// Aligns a Rect with the specified height to the top edge of the original Rect and returns it for fluent chaining.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="height">The desired height of the new Rect.</param>
-        public static Rect AlignTop(this Rect rect, float height)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="height">The desired height of the aligned Rect.</param>
+        /// <returns>The modified Rect aligned to the top edge.</returns>
+        public static Rect WithTopAligned(this Rect rect, float height)
         {
             rect.height = height;
             return rect;
         }
 
         /// <summary>
-        /// Returns a Rect, with the specified height, that has been aligned to the vertical middle of the original Rect.
+        /// Aligns a Rect with the specified height to the vertical middle of the original Rect and returns it for fluent chaining.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="height">The desired height of the new Rect.</param>
-        public static Rect AlignMiddle(this Rect rect, float height)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="height">The desired height of the aligned Rect.</param>
+        /// <returns>The modified Rect aligned to the vertical middle.</returns>
+        public static Rect WithMiddleAligned(this Rect rect, float height)
         {
-            rect.y = (float)((double)rect.y + (double)rect.height * 0.5 - (double)height * 0.5);
+            rect.y = rect.y + rect.height * 0.5f - height * 0.5f;
             rect.height = height;
             return rect;
         }
 
         /// <summary>
-        /// Returns a Rect, with the specified height, that has been aligned to the bottom of the original Rect.
+        /// Aligns a Rect with the specified height to the bottom edge of the original Rect and returns it for fluent chaining.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="height">The desired height of the new Rect.</param>
-        public static Rect AlignBottom(this Rect rect, float height)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="height">The desired height of the aligned Rect.</param>
+        /// <returns>The modified Rect aligned to the bottom edge.</returns>
+        public static Rect WithBottomAligned(this Rect rect, float height)
         {
             rect.y = rect.y + rect.height - height;
             rect.height = height;
@@ -244,537 +318,379 @@ namespace EasyToolKit.Core.Mathematics
         }
 
         /// <summary>
-        /// Returns a Rect, with the specified width, that has been aligned horizontally to the center of the original rect.
+        /// Aligns a Rect with the specified width horizontally to the center of the original Rect and returns it for fluent chaining.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="width">The desired width of the new Rect.</param>
-        public static Rect AlignCenterX(this Rect rect, float width)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="width">The desired width of the aligned Rect.</param>
+        /// <returns>The modified Rect aligned to the horizontal center.</returns>
+        public static Rect WithCenterXAligned(this Rect rect, float width)
         {
-            rect.x = (float)((double)rect.x + (double)rect.width * 0.5 - (double)width * 0.5);
+            rect.x = rect.x + rect.width * 0.5f - width * 0.5f;
             rect.width = width;
             return rect;
         }
 
         /// <summary>
-        /// Returns a Rect, with the specified height, that has been aligned vertically to the center of the original rect.
+        /// Aligns a Rect with the specified height vertically to the center of the original Rect and returns it for fluent chaining.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="height">The desired height of the new Rect.</param>
-        public static Rect AlignCenterY(this Rect rect, float height)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="height">The desired height of the aligned Rect.</param>
+        /// <returns>The modified Rect aligned to the vertical center.</returns>
+        public static Rect WithCenterYAligned(this Rect rect, float height)
         {
-            rect.y = (float)((double)rect.y + (double)rect.height * 0.5 - (double)height * 0.5);
+            rect.y = rect.y + rect.height * 0.5f - height * 0.5f;
             rect.height = height;
             return rect;
         }
 
         /// <summary>
-        /// Returns a Rect, with the specified width and height, that has been aligned horizontally and vertically to the center of the original rect.
+        /// Aligns a Rect with the specified width and height (same value) to the center of the original Rect and returns it for fluent chaining.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="size">The desired width and height of the new Rect.</param>
-        public static Rect AlignCenterXY(this Rect rect, float size)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="size">The desired width and height of the aligned Rect.</param>
+        /// <returns>The modified Rect aligned to the center.</returns>
+        public static Rect WithCenterXYAligned(this Rect rect, float size)
         {
-            rect.y = (float)((double)rect.y + (double)rect.height * 0.5 - (double)size * 0.5);
-            rect.x = (float)((double)rect.x + (double)rect.width * 0.5 - (double)size * 0.5);
+            rect.y = rect.y + rect.height * 0.5f - size * 0.5f;
+            rect.x = rect.x + rect.width * 0.5f - size * 0.5f;
             rect.height = size;
             rect.width = size;
             return rect;
         }
 
         /// <summary>
-        /// Returns a Rect, with the specified width and height, that has been aligned horizontally and vertically to the center of the original rect.
+        /// Aligns a Rect with the specified width and height to the center of the original Rect and returns it for fluent chaining.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="width">The desired width of the new Rect.</param>
-        /// <param name="height">The desired height of the new Rect.</param>
-        public static Rect AlignCenterXY(this Rect rect, float width, float height)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="width">The desired width of the aligned Rect.</param>
+        /// <param name="height">The desired height of the aligned Rect.</param>
+        /// <returns>The modified Rect aligned to the center.</returns>
+        public static Rect WithCenterXYAligned(this Rect rect, float width, float height)
         {
-            rect.y = (float)((double)rect.y + (double)rect.height * 0.5 - (double)height * 0.5);
-            rect.x = (float)((double)rect.x + (double)rect.width * 0.5 - (double)width * 0.5);
+            rect.y = rect.y + rect.height * 0.5f - height * 0.5f;
+            rect.x = rect.x + rect.width * 0.5f - width * 0.5f;
             rect.width = width;
             rect.height = height;
             return rect;
         }
 
-        /// <summary>
-        /// Returns a Rect that has been expanded by the specified amount.
-        /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="expand">The desired expansion.</param>
-        public static Rect Expand(this Rect rect, float expand)
-        {
-            rect.x -= expand;
-            rect.y -= expand;
-            rect.height += expand * 2f;
-            rect.width += expand * 2f;
-            return rect;
-        }
+        #endregion
+
+        #region Center
 
         /// <summary>
-        /// Returns a Rect that has been expanded by the specified amount.
+        /// Sets the center X position of the Rect and returns it for fluent chaining.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="horizontal">The desired expansion on the X-axis.</param>
-        /// <param name="vertical">The desired expansion on the Y-axis.</param>
-        public static Rect Expand(this Rect rect, float horizontal, float vertical)
-        {
-            rect.position -= new Vector2(horizontal, vertical);
-            rect.size += new Vector2(horizontal, vertical) * 2f;
-            return rect;
-        }
-
-        /// <summary>
-        /// Returns a Rect that has been expanded by the specified amount.
-        /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="left">The desired expansion on the left.</param>
-        /// <param name="right">The desired expansion on the right.</param>
-        /// <param name="top">The desired expansion on the top.</param>
-        /// <param name="bottom">The desired expansion on the bottom.</param>
-        public static Rect Expand(this Rect rect, float left, float right, float top, float bottom)
-        {
-            rect.position -= new Vector2(left, top);
-            rect.size += new Vector2(left + right, top + bottom);
-            return rect;
-        }
-
-        /// <summary>
-        /// Splits a Rect horizontally into the specified number of sub-rects, and returns a sub-rect for the specified index.
-        /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="index">The index for the subrect. Includes 0, and excludes count.</param>
-        /// <param name="count">The amount of subrects the Rect should be split into.</param>
-        public static Rect Split(this Rect rect, int index, int count)
-        {
-            int width = (int)rect.width;
-            int num1 = width / count;
-            int num2 = width - num1 * count;
-            float num3 = rect.x + (float)(num1 * index);
-            float num4;
-            if (index < num2)
-            {
-                num4 = num3 + (float)index;
-                ++num1;
-            }
-            else
-                num4 = num3 + (float)num2;
-
-            rect.x = num4;
-            rect.width = (float)num1;
-            return rect;
-        }
-
-        /// <summary>
-        /// Splits a Rect vertically into the specified number of sub-rects, and returns a sub-rect for the specified index.
-        /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="index">The index for the subrect. Includes 0, and excludes count.</param>
-        /// <param name="count">The amount of subrects the Rect should be split into.</param>
-        public static Rect SplitVertical(this Rect rect, int index, int count)
-        {
-            float num = rect.height / (float)count;
-            rect.height = num;
-            rect.y += num * (float)index;
-            return rect;
-        }
-
-        /// <summary>
-        /// Splits a Rect into a grid from left to right and then down.
-        /// </summary>
-        /// <param name="rect">The original rect.</param>
-        /// <param name="width">The width of a grid cell.</param>
-        /// <param name="height">The height of a grid cell.</param>
-        /// <param name="index">The index of the grid cell.</param>
-        /// <returns></returns>
-        public static Rect SplitGrid(this Rect rect, float width, float height, int index)
-        {
-            int num1 = (int)((double)rect.width / (double)width);
-            int num2 = num1 > 0 ? num1 : 1;
-            int num3 = index % num2;
-            int num4 = index / num2;
-            rect.x += (float)num3 * width;
-            rect.y += (float)num4 * height;
-            rect.width = width;
-            rect.height = height;
-            return rect;
-        }
-
-        /// <summary>
-        /// Splits a Rect into a grid from left to right and then down.
-        /// </summary>
-        public static Rect SplitTableGrid(this Rect rect, int columnCount, float rowHeight, int index)
-        {
-            int num1 = index % columnCount;
-            int num2 = index / columnCount;
-            float num3 = rect.width / (float)columnCount;
-            rect.x += (float)num1 * num3;
-            rect.y += (float)num2 * rowHeight;
-            rect.width = num3;
-            rect.height = rowHeight;
-            return rect;
-        }
-
-        /// <summary>Moves a Rect to the specified center X position.</summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="x">The desired center x position.</param>
-        public static Rect SetCenterX(this Rect rect, float x)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="x">The desired center X position.</param>
+        /// <returns>The modified Rect with updated center X position.</returns>
+        public static Rect WithCenterX(this Rect rect, float x)
         {
             rect.center = new Vector2(x, rect.center.y);
             return rect;
         }
 
-        /// <summary>Moves a Rect to the specified center Y position.</summary>
-        /// <param name="rect">The desired original Rect.</param>
-        /// <param name="y">The desired desired center y position.</param>
-        public static Rect SetCenterY(this Rect rect, float y)
+        /// <summary>
+        /// Sets the center Y position of the Rect and returns it for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="y">The desired center Y position.</param>
+        /// <returns>The modified Rect with updated center Y position.</returns>
+        public static Rect WithCenterY(this Rect rect, float y)
         {
             rect.center = new Vector2(rect.center.x, y);
             return rect;
         }
 
-        /// <summary>Moves a Rect to the specified center position.</summary>
-        /// <param name="rect">The original Rect.</param>
+        /// <summary>
+        /// Sets the center position of the Rect to the specified X and Y coordinates and returns it for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
         /// <param name="x">The desired center X position.</param>
         /// <param name="y">The desired center Y position.</param>
-        public static Rect SetCenter(this Rect rect, float x, float y)
+        /// <returns>The modified Rect with updated center position.</returns>
+        public static Rect WithCenter(this Rect rect, float x, float y)
         {
             rect.center = new Vector2(x, y);
             return rect;
         }
 
-        /// <summary>Moves a Rect to the specified center position.</summary>
-        /// <param name="rect">The original Rect.</param>
+        /// <summary>
+        /// Sets the center position of the Rect and returns it for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
         /// <param name="center">The desired center position.</param>
-        public static Rect SetCenter(this Rect rect, Vector2 center)
+        /// <returns>The modified Rect with updated center position.</returns>
+        public static Rect WithCenter(this Rect rect, Vector2 center)
         {
             rect.center = center;
             return rect;
         }
 
-        /// <summary>Moves a Rect to the specified position.</summary>
-        /// <param name="rect">The orignal Rect.</param>
+        #endregion
+
+        #region Position
+
+        /// <summary>
+        /// Sets the position of the Rect and returns it for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
         /// <param name="position">The desired position.</param>
-        public static Rect SetPosition(this Rect rect, Vector2 position)
+        /// <returns>The modified Rect with updated position.</returns>
+        public static Rect WithPosition(this Rect rect, Vector2 position)
         {
             rect.position = position;
             return rect;
         }
 
-        /// <summary>Resets a Rect's position to zero.</summary>
-        /// <param name="rect">The original Rect.</param>
-        public static Rect ResetPosition(this Rect rect)
-        {
-            rect.position = Vector2.zero;
-            return rect;
-        }
-
-        /// <summary>Moves a Rect's position by the specified amount.</summary>
-        /// <param name="rect">The original Rect.</param>
+        /// <summary>
+        /// Moves the Rect's position by the specified Vector2 offset and returns it for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
         /// <param name="move">The change in position.</param>
-        public static Rect AddPosition(this Rect rect, Vector2 move)
+        /// <returns>The modified Rect with adjusted position.</returns>
+        public static Rect WithPositionOffsetBy(this Rect rect, Vector2 move)
         {
             rect.position += move;
             return rect;
         }
 
-        /// <summary>Moves a Rect's position by the specified amount.</summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="x">The x.</param>
-        /// <param name="y">The y.</param>
-        public static Rect AddPosition(this Rect rect, float x, float y)
+        /// <summary>
+        /// Moves the Rect's position by the specified X and Y offsets and returns it for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="x">The X offset to add.</param>
+        /// <param name="y">The Y offset to add.</param>
+        /// <returns>The modified Rect with adjusted position.</returns>
+        public static Rect WithPositionOffsetBy(this Rect rect, float x, float y)
         {
             rect.x += x;
             rect.y += y;
             return rect;
         }
 
-        /// <summary>Sets a Rect's X position.</summary>
-        /// <param name="rect">The original Rect.</param>
+        #endregion
+
+        #region X/Y Position
+
+        /// <summary>
+        /// Sets the X position of the Rect and returns it for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
         /// <param name="x">The desired X position.</param>
-        public static Rect SetX(this Rect rect, float x)
+        /// <returns>The modified Rect with updated X position.</returns>
+        public static Rect WithX(this Rect rect, float x)
         {
             rect.x = x;
             return rect;
         }
 
-        /// <summary>Adds to a Rect's X position.</summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="x">The value to add.</param>
-        public static Rect AddX(this Rect rect, float x)
-        {
-            rect.x += x;
-            return rect;
-        }
-
-        /// <summary>Subtracts from a Rect's X position.</summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="x">The value to subtract.</param>
-        public static Rect SubX(this Rect rect, float x)
-        {
-            rect.x -= x;
-            return rect;
-        }
-
-        /// <summary>Sets a Rect's Y position.</summary>
-        /// <param name="rect">The original Rect.</param>
+        /// <summary>
+        /// Sets the Y position of the Rect and returns it for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
         /// <param name="y">The desired Y position.</param>
-        public static Rect SetY(this Rect rect, float y)
+        /// <returns>The modified Rect with updated Y position.</returns>
+        public static Rect WithY(this Rect rect, float y)
         {
             rect.y = y;
             return rect;
         }
 
-        /// <summary>Adds to a Rect's Y position.</summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="y">The value to add.</param>
-        public static Rect AddY(this Rect rect, float y)
+        /// <summary>
+        /// Adjusts the Rect's X position by the specified offset and returns it for fluent chaining.
+        /// Use a positive value to move right, or a negative value to move left.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="offset">The offset amount to apply (positive moves right, negative moves left).</param>
+        /// <returns>The modified Rect with adjusted X position.</returns>
+        public static Rect WithXOffsetBy(this Rect rect, float offset)
         {
-            rect.y += y;
+            rect.x += offset;
             return rect;
         }
 
-        /// <summary>Subtracts a Rect's Y position.</summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="y">The value to subtract.</param>
-        public static Rect SubY(this Rect rect, float y)
+        /// <summary>
+        /// Adjusts the Rect's Y position by the specified offset and returns it for fluent chaining.
+        /// Use a positive value to move up, or a negative value to move down.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="offset">The offset amount to apply (positive moves up, negative moves down).</param>
+        /// <returns>The modified Rect with adjusted Y position.</returns>
+        public static Rect WithYOffsetBy(this Rect rect, float offset)
         {
-            rect.y -= y;
+            rect.y += offset;
             return rect;
         }
 
-        /// <summary>Sets the min position of a Rect.</summary>
-        /// <param name="rect">The original Rect.</param>
+        #endregion
+
+        #region Min/Max Position
+
+        /// <summary>
+        /// Sets the min position of the Rect and returns it for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
         /// <param name="min">The desired min position.</param>
-        public static Rect SetMin(this Rect rect, Vector2 min)
+        /// <returns>The modified Rect with updated min position.</returns>
+        public static Rect WithMin(this Rect rect, Vector2 min)
         {
             rect.min = min;
             return rect;
         }
 
-        /// <summary>Adds to a Rect's min position.</summary>
-        /// <param name="rect">The original rect.</param>
-        /// <param name="value">The value to add.</param>
-        public static Rect AddMin(this Rect rect, Vector2 value)
-        {
-            rect.min += value;
-            return rect;
-        }
-
-        /// <summary>Subtracts a Rect's min position.</summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="value">The vlaue to subtract.</param>
-        public static Rect SubMin(this Rect rect, Vector2 value)
-        {
-            rect.min -= value;
-            return rect;
-        }
-
-        /// <summary>Sets a Rect's max position.</summary>
-        /// <param name="rect">The original Rect.</param>
+        /// <summary>
+        /// Sets the max position of the Rect and returns it for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
         /// <param name="max">The desired max position.</param>
-        public static Rect SetMax(this Rect rect, Vector2 max)
+        /// <returns>The modified Rect with updated max position.</returns>
+        public static Rect WithMax(this Rect rect, Vector2 max)
         {
             rect.max = max;
             return rect;
         }
 
-        /// <summary>Adds to a Rect's max position.</summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="value">The value to add.</param>
-        public static Rect AddMax(this Rect rect, Vector2 value)
+        /// <summary>
+        /// Adjusts the Rect's min position by the specified offset and returns it for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="offset">The offset amount to apply.</param>
+        /// <returns>The modified Rect with adjusted min position.</returns>
+        public static Rect WithMinOffsetBy(this Rect rect, Vector2 offset)
         {
-            rect.max += value;
+            rect.min += offset;
             return rect;
         }
 
-        /// <summary>Subtracts a Rect's max position.</summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="value">The value to add.</param>
-        public static Rect SubMax(this Rect rect, Vector2 value)
+        /// <summary>
+        /// Adjusts the Rect's max position by the specified offset and returns it for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="offset">The offset amount to apply.</param>
+        /// <returns>The modified Rect with adjusted max position.</returns>
+        public static Rect WithMaxOffsetBy(this Rect rect, Vector2 offset)
         {
-            rect.max -= value;
+            rect.max += offset;
             return rect;
         }
 
-        /// <summary>Sets a Rect's X min position.</summary>
-        /// <param name="rect">The original Rect.</param>
+        #endregion
+
+        #region Edge Positions
+
+        /// <summary>
+        /// Sets the X min position (left edge) of the Rect and returns it for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
         /// <param name="xMin">The desired min X position.</param>
-        public static Rect SetXMin(this Rect rect, float xMin)
+        /// <returns>The modified Rect with updated X min position.</returns>
+        public static Rect WithXMin(this Rect rect, float xMin)
         {
             rect.xMin = xMin;
             return rect;
         }
 
-        /// <summary>Adds to a Rect's X min position.</summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="value">The value to add.</param>
-        public static Rect AddXMin(this Rect rect, float value)
-        {
-            rect.xMin += value;
-            return rect;
-        }
-
-        /// <summary>Subtracts from a Rect's X min position.</summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="value">The value to subtract.</param>
-        public static Rect SubXMin(this Rect rect, float value)
-        {
-            rect.xMin -= value;
-            return rect;
-        }
-
-        /// <summary>Sets a Rect's X max position.</summary>
-        /// <param name="rect">The original Rect.</param>
+        /// <summary>
+        /// Sets the X max position (right edge) of the Rect and returns it for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
         /// <param name="xMax">The desired X max position.</param>
-        public static Rect SetXMax(this Rect rect, float xMax)
+        /// <returns>The modified Rect with updated X max position.</returns>
+        public static Rect WithXMax(this Rect rect, float xMax)
         {
             rect.xMax = xMax;
             return rect;
         }
 
-        /// <summary>Adds to a Rect's X max position.</summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="value">The value to add.</param>
-        public static Rect AddXMax(this Rect rect, float value)
-        {
-            rect.xMax += value;
-            return rect;
-        }
-
-        /// <summary>Subtracts a Rect's X max position.</summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="value">The value to subtract.</param>
-        public static Rect SubXMax(this Rect rect, float value)
-        {
-            rect.xMax -= value;
-            return rect;
-        }
-
-        /// <summary>Sets a Rect's Y min position.</summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="yMin">The desired Y min.</param>
-        public static Rect SetYMin(this Rect rect, float yMin)
+        /// <summary>
+        /// Sets the Y min position (bottom edge) of the Rect and returns it for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="yMin">The desired Y min position.</param>
+        /// <returns>The modified Rect with updated Y min position.</returns>
+        public static Rect WithYMin(this Rect rect, float yMin)
         {
             rect.yMin = yMin;
             return rect;
         }
 
-        /// <summary>Adds to a Rect's Y min position.</summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="value">The value to add.</param>
-        public static Rect AddYMin(this Rect rect, float value)
-        {
-            rect.yMin += value;
-            return rect;
-        }
-
-        /// <summary>Subtracts a Rect's Y min position.</summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="value">The value to subtract.</param>
-        /// <returns></returns>
-        public static Rect SubYMin(this Rect rect, float value)
-        {
-            rect.yMin -= value;
-            return rect;
-        }
-
-        /// <summary>Sets a Rect's Y max position.</summary>
-        /// <param name="rect">The original Rect.</param>
+        /// <summary>
+        /// Sets the Y max position (top edge) of the Rect and returns it for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
         /// <param name="yMax">The desired Y max position.</param>
-        public static Rect SetYMax(this Rect rect, float yMax)
+        /// <returns>The modified Rect with updated Y max position.</returns>
+        public static Rect WithYMax(this Rect rect, float yMax)
         {
             rect.yMax = yMax;
             return rect;
         }
 
-        /// <summary>Adds to a Rect's Y max position.</summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="value">The value to add.</param>
-        public static Rect AddYMax(this Rect rect, float value)
+        /// <summary>
+        /// Adjusts the X min position (left edge) of the Rect by the specified offset and returns it for fluent chaining.
+        /// </summary>
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="offset">The offset amount to apply.</param>
+        /// <returns>The modified Rect with adjusted X min position.</returns>
+        public static Rect WithXMinOffsetBy(this Rect rect, float offset)
         {
-            rect.yMax += value;
-            return rect;
-        }
-
-        /// <summary>Subtracts from a Rect's Y max position.</summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="value">The value to subtract.</param>
-        public static Rect SubYMax(this Rect rect, float value)
-        {
-            rect.yMax -= value;
+            rect.xMin += offset;
             return rect;
         }
 
         /// <summary>
-        /// Sets a Rect's width, if it is less than the specified value.
+        /// Adjusts the X max position (right edge) of the Rect by the specified offset and returns it for fluent chaining.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="minWidth">The desired min width.</param>
-        public static Rect MinWidth(this Rect rect, float minWidth)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="offset">The offset amount to apply.</param>
+        /// <returns>The modified Rect with adjusted X max position.</returns>
+        public static Rect WithXMaxOffsetBy(this Rect rect, float offset)
         {
-            rect.width = Mathf.Max(rect.width, minWidth);
+            rect.xMax += offset;
             return rect;
         }
 
         /// <summary>
-        /// Sets a Rect's width, if it is greater than the specified value.
+        /// Adjusts the Y min position (bottom edge) of the Rect by the specified offset and returns it for fluent chaining.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="maxWidth">The desired max width.</param>
-        public static Rect MaxWidth(this Rect rect, float maxWidth)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="offset">The offset amount to apply.</param>
+        /// <returns>The modified Rect with adjusted Y min position.</returns>
+        public static Rect WithYMinOffsetBy(this Rect rect, float offset)
         {
-            rect.width = Mathf.Min(rect.width, maxWidth);
+            rect.yMin += offset;
             return rect;
         }
 
         /// <summary>
-        /// Sets a Rect's height, if it is less than the specified value.
+        /// Adjusts the Y max position (top edge) of the Rect by the specified offset and returns it for fluent chaining.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="minHeight">The desired min height.</param>
-        public static Rect MinHeight(this Rect rect, float minHeight)
+        /// <param name="rect">The source Rect.</param>
+        /// <param name="offset">The offset amount to apply.</param>
+        /// <returns>The modified Rect with adjusted Y max position.</returns>
+        public static Rect WithYMaxOffsetBy(this Rect rect, float offset)
         {
-            rect.height = Mathf.Max(rect.height, minHeight);
+            rect.yMax += offset;
             return rect;
         }
+
+        #endregion
+
+        #region Query
 
         /// <summary>
-        /// Sets a Rect's height, if it is greater than the specified value.
+        /// Determines whether a Rect is a placeholder, typically (0, 0, 1, 1) or (0, 0, 0, 0) in layout systems.
         /// </summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="maxHeight">The desired max height.</param>
-        public static Rect MaxHeight(this Rect rect, float maxHeight)
-        {
-            rect.height = Mathf.Min(rect.height, maxHeight);
-            return rect;
-        }
-
-        /// <summary>Expands a rect to contain a given position.</summary>
-        /// <param name="rect">The original Rect.</param>
-        /// <param name="pos">The position to expand the rect towards.</param>
-        public static Rect ExpandTo(this Rect rect, Vector2 pos)
-        {
-            if ((double)pos.x < (double)rect.xMin)
-                rect.xMin = pos.x;
-            else if ((double)pos.x > (double)rect.xMax)
-                rect.xMax = pos.x;
-            if ((double)pos.y < (double)rect.yMin)
-                rect.yMin = pos.y;
-            else if ((double)pos.y > (double)rect.yMax)
-                rect.yMax = pos.y;
-            return rect;
-        }
-
-        /// <summary>
-        /// Determines if an <see cref="T:UnityEngine.Rect" /> is a placeholder; usually (0, 0, 1, 1) in Layout.
-        /// </summary>
-        /// <param name="rect">The original <see cref="T:UnityEngine.Rect" />.</param>
-        /// <returns><c>true</c> if the <see cref="T:UnityEngine.Rect" /> is equal to (0, 0, 0, 0) or (0, 0, 1, 1); otherwise <c>false</c>.</returns>
+        /// <param name="rect">The source Rect.</param>
+        /// <returns><c>true</c> if the Rect is equal to (0, 0, 0, 0) or (0, 0, 1, 1); otherwise <c>false</c>.</returns>
         public static bool IsPlaceholder(this Rect rect)
         {
-            return (double)rect.x == 0.0 && (double)rect.y == 0.0 &&
-                   ((double)rect.width == 1.0 && (double)rect.height == 1.0 ||
-                    (double)rect.width == 0.0 && (double)rect.height == 0.0);
+            return rect.x == 0f && rect.y == 0f &&
+                   ((rect.width == 1f && rect.height == 1f) ||
+                    (rect.width == 0f && rect.height == 0f));
         }
+
+        #endregion
     }
 }
