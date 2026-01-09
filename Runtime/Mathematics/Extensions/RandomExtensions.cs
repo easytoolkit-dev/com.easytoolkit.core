@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace EasyToolKit.Core
+namespace EasyToolKit.Core.Mathematics
 {
     public static class RandomExtensions
     {

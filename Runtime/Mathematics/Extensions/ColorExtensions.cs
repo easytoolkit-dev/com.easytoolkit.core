@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace EasyToolKit.Core
+namespace EasyToolKit.Core.Mathematics
 {
     /// <summary>
     /// Provides extension methods for Unity's Color struct to enable fluent API operations
