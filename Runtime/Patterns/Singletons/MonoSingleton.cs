@@ -113,10 +113,6 @@ namespace EasyToolKit.Core.Patterns
             SingletonCreator.ProcessTarget(this);
         }
 
-        public virtual void OnSingletonInit()
-        {
-        }
-
         protected virtual void OnApplicationQuit()
         {
             if (s_instance == null) return;
