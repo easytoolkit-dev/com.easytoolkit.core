@@ -15,10 +15,7 @@ namespace EasyToolKit.Core.Events
         {
         }
 
-        /// <summary>
-        /// Initializes the singleton instance.
-        /// </summary>
-        protected override void OnSingletonInit()
+        protected override void OnSingletonInitialize()
         {
             _eventBus = new EventBus();
         }
