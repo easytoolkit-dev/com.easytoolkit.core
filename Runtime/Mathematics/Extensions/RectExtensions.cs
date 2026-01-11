@@ -676,21 +676,5 @@ namespace EasyToolKit.Core.Mathematics
         }
 
         #endregion
-
-        #region Query
-
-        /// <summary>
-        /// Determines whether a Rect is a placeholder, typically (0, 0, 1, 1) or (0, 0, 0, 0) in layout systems.
-        /// </summary>
-        /// <param name="rect">The source Rect.</param>
-        /// <returns><c>true</c> if the Rect is equal to (0, 0, 0, 0) or (0, 0, 1, 1); otherwise <c>false</c>.</returns>
-        public static bool IsPlaceholder(this Rect rect)
-        {
-            return rect.x == 0f && rect.y == 0f &&
-                   ((rect.width == 1f && rect.height == 1f) ||
-                    (rect.width == 0f && rect.height == 0f));
-        }
-
-        #endregion
     }
 }
