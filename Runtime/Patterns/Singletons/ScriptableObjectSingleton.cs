@@ -1,142 +1,90 @@
-using System;
 using System.Reflection;
-using EasyToolKit.Core.Textual;
-using EasyToolKit.OdinSerializer;
 using UnityEngine;
 
 namespace EasyToolKit.Core.Patterns
 {
-    internal partial class SingletonCreator
-    {
-        public static T GetScriptableObject<T>(string assetDirectory, string assetName)
-            where T : ScriptableObject, IUnitySingleton
-        {
-            if (!assetDirectory.Equals("resources/", StringComparison.OrdinalIgnoreCase) &&
-                !assetDirectory.Contains("/resources/", StringComparison.OrdinalIgnoreCase))
-            {
-                if (!assetDirectory.Contains("/editor/", StringComparison.OrdinalIgnoreCase))
-                {
-                    throw new ArgumentException(
-                        $"The path '{assetDirectory}/{assetName}' must be inside a 'Resources' folder.");
-                }
-                else
-                {
-                    if (!Application.isEditor)
-                    {
-                        throw new ArgumentException(
-                            $"The editor asserts '{assetDirectory}/{assetName}' can only be loaded in edit mode!");
-                    }
-                }
-            }
-
-            if (Application.isEditor)
-            {
-                return GetScriptableObjectEditorImpl<T>(assetDirectory, assetName);
-            }
-            return GetScriptableObjectImpl<T>(assetDirectory, assetName);
-        }
-
-        private static T GetScriptableObjectImpl<T>(string assetDirectory, string assetName)
-            where T : ScriptableObject, IUnitySingleton
-        {
-            string resourcesPath = assetDirectory;
-            int i = resourcesPath.LastIndexOf("/resources/", StringComparison.OrdinalIgnoreCase);
-            if (i >= 0)
-            {
-                resourcesPath = resourcesPath[(i + "/resources/".Length)..];
-            }
-            else
-            {
-                resourcesPath = resourcesPath["resources/".Length..];
-            }
-
-            var instance = Resources.Load<T>(resourcesPath + assetName);
-
-            if (instance == null)
-            {
-                throw new Exception($"Load ScriptableObject '{typeof(T).Name}' failed！");
-            }
-
-            instance.OnSingletonInit(SingletonInitialModes.Load);
-
-            return instance;
-        }
-
-        private static MethodInfo _getScriptableObjectSingletonInEditorMethod;
-
-        private static T GetScriptableObjectEditorImpl<T>(string assetDirectory, string assetName)
-            where T : ScriptableObject, IUnitySingleton
-        {
-            if (_getScriptableObjectSingletonInEditorMethod == null)
-            {
-                var type = TwoWaySerializationBinder.Default.BindToType("EasyToolKit.Core.Editor.EditorSingletonCreator")!;
-                _getScriptableObjectSingletonInEditorMethod =
-                    type.GetMethod("GetScriptableObject", BindingFlags.Static | BindingFlags.Public)!;
-            }
-
-            var m = _getScriptableObjectSingletonInEditorMethod.MakeGenericMethod(typeof(T));
-            return (T)m.Invoke(null, new object[] { assetDirectory, assetName });
-        }
-    }
-
-    [AttributeUsage(AttributeTargets.Class)]
-    public class ScriptableObjectSingletonAssetPathAttribute : Attribute
-    {
-        public bool UseAsset { get; set; }
-        public string AssetName { get; set; }
-        public string AssetDirectory { get; }
-
-        public ScriptableObjectSingletonAssetPathAttribute(string assetDirectory)
-        {
-            AssetDirectory = assetDirectory.Trim().TrimEnd('/', '\\').TrimStart('/', '\\')
-                .Replace('\\', '/') + "/";
-
-            UseAsset = true;
-        }
-    }
-
+    /// <summary>
+    /// ScriptableObject singleton base class with configurable loading modes.
+    /// Supports in-memory creation, asset loading, and fallback strategies.
+    /// </summary>
+    /// <typeparam name="T">The singleton type, must derive from ScriptableObjectSingleton{T}</typeparam>
+    /// <remarks>
+    /// Usage:
+    /// <code>
+    /// [ScriptableObjectSingletonConfiguration("Resources/Configs", ScriptableObjectLoadMode.Asset)]
+    /// public class GameConfig : ScriptableObjectSingleton&lt;GameConfig&gt;
+    /// {
+    ///     [SerializeField] private int _maxPlayers = 4;
+    ///     public int MaxPlayers => _maxPlayers;
+    /// }
+    ///
+    /// int maxPlayers = GameConfig.Instance.MaxPlayers;
+    /// </code>
+    /// </remarks>
     public class ScriptableObjectSingleton<T> : ScriptableObject, IUnitySingleton
-        where T : ScriptableObjectSingleton<T>, new()
+        where T : ScriptableObjectSingleton<T>
     {
-        private static ScriptableObjectSingletonAssetPathAttribute s_assetPathAttribute;
-
+        private static readonly object InitLock = new();
         private static T s_instance;
+        private static ScriptableObjectSingletonConfigurationAttribute s_configurationAttribute;
 
-        public static ScriptableObjectSingletonAssetPathAttribute AssetPathAttribute
+        /// <summary>
+        /// Gets the configuration attribute for this singleton type.
+        /// </summary>
+        /// <exception cref="SingletonInitializationException">Thrown if the attribute is not defined.</exception>
+        public static ScriptableObjectSingletonConfigurationAttribute ConfigurationAttribute
         {
             get
             {
-                if (s_assetPathAttribute == null)
+                if (s_configurationAttribute == null)
                 {
-                    s_assetPathAttribute = typeof(T).GetCustomAttribute<ScriptableObjectSingletonAssetPathAttribute>();
-                    if (s_assetPathAttribute == null)
+                    s_configurationAttribute =
+                        typeof(T).GetCustomAttribute<ScriptableObjectSingletonConfigurationAttribute>();
+                    if (s_configurationAttribute == null)
                     {
-                        throw new Exception(
-                            $"Type {typeof(T).Name} must define a 'ScriptableObjectSingletonAssetPath' Attribute!");
+                        throw new SingletonInitializationException(
+                            $"[ScriptableObjectSingleton] MissingConfiguration: Type '{typeof(T).Name}' must define " +
+                            $"'{nameof(ScriptableObjectSingletonConfigurationAttribute)}' attribute. " +
+                            $"Example: [ScriptableObjectSingletonConfiguration(\"Resources/Configs\", ScriptableObjectLoadMode.Asset)]",
+                            typeof(T));
                     }
                 }
 
-                return s_assetPathAttribute;
+                return s_configurationAttribute;
             }
         }
 
+        /// <summary>
+        /// Gets the singleton instance.
+        /// </summary>
+        /// <exception cref="SingletonInitializationException">Thrown if initialization fails.</exception>
         public static T Instance
         {
             get
             {
                 if (s_instance == null)
                 {
-                    if (!AssetPathAttribute.UseAsset)
+                    lock (InitLock)
                     {
-                        s_instance = CreateInstance<T>();
-                        s_instance.name = typeof(T).Name;
-                    }
-                    else
-                    {
-                        s_instance = SingletonCreator.GetScriptableObject<T>(AssetPathAttribute.AssetDirectory,
-                            AssetPathAttribute.AssetName.IsNotNullOrEmpty()
-                                ? AssetPathAttribute.AssetName
-                                : typeof(T).Name);
+                        if (s_instance != null)
+                            return s_instance;
+
+                        var config = ConfigurationAttribute;
+                        s_instance = config.LoadMode switch
+                        {
+                            ScriptableObjectLoadMode.Memory => Implementations.ScriptableObjectFactory.CreateInMemory<T>(),
+                            ScriptableObjectLoadMode.Asset => Implementations.ScriptableObjectFactory.LoadAssetOrFallback<T>(
+                                config.AssetDirectory,
+                                config.AssetName,
+                                fallbackToMemory: false),
+                            ScriptableObjectLoadMode.TryLoadAssetOrFallback => Implementations.ScriptableObjectFactory.LoadAssetOrFallback<T>(
+                                config.AssetDirectory,
+                                config.AssetName,
+                                fallbackToMemory: true),
+                            _ => throw new SingletonInitializationException(
+                                $"[ScriptableObjectSingleton] InvalidLoadMode: Unsupported load mode '{config.LoadMode}'",
+                                typeof(T))
+                        };
                     }
                 }
 
@@ -144,8 +92,18 @@ namespace EasyToolKit.Core.Patterns
             }
         }
 
-        public virtual void OnSingletonInit(SingletonInitialModes mode)
+        /// <summary>
+        /// Called when the singleton is initialized.
+        /// Override to provide custom initialization.
+        /// </summary>
+        /// <param name="mode">Whether the instance was loaded from asset or created in memory.</param>
+        protected virtual void OnSingletonInitialize(SingletonInitialMode mode)
         {
         }
+
+        /// <summary>
+        /// Explicit interface implementation.
+        /// </summary>
+        void IUnitySingleton.OnSingletonInitialize(SingletonInitialMode mode) => OnSingletonInitialize(mode);
     }
 }

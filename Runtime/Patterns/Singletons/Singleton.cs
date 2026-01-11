@@ -1,96 +1,87 @@
 using System;
-using System.Collections.Generic;
-using System.Reflection;
-using EasyToolKit.Core.Reflection;
+using System.Threading;
 
 namespace EasyToolKit.Core.Patterns
 {
-    public interface ISingleton : IDisposable
-    {
-        void OnSingletonInit();
-    }
-
-    internal partial class SingletonCreator
-    {
-        public static readonly HashSet<ISingleton> Singletons = new HashSet<ISingleton>();
-
-        public static T CreateSingleton<T>() where T : class, ISingleton
-        {
-            var type = typeof(T);
-
-            ConstructorInfo ctor;
-            // 如果基类是抽象类
-            if (type.BaseType?.IsAbstract == true)
-            {
-                // 允许有公开的无参构造函数
-                var ctorInfos = type.GetConstructors(BindingFlagsHelper.AllInstance);
-
-                ctor = Array.Find(ctorInfos, c => c.GetParameters().Length == 0);
-                if (ctor == null)
-                    throw new Exception(
-                        $"Singleton '{type}' must have a parameterless constructor!");
-            }
-            // 如果基类不是抽象类
-            else
-            {
-                // 限制不能有公开构造函数
-                if (type.GetConstructors(BindingFlags.Instance | BindingFlags.Public).Length != 0)
-                    throw new Exception($"Singleton '{type}' cannot have a public constructor!");
-
-                var ctorInfos = type.GetConstructors(BindingFlagsHelper.NonPublicInstance);
-
-                // 限制必须有一个非公开的无参构造函数
-                ctor = Array.Find(ctorInfos, c => c.GetParameters().Length == 0);
-                if (ctor == null)
-                    throw new Exception(
-                        $"Singleton '{type}' must have a nonpublic, parameterless constructor!");
-            }
-
-            var inst = ctor.Invoke(null) as T;
-            if (inst == null)
-            {
-                throw new Exception($"Singleton '{type}' construct failed!");
-            }
-
-            inst.OnSingletonInit();
-            var suc = Singletons.Add(inst);
-            if (!suc)
-            {
-                throw new Exception($"Singleton '{type}' is not unique!");
-            }
-
-            return inst;
-        }
-    }
-
-    public class Singleton<T> : ISingleton
-        where T : Singleton<T>
+    /// <summary>
+    /// Thread-safe singleton base class for standard C# classes.
+    /// Uses Lazy{T} for thread-safe lazy initialization.
+    /// </summary>
+    /// <typeparam name="T">The singleton type, must derive from Singleton{T}</typeparam>
+    /// <remarks>
+    /// Usage:
+    /// <code>
+    /// public class GameManager : Singleton&lt;GameManager&gt;
+    /// {
+    ///     protected override void OnSingletonInitialize()
+    ///     {
+    ///         // Initialize your game manager here
+    ///     }
+    /// }
+    ///
+    /// GameManager.Instance.DoSomething();
+    /// </code>
+    /// </remarks>
+    public abstract class Singleton<T> : ILifecycleSingleton where T : Singleton<T>
     {
         private static readonly Lazy<T> LazyInstance;
-
-        public static T Instance => LazyInstance.Value;
+        private static readonly object InitLock = new();
+        private static readonly ISingletonRegistry Registry = new Implementations.SingletonRegistry();
 
         static Singleton()
         {
-            LazyInstance = new Lazy<T>(SingletonCreator.CreateSingleton<T>);
+            LazyInstance = new Lazy<T>(() =>
+            {
+                var instance = Implementations.SingletonFactory.Create<T>();
+
+                lock (InitLock)
+                {
+                    instance.OnSingletonInitialize();
+                    Registry.Register(instance, typeof(T));
+                }
+
+                return instance;
+            }, LazyThreadSafetyMode.ExecutionAndPublication);
         }
 
-        void ISingleton.OnSingletonInit()
+        /// <summary>
+        /// Gets the singleton instance, creating it on first access.
+        /// </summary>
+        public static T Instance => LazyInstance.Value;
+
+        /// <summary>
+        /// Gets whether the singleton instance has been created.
+        /// </summary>
+        public static bool IsInitialized => LazyInstance.IsValueCreated;
+
+        /// <summary>
+        /// Called after singleton construction for initialization.
+        /// Override to provide custom initialization logic.
+        /// </summary>
+        protected virtual void OnSingletonInitialize()
         {
-            OnSingletonInit();
         }
+
+        /// <summary>
+        /// Called during disposal for cleanup.
+        /// Override to perform cleanup operations.
+        /// </summary>
+        protected virtual void OnSingletonShutdown()
+        {
+        }
+
+        void ILifecycleSingleton.OnSingletonInitialize() => OnSingletonInitialize();
+
+        void ILifecycleSingleton.OnSingletonShutdown() => OnSingletonShutdown();
 
         void IDisposable.Dispose()
         {
-            OnSingletonDispose();
-        }
-
-        protected virtual void OnSingletonInit()
-        {
-        }
-
-        protected virtual void OnSingletonDispose()
-        {
+            if (LazyInstance.IsValueCreated)
+            {
+                var instance = LazyInstance.Value;
+                instance.OnSingletonShutdown();
+                Registry.Unregister(instance);
+            }
         }
     }
 }
