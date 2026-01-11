@@ -81,7 +81,7 @@ namespace EasyToolKit.Core.Unity
 
             var total = new List<RaycastHit2D>();
 
-            if (direction.IsVertical())
+            if (direction.IsCardinalVertical())
             {
                 total.Add(DirectedSegmentCast(p2, p3, direction, layerMask));
                 total.Add(DirectedSegmentCast(p4, p1, direction, layerMask));
