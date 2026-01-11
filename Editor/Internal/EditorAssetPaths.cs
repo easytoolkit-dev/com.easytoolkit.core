@@ -15,11 +15,11 @@ namespace EasyToolKit.Core.Editor.Internal
 
         static EditorAssetPaths()
         {
-            TemporaryDirectory = EasyPath.FromPath(Path.GetTempPath())
-                .AddName(PlayerSettings.companyName)
-                .AddName(PlayerSettings.productName)
-                .AddName("EasyToolKit")
-                .ToString();
+            TemporaryDirectory = Path.Combine(
+                Path.GetTempPath(),
+                PlayerSettings.companyName,
+                PlayerSettings.productName,
+                "EasyToolKit");
         }
     }
 }
