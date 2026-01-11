@@ -1,138 +1,164 @@
-using System;
-using System.Reflection;
+using EasyToolKit.Core.Threading;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace EasyToolKit.Core.Patterns
 {
-    public enum SingletonInitialModes
-    {
-        Load,
-        Create
-    }
-
-    public interface IUnitySingleton
-    {
-        void OnSingletonInit(SingletonInitialModes mode);
-    }
-
-    internal partial class SingletonCreator
-    {
-        public static T CreateMonoSingleton<T>() where T : Component, IUnitySingleton
-        {
-            if (!Application.isPlaying)
-                return null;
-
-            T inst;
-            var instances = UnityEngine.Object.FindObjectsOfType<T>(true);
-            if (instances.Length > 1)
-            {
-                throw new Exception(
-                    $"MonoSingleton:\"{typeof(T).Name}\" can only have one instance that exists in the scene");
-            }
-
-            if (instances.Length == 1)
-            {
-                inst = instances[0];
-                inst.OnSingletonInit(SingletonInitialModes.Load);
-            }
-            else
-            {
-                var obj = new GameObject(typeof(T).Name);
-                inst = obj.AddComponent<T>();
-                ProcessTarget(inst);
-                inst.OnSingletonInit(SingletonInitialModes.Create);
-            }
-
-
-            return inst;
-        }
-
-        internal static void ProcessTarget(Component target)
-        {
-            var cfg = target.GetType().GetCustomAttribute<MonoSingletonConfigAttribute>();
-            if (cfg != null)
-            {
-                if (cfg.Flags.HasFlag(MonoSingletonFlags.DontDestroyOnLoad))
-                {
-                    Object.DontDestroyOnLoad(target);
-                }
-            }
-        }
-    }
-
-    [Flags]
-    public enum MonoSingletonFlags
-    {
-        None = 0,
-        DontDestroyOnLoad = 1 << 0
-    }
-
-    public class MonoSingletonConfigAttribute : Attribute
-    {
-        public MonoSingletonFlags Flags;
-
-        public MonoSingletonConfigAttribute(MonoSingletonFlags flags)
-        {
-            Flags = flags;
-        }
-    }
-
+    /// <summary>
+    /// MonoBehaviour singleton base class for Unity components.
+    /// Automatically manages singleton lifetime and provides DontDestroyOnLoad support.
+    /// </summary>
+    /// <typeparam name="T">The singleton type, must derive from MonoSingleton{T}</typeparam>
+    /// <remarks>
+    /// Usage:
+    /// <code>
+    /// [MonoSingletonConfiguration(MonoSingletonFlags.DontDestroyOnLoad)]
+    /// public class AudioManager : MonoSingleton&lt;AudioManager&gt;
+    /// {
+    ///     protected override void OnSingletonInit(SingletonInitialMode mode)
+    ///     {
+    ///         if (mode == SingletonInitialMode.Create)
+    ///             Debug.Log("AudioManager created");
+    ///     }
+    /// }
+    ///
+    /// AudioManager.Instance.PlaySound("explosion");
+    /// </code>
+    /// </remarks>
     public abstract class MonoSingleton<T> : MonoBehaviour, IUnitySingleton
         where T : MonoSingleton<T>
     {
         private static T s_instance;
-        private static bool s_loadBySelf;
-        private static bool s_destroyed;
+        private static MonoSingletonState s_state = MonoSingletonState.NotInitialized;
+        private static readonly object StateLock = new();
 
+        /// <summary>
+        /// Gets the singleton instance.
+        /// </summary>
+        /// <exception cref="SingletonDestroyedException">Thrown when accessing after destruction.</exception>
         public static T Instance
         {
             get
             {
-                if (s_destroyed)
-                    throw new InvalidOperationException($"Attempted to use a singleton of type '{typeof(T)}' that has already been destroyed.");
-                if (ReferenceEquals(s_instance, null))
-                    s_instance = SingletonCreator.CreateMonoSingleton<T>();
+                ValidateMainThreadAccess();
+
+                if (s_state == MonoSingletonState.Destroyed)
+                {
+                    throw new SingletonDestroyedException(
+                        $"[MonoSingleton] InstanceDestroyed: Cannot access '{typeof(T).Name}' after destruction. " +
+                        $"Access occurred after Unity OnDestroy. Check 'IsInitialized' before accessing.",
+                        typeof(T));
+                }
+
+                if (s_instance == null && s_state == MonoSingletonState.NotInitialized)
+                {
+                    s_instance = Implementations.MonoSingletonFactory.FindOrCreateMonoSingleton<T>();
+                    s_state = MonoSingletonState.CreatedViaFactory;
+                }
+
                 return s_instance;
             }
         }
 
+        /// <summary>
+        /// Gets whether the singleton instance has been initialized and not destroyed.
+        /// </summary>
+        public static bool IsInitialized => s_instance != null && s_state != MonoSingletonState.Destroyed;
+
+        /// <summary>
+        /// Gets the current initialization state of the singleton.
+        /// </summary>
+        public static MonoSingletonState CurrentState => s_state;
+
+        /// <summary>
+        /// Unity Awake method called when the script instance is being loaded.
+        /// </summary>
         protected virtual void Awake()
         {
-            if (s_instance != null)
+            lock (StateLock)
             {
-                if (s_loadBySelf)
-                    Destroy(s_instance.gameObject);
-                else
-                    return;
+                switch (s_state)
+                {
+                    case MonoSingletonState.NotInitialized:
+                        // First initialization - this instance is from the scene
+                        s_instance = (T)this;
+                        s_state = MonoSingletonState.InitializedInAwake;
+                        Implementations.MonoSingletonFactory.ApplyConfiguration(this);
+                        break;
+
+                    case MonoSingletonState.CreatedViaFactory:
+                        // Factory already created this instance
+                        Implementations.MonoSingletonFactory.ApplyConfiguration(this);
+                        break;
+
+                    case MonoSingletonState.InitializedInAwake:
+                        // Duplicate instance detected in scene
+                        Debug.LogWarning(
+                            $"[MonoSingleton] DuplicateInstance: Destroying duplicate '{typeof(T).Name}'. " +
+                            $"Only one instance should exist in the scene. " +
+                            $"Keeping the first instance.");
+                        Destroy(this);
+                        break;
+
+                    case MonoSingletonState.Destroyed:
+                        Debug.LogWarning(
+                            $"[MonoSingleton] AccessAfterDestroy: '{typeof(T).Name}' is being accessed after destruction. " +
+                            $"Resetting state.");
+                        s_instance = (T)this;
+                        s_state = MonoSingletonState.InitializedInAwake;
+                        Implementations.MonoSingletonFactory.ApplyConfiguration(this);
+                        break;
+                }
             }
-
-            s_instance = (T)this;
-            s_loadBySelf = true;
-            s_destroyed = false;
-            SingletonCreator.ProcessTarget(this);
         }
 
-        protected virtual void OnApplicationQuit()
-        {
-            if (s_instance == null) return;
-            Destroy(s_instance.gameObject);
-            s_instance = null;
-        }
-
+        /// <summary>
+        /// Unity OnDestroy method called when the script instance is being destroyed.
+        /// </summary>
         protected virtual void OnDestroy()
         {
-            s_instance = null;
-            s_destroyed = true;
+            lock (StateLock)
+            {
+                if (s_instance == this)
+                {
+                    s_instance = null;
+                    s_state = MonoSingletonState.Destroyed;
+                }
+            }
         }
 
-        void IUnitySingleton.OnSingletonInit(SingletonInitialModes mode)
+        /// <summary>
+        /// Called when the singleton is initialized.
+        /// Override to provide custom initialization.
+        /// </summary>
+        /// <param name="mode">Whether the instance was loaded from scene or created dynamically.</param>
+        protected virtual void OnSingletonInitialize(SingletonInitialMode mode)
         {
-            OnSingletonInit(mode);
         }
 
-        protected virtual void OnSingletonInit(SingletonInitialModes mode)
+        /// <summary>
+        /// Explicit interface implementation.
+        /// </summary>
+        void IUnitySingleton.OnSingletonInitialize(SingletonInitialMode mode) => OnSingletonInitialize(mode);
+
+        /// <summary>
+        /// Validates that access is from the main thread (editor only).
+        /// </summary>
+        private static void ValidateMainThreadAccess()
         {
+#if UNITY_EDITOR
+            if (!UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
+            {
+                if (UnityMainThreadDispatcher.Instance.MainThreadId != null)
+                {
+                    if (System.Threading.Thread.CurrentThread.ManagedThreadId != UnityMainThreadDispatcher.Instance.MainThreadId)
+                    {
+                        Debug.LogWarning(
+                            $"[MonoSingleton] WrongThread: '{typeof(T).Name}' accessed from background thread. " +
+                            $"MonoSingleton must be accessed from Unity's main thread.");
+                    }
+                }
+            }
+#endif
         }
     }
 }
