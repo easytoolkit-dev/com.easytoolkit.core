@@ -1,8 +1,8 @@
 {
     "name": "EasyToolKit.Core.Editor",
     "references": [
-        "EasyToolKit.Core.Runtime",
-        "EasyToolKit.OdinSerializer.Runtime"
+        "EasyToolKit.Core",
+        "EasyToolKit.OdinSerializer"
     ],
     "includePlatforms": [
         "Editor"
