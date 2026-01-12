@@ -1,7 +1,7 @@
 {
-    "name": "EasyToolKit.Core.Runtime",
+    "name": "EasyToolKit.Core",
     "references": [
-        "EasyToolKit.OdinSerializer.Runtime"
+        "EasyToolKit.OdinSerializer"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
