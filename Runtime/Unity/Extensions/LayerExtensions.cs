@@ -8,6 +8,7 @@ namespace EasyToolKit.Core.Unity
         {
             return (mask.value & (1 << layer)) != 0;
         }
+
         public static bool Contains(this LayerMask mask, string layer)
         {
             return mask.Contains(LayerMask.NameToLayer(layer));
@@ -20,8 +21,10 @@ namespace EasyToolKit.Core.Unity
             {
                 mask |= (1 << layer);
             }
+
             return mask;
         }
+
         public static LayerMask FromLayers(params string[] layers)
         {
             int mask = 0;
@@ -29,6 +32,7 @@ namespace EasyToolKit.Core.Unity
             {
                 mask |= (1 << LayerMask.NameToLayer(layer));
             }
+
             return mask;
         }
     }

@@ -6,30 +6,31 @@ namespace EasyToolKit.Core.Serialization
     public class EnumSerializer<T> : EasySerializer<T>
         where T : struct, Enum
     {
-        public override void Process(string name, ref T value, IArchive archive)
+        public override void Process(string name, ref T value, IDataFormatter formatter)
         {
-            archive.SetNextName(name);
+            formatter.BeginMember(name);
 
-            var archiveIoType = archive.ArchiveIoType;
+            var direction = formatter.Direction;
 
-            if (archive.ArchiveType != ArchiveTypes.Binary)
+            if (formatter.Type != FormatterType.Binary)
             {
                 var str = string.Empty;
-                if (archiveIoType == ArchiveIoType.Output)
+                if (direction == FormatterDirection.Output)
                     str = Enum.GetName(typeof(T), value);
-                archive.Process(ref str);
-                if (archiveIoType == ArchiveIoType.Input)
+                formatter.Format(ref str);
+                if (direction == FormatterDirection.Input)
                     value = Enum.Parse<T>(str);
             }
             else
             {
                 int val = 0;
-                if (archiveIoType == ArchiveIoType.Output)
+                if (direction == FormatterDirection.Output)
                     val = Convert.ToInt32(value);
-                archive.Process(ref val);
-                if (archiveIoType == ArchiveIoType.Input)
+                formatter.Format(ref val);
+                if (direction == FormatterDirection.Input)
                     value = (T)(object)val;
             }
+            formatter.EndMember();
         }
     }
 }

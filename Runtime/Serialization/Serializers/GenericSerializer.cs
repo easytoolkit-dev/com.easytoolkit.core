@@ -15,7 +15,7 @@ namespace EasyToolKit.Core.Serialization
             return !valueType.IsBasicValueType() && !valueType.IsSubclassOf(typeof(UnityEngine.Object));
         }
 
-        public override void Process(string name, ref T value, IArchive archive)
+        public override void Process(string name, ref T value, IDataFormatter formatter)
         {
             _serializedMemberInfos ??= Settings.SerializedMemberInfoAccessor.Get(typeof(T));
 
@@ -33,12 +33,12 @@ namespace EasyToolKit.Core.Serialization
             {
                 if (IsNode)
                 {
-                    archive.SetNextName(name);
-                    archive.StartNode();
+                    formatter.BeginMember(name);
+                    formatter.BeginObject();
                 }
             }
 
-            var archiveIoType = archive.ArchiveIoType;
+            var direction = formatter.Direction;
             foreach (var serializedMemberInfo in _serializedMemberInfos)
             {
                 var memberType = serializedMemberInfo.MemberType;
@@ -47,7 +47,7 @@ namespace EasyToolKit.Core.Serialization
                 var serializer = serializedMemberInfo.Serializer;
 
                 object obj = null;
-                if (archiveIoType == ArchiveIoType.Output)
+                if (direction == FormatterDirection.Output)
                 {
                     var getter = serializedMemberInfo.ValueGetter;
                     if (getter == null)
@@ -58,9 +58,9 @@ namespace EasyToolKit.Core.Serialization
                     obj = getter(value);
                 }
 
-                serializer.Process(memberName, ref obj, archive);
+                serializer.Process(memberName, ref obj, formatter);
 
-                if (archiveIoType == ArchiveIoType.Input)
+                if (direction == FormatterDirection.Input)
                 {
                     var setter = serializedMemberInfo.ValueSetter;
                     if (setter == null)
@@ -76,7 +76,8 @@ namespace EasyToolKit.Core.Serialization
             {
                 if (IsNode)
                 {
-                    archive.FinishNode();
+                    formatter.EndObject();
+                    formatter.EndMember();
                 }
             }
         }

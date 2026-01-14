@@ -8,6 +8,8 @@ namespace EasyToolKit.Core.Serialization
     /// </summary>
     public static class EasySerialize
     {
+        private static readonly IFormatterFactory FormatterFactory = new Implementations.FormatterFactory();
+
         /// <summary>Gets or sets the default serialization settings.</summary>
         public static EasySerializeSettings DefaultSettings { get; set; } = new EasySerializeSettings();
 
@@ -54,14 +56,14 @@ namespace EasyToolKit.Core.Serialization
 
             using (var stream = new MemoryStream())
             {
-                using (var arch = GetOutputArchive(serializationData.Format, stream))
+                using (var formatter = FormatterFactory.CreateWriter(serializationData.FormatterType, stream))
                 {
                     var serializer = GetSerializerWithThrow(valueType);
                     serializer.IsRoot = true;
 
-                    serializer.Process(ref value, arch);
+                    serializer.Process(ref value, formatter);
 
-                    serializationData.ReferencedUnityObjects = arch.GetReferencedUnityObjects();
+                    serializationData.ReferencedUnityObjects = new System.Collections.Generic.List<UnityEngine.Object>(formatter.GetObjectTable());
                 }
 
                 serializationData.SetData(stream.ToArray());
@@ -85,14 +87,14 @@ namespace EasyToolKit.Core.Serialization
 
             using (var stream = new MemoryStream(buf))
             {
-                using (var arch = GetInputArchive(serializationData.Format, stream))
+                using (var formatter = FormatterFactory.CreateReader(serializationData.FormatterType, stream))
                 {
-                    arch.SetupReferencedUnityObjects(serializationData.ReferencedUnityObjects);
+                    formatter.SetObjectTable(serializationData.ReferencedUnityObjects);
 
                     var serializer = GetSerializerWithThrow(type);
                     serializer.IsRoot = true;
 
-                    serializer.Process(ref res, arch);
+                    serializer.Process(ref res, formatter);
                 }
             }
 
@@ -122,32 +124,6 @@ namespace EasyToolKit.Core.Serialization
                 CurrentSettings = settings;
                 EasySerializerUtility.ClearCache();
             }
-        }
-
-        /// <summary>Creates an output archive for the specified format and stream.</summary>
-        private static OutputArchive GetOutputArchive(EasyDataFormat format, Stream stream)
-        {
-            return format switch
-            {
-                EasyDataFormat.Binary => new BinaryOutputArchive(stream),
-                EasyDataFormat.Json => new JsonOutputArchive(stream),
-                EasyDataFormat.Xml => throw new NotImplementedException("XML serialization is not yet implemented."),
-                EasyDataFormat.Yaml => throw new NotImplementedException("YAML serialization is not yet implemented."),
-                _ => throw new ArgumentOutOfRangeException(nameof(format), format, null)
-            };
-        }
-
-        /// <summary>Creates an input archive for the specified format and stream.</summary>
-        private static InputArchive GetInputArchive(EasyDataFormat format, Stream stream)
-        {
-            return format switch
-            {
-                EasyDataFormat.Binary => new BinaryInputArchive(stream),
-                EasyDataFormat.Json => new JsonInputArchive(stream),
-                EasyDataFormat.Xml => throw new NotImplementedException("XML deserialization is not yet implemented."),
-                EasyDataFormat.Yaml => throw new NotImplementedException("YAML deserialization is not yet implemented."),
-                _ => throw new ArgumentOutOfRangeException(nameof(format), format, null)
-            };
         }
     }
 }

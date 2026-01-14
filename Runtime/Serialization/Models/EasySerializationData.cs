@@ -5,29 +5,20 @@ using UnityEngine;
 
 namespace EasyToolKit.Core.Serialization
 {
-    public enum EasyDataFormat
-    {
-        Binary,
-        Json,
-        Xml,
-        Yaml
-    }
-
-
     [Serializable]
     public struct EasySerializationData
     {
-        [SerializeField] public EasyDataFormat Format;
+        [SerializeField] public FormatterType FormatterType;
         [SerializeField] public byte[] BinaryData;
         [SerializeField] public string StringData;
         [SerializeField] public List<UnityEngine.Object> ReferencedUnityObjects;
 
         public bool IsContainsData => BinaryData != null || StringData != null || ReferencedUnityObjects != null;
 
-        public EasySerializationData(EasyDataFormat format)
+        public EasySerializationData(FormatterType formatterType)
         {
-            Format = format;
-            if (format == EasyDataFormat.Binary)
+            FormatterType = formatterType;
+            if (formatterType == FormatterType.Binary)
             {
                 BinaryData = new byte[] { };
                 StringData = null;
@@ -41,42 +32,42 @@ namespace EasyToolKit.Core.Serialization
             ReferencedUnityObjects = new List<UnityEngine.Object>();
         }
 
-        public EasySerializationData(byte[] binaryData, EasyDataFormat format)
-            : this(binaryData, new List<UnityEngine.Object>(), format)
+        public EasySerializationData(byte[] binaryData, FormatterType formatterType)
+            : this(binaryData, new List<UnityEngine.Object>(), formatterType)
         {
         }
 
-        public EasySerializationData(string stringData, EasyDataFormat format)
-            : this(stringData, new List<UnityEngine.Object>(), format)
+        public EasySerializationData(string stringData, FormatterType formatterType)
+            : this(stringData, new List<UnityEngine.Object>(), formatterType)
         {
         }
 
         public EasySerializationData(byte[] binaryData, List<UnityEngine.Object> referencedUnityObjects,
-            EasyDataFormat format)
+            FormatterType formatterType)
         {
-            if (format != EasyDataFormat.Binary)
+            if (formatterType != FormatterType.Binary)
             {
-                throw new ArgumentException("Binary data can only be serialized by the EasyDataFormat.Binary mode");
+                throw new ArgumentException("Binary data can only be serialized by the FormatterType.Binary mode");
             }
 
             BinaryData = binaryData;
             StringData = null;
             ReferencedUnityObjects = referencedUnityObjects;
-            Format = format;
+            FormatterType = formatterType;
         }
 
         public EasySerializationData(string stringData, List<UnityEngine.Object> referencedUnityObjects,
-            EasyDataFormat format)
+            FormatterType formatterType)
         {
-            if (format == EasyDataFormat.Binary)
+            if (formatterType == FormatterType.Binary)
             {
-                throw new ArgumentException("String data can not be serialized by the EasyDataFormat.Binary mode");
+                throw new ArgumentException("String data can not be serialized by the FormatterType.Binary mode");
             }
 
             StringData = stringData;
             BinaryData = null;
             ReferencedUnityObjects = referencedUnityObjects;
-            Format = format;
+            FormatterType = formatterType;
         }
 
         public byte[] GetData()
@@ -86,7 +77,7 @@ namespace EasyToolKit.Core.Serialization
                 return new byte[] { };
             }
 
-            if (Format == EasyDataFormat.Binary)
+            if (FormatterType == FormatterType.Binary)
             {
                 return BinaryData;
             }
@@ -101,7 +92,7 @@ namespace EasyToolKit.Core.Serialization
 
         public void SetData(byte[] data)
         {
-            if (Format == EasyDataFormat.Binary)
+            if (FormatterType == FormatterType.Binary)
             {
                 BinaryData = data;
             }

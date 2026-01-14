@@ -6,7 +6,7 @@ namespace EasyToolKit.Core.Serialization
     public class UnityObjectSerializer<T> : EasySerializer<T>
         where T : UnityEngine.Object
     {
-        public override void Process(string name, ref T value, IArchive archive)
+        public override void Process(string name, ref T value, IDataFormatter formatter)
         {
             if (IsRoot)
             {
@@ -15,10 +15,11 @@ namespace EasyToolKit.Core.Serialization
 
             UnityEngine.Object unityObject = value;
 
-            archive.SetNextName(name);
-            archive.Process(ref unityObject);
+            formatter.BeginMember(name);
+            formatter.Format(ref unityObject);
+            formatter.EndMember();
 
-            if (archive.ArchiveIoType == ArchiveIoType.Input)
+            if (formatter.Direction == FormatterDirection.Input)
             {
                 value = unityObject as T;
             }
