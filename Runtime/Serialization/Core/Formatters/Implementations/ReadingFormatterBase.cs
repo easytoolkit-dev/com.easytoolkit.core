@@ -69,8 +69,5 @@ namespace EasyToolKit.Core.Serialization.Implementations
 
         /// <inheritdoc />
         public abstract bool Format(ref UnityEngine.Object unityObject);
-
-        /// <inheritdoc />
-        public abstract void Dispose();
     }
 }

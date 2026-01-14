@@ -6,7 +6,7 @@ namespace EasyToolKit.Core.Serialization
     /// Core formatter interface for serialization and deserialization operations.
     /// High-level modules depend on this abstraction for dependency inversion.
     /// </summary>
-    public interface IDataFormatter : IDisposable
+    public interface IDataFormatter
     {
         /// <summary>Gets the format type of this formatter.</summary>
         FormatterType Type { get; }

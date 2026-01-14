@@ -57,8 +57,5 @@ namespace EasyToolKit.Core.Serialization.Implementations
 
         /// <inheritdoc />
         public override bool Format(ref UnityEngine.Object unityObject) => throw new NotImplementedException();
-
-        /// <inheritdoc />
-        public override void Dispose() => throw new NotImplementedException();
     }
 }
