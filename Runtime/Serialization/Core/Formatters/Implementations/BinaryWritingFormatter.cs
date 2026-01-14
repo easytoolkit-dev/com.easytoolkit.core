@@ -128,12 +128,6 @@ namespace EasyToolKit.Core.Serialization.Implementations
             return true;
         }
 
-        /// <inheritdoc />
-        public override void Dispose()
-        {
-            _writer?.Dispose();
-        }
-
         /// <summary>Writes a 32-bit unsigned integer using variable-length encoding.</summary>
         /// <param name="value">The value to write.</param>
         private void WriteVarint32(uint value)

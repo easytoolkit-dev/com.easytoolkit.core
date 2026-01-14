@@ -126,12 +126,6 @@ namespace EasyToolKit.Core.Serialization.Implementations
             return true;
         }
 
-        /// <inheritdoc />
-        public override void Dispose()
-        {
-            _reader?.Dispose();
-        }
-
         /// <summary>Reads a 32-bit unsigned integer using variable-length decoding.</summary>
         /// <returns>The decoded value.</returns>
         private uint ReadVarint32()

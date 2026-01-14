@@ -56,16 +56,15 @@ namespace EasyToolKit.Core.Serialization
 
             using (var stream = new MemoryStream())
             {
-                using (var formatter = FormatterFactory.CreateWriter(serializationData.FormatterType, stream))
-                {
-                    var serializer = GetSerializerWithThrow(valueType);
-                    serializer.IsRoot = true;
+                var formatter = FormatterFactory.CreateWriter(serializationData.FormatterType, stream);
 
-                    serializer.Process(ref value, formatter);
+                var serializer = GetSerializerWithThrow(valueType);
+                serializer.IsRoot = true;
 
-                    serializationData.ReferencedUnityObjects = new System.Collections.Generic.List<UnityEngine.Object>(formatter.GetObjectTable());
-                }
+                serializer.Process(ref value, formatter);
 
+                serializationData.ReferencedUnityObjects =
+                    new System.Collections.Generic.List<UnityEngine.Object>(formatter.GetObjectTable());
                 serializationData.SetData(stream.ToArray());
             }
         }
@@ -87,15 +86,13 @@ namespace EasyToolKit.Core.Serialization
 
             using (var stream = new MemoryStream(buf))
             {
-                using (var formatter = FormatterFactory.CreateReader(serializationData.FormatterType, stream))
-                {
-                    formatter.SetObjectTable(serializationData.ReferencedUnityObjects);
+                var formatter = FormatterFactory.CreateReader(serializationData.FormatterType, stream);
+                formatter.SetObjectTable(serializationData.ReferencedUnityObjects);
 
-                    var serializer = GetSerializerWithThrow(type);
-                    serializer.IsRoot = true;
+                var serializer = GetSerializerWithThrow(type);
+                serializer.IsRoot = true;
 
-                    serializer.Process(ref res, formatter);
-                }
+                serializer.Process(ref res, formatter);
             }
 
             return res;
