@@ -1,88 +1,96 @@
 using System.IO;
 using System.Text;
 
-namespace EasyToolKit.Core.Serialization
+namespace EasyToolKit.Core.Serialization.Implementations
 {
     /// <summary>
-    /// Binary input archive implementation. Deserializes data from a binary format
+    /// Binary reading formatter implementation. Deserializes data from a binary format
     /// using length-prefixed field names and varint encoding.
     /// </summary>
-    internal class BinaryInputArchive : InputArchive
+    public sealed class BinaryReadingFormatter : ReadingFormatterBase
     {
         private readonly BinaryReader _reader;
 
-        /// <summary>Creates a new binary input archive.</summary>
+        /// <summary>Creates a new binary reading formatter.</summary>
         /// <param name="stream">The stream to read from.</param>
-        public BinaryInputArchive(Stream stream)
+        public BinaryReadingFormatter(Stream stream)
         {
             _reader = new BinaryReader(stream, Encoding.UTF8, leaveOpen: true);
         }
 
-        /// <summary>Gets the archive format type (Binary).</summary>
-        public override ArchiveTypes ArchiveType => ArchiveTypes.Binary;
+        /// <inheritdoc />
+        public override FormatterType Type => FormatterType.Binary;
 
-        /// <summary>Sets the name of the next field by reading and verifying the length-prefixed string.</summary>
-        public override void SetNextName(string name)
+        /// <inheritdoc />
+        public override void BeginMember(string name)
         {
             var length = ReadVarint32();
             _ = Encoding.UTF8.GetString(_reader.ReadBytes((int)length));
         }
 
-        /// <summary>Begins a nested object node (no-op for binary format).</summary>
-        public override void StartNode()
+        /// <inheritdoc />
+        public override void EndMember()
         {
+            // No-op for binary format
         }
 
-        /// <summary>Ends a nested object node (no-op for binary format).</summary>
-        public override void FinishNode()
+        /// <inheritdoc />
+        public override void BeginObject()
         {
+            // No-op for binary format
         }
 
-        /// <summary>Processes an integer value (4 bytes, little-endian).</summary>
-        public override bool Process(ref int value)
+        /// <inheritdoc />
+        public override void EndObject()
+        {
+            // No-op for binary format
+        }
+
+        /// <inheritdoc />
+        public override bool Format(ref int value)
         {
             value = _reader.ReadInt32();
             return true;
         }
 
-        /// <summary>Processes a variable-length integer value using 7-bit decoding.</summary>
-        public override bool Process(ref Varint32 value)
+        /// <inheritdoc />
+        public override bool Format(ref Varint32 value)
         {
             value = new Varint32(ReadVarint32());
             return true;
         }
 
-        /// <summary>Processes a size tag value using varint decoding.</summary>
-        public override bool Process(ref SizeTag sizeTag)
+        /// <inheritdoc />
+        public override bool Format(ref SizeTag size)
         {
-            sizeTag = new SizeTag(ReadVarint32());
+            size = new SizeTag(ReadVarint32());
             return true;
         }
 
-        /// <summary>Processes a boolean value from a single byte.</summary>
-        public override bool Process(ref bool value)
+        /// <inheritdoc />
+        public override bool Format(ref bool value)
         {
             var byteValue = _reader.ReadByte();
             value = byteValue != 0;
             return true;
         }
 
-        /// <summary>Processes a float value (4 bytes, IEEE 754).</summary>
-        public override bool Process(ref float value)
+        /// <inheritdoc />
+        public override bool Format(ref float value)
         {
             value = _reader.ReadSingle();
             return true;
         }
 
-        /// <summary>Processes a double value (8 bytes, IEEE 754).</summary>
-        public override bool Process(ref double value)
+        /// <inheritdoc />
+        public override bool Format(ref double value)
         {
             value = _reader.ReadDouble();
             return true;
         }
 
-        /// <summary>Processes a string value from length-prefixed UTF-8 bytes.</summary>
-        public override bool Process(ref string str)
+        /// <inheritdoc />
+        public override bool Format(ref string str)
         {
             var length = ReadVarint32();
             if (length == 0)
@@ -96,8 +104,8 @@ namespace EasyToolKit.Core.Serialization
             return true;
         }
 
-        /// <summary>Processes a byte array value from length-prefixed bytes.</summary>
-        public override bool Process(ref byte[] data)
+        /// <inheritdoc />
+        public override bool Format(ref byte[] data)
         {
             var length = ReadVarint32();
             if (length == 0)
@@ -110,15 +118,15 @@ namespace EasyToolKit.Core.Serialization
             return true;
         }
 
-        /// <summary>Processes a Unity object reference by resolving its index.</summary>
-        public override bool Process(ref UnityEngine.Object unityObject)
+        /// <inheritdoc />
+        public override bool Format(ref UnityEngine.Object unityObject)
         {
             var index = ReadVarint32();
-            unityObject = ResolveUnityObjectReference(index);
+            unityObject = ResolveReference((int)index);
             return true;
         }
 
-        /// <summary>Releases resources used by the archive.</summary>
+        /// <inheritdoc />
         public override void Dispose()
         {
             _reader?.Dispose();

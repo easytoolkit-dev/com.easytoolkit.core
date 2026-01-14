@@ -3,10 +3,11 @@ namespace EasyToolKit.Core.Serialization
     [SerializerConfiguration(SerializerPriorityLevel.Primitive)]
     public class FloatSerializer : EasySerializer<float>
     {
-        public override void Process(string name, ref float value, IArchive archive)
+        public override void Process(string name, ref float value, IDataFormatter formatter)
         {
-            archive.SetNextName(name);
-            archive.Process(ref value);
+            formatter.BeginMember(name);
+            formatter.Format(ref value);
+            formatter.EndMember();
         }
     }
 }

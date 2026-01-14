@@ -5,20 +5,22 @@ namespace EasyToolKit.Core.Serialization
     [SerializerConfiguration(SerializerPriorityLevel.SystemBasic)]
     public class TypeSerializer : EasySerializer<Type>
     {
-        public override void Process(string name, ref Type value, IArchive archive)
+        public override void Process(string name, ref Type value, IDataFormatter formatter)
         {
-            archive.SetNextName(name);
+            formatter.BeginMember(name);
 
             string typeName = null;
-            var archiveIoType = archive.ArchiveIoType;
+            var direction = formatter.Direction;
 
-            if (archiveIoType == ArchiveIoType.Output)
+            if (direction == FormatterDirection.Output)
                 typeName = TypeToName(value);
 
-            archive.Process(ref typeName);
+            formatter.Format(ref typeName);
 
-            if (archiveIoType == ArchiveIoType.Input)
+            if (direction == FormatterDirection.Input)
                 value = NameToType(typeName);
+
+            formatter.EndMember();
         }
 
         private static string TypeToName(Type type)

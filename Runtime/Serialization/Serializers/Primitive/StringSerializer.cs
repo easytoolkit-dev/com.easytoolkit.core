@@ -3,10 +3,11 @@ namespace EasyToolKit.Core.Serialization
     [SerializerConfiguration(SerializerPriorityLevel.Primitive)]
     public class StringSerializer : EasySerializer<string>
     {
-        public override void Process(string name, ref string value, IArchive archive)
+        public override void Process(string name, ref string value, IDataFormatter formatter)
         {
-            archive.SetNextName(name);
-            archive.Process(ref value);
+            formatter.BeginMember(name);
+            formatter.Format(ref value);
+            formatter.EndMember();
         }
     }
 }

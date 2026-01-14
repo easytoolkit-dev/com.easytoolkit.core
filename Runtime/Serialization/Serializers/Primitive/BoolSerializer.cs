@@ -3,10 +3,11 @@ namespace EasyToolKit.Core.Serialization
     [SerializerConfiguration(SerializerPriorityLevel.Primitive)]
     public class BoolSerializer : EasySerializer<bool>
     {
-        public override void Process(string name, ref bool value, IArchive archive)
+        public override void Process(string name, ref bool value, IDataFormatter formatter)
         {
-            archive.SetNextName(name);
-            archive.Process(ref value);
+            formatter.BeginMember(name);
+            formatter.Format(ref value);
+            formatter.EndMember();
         }
     }
 }

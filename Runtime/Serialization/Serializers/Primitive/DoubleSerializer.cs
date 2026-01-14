@@ -3,10 +3,11 @@ namespace EasyToolKit.Core.Serialization
     [SerializerConfiguration(SerializerPriorityLevel.Primitive)]
     public class DoubleSerializer : EasySerializer<double>
     {
-        public override void Process(string name, ref double value, IArchive archive)
+        public override void Process(string name, ref double value, IDataFormatter formatter)
         {
-            archive.SetNextName(name);
-            archive.Process(ref value);
+            formatter.BeginMember(name);
+            formatter.Format(ref value);
+            formatter.EndMember();
         }
     }
 }

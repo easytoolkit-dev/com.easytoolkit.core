@@ -6,10 +6,10 @@ namespace EasyToolKit.Core.Serialization
     public class Vector2Serializer : EasySerializer<Vector2>
     {
         private static readonly EasySerializer<float> FloatSerializer = GetSerializer<float>();
-        public override void Process(string name, ref Vector2 value, IArchive archive)
+        public override void Process(string name, ref Vector2 value, IDataFormatter formatter)
         {
-            FloatSerializer.Process("x", ref value.x, archive);
-            FloatSerializer.Process("y", ref value.y, archive);
+            FloatSerializer.Process("x", ref value.x, formatter);
+            FloatSerializer.Process("y", ref value.y, formatter);
         }
     }
 }

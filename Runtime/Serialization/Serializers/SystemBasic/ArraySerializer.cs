@@ -9,15 +9,15 @@ namespace EasyToolKit.Core.Serialization
     {
         private static readonly EasySerializer<T> Serializer = GetSerializer<T>();
 
-        public override void Process(string name, ref T[] value, IArchive archive)
+        public override void Process(string name, ref T[] value, IDataFormatter formatter)
         {
-            archive.SetNextName(name);
-            archive.StartNode();
+            formatter.BeginMember(name);
+            formatter.BeginObject();
 
             var sizeTag = new SizeTag(value == null ? 0 : (uint)value.Length);
-            archive.Process(ref sizeTag);
+            formatter.Format(ref sizeTag);
 
-            if (archive.ArchiveIoType == ArchiveIoType.Output)
+            if (formatter.Direction == FormatterDirection.Output)
             {
                 if (value == null)
                     return;
@@ -25,7 +25,7 @@ namespace EasyToolKit.Core.Serialization
                 foreach (var item in value)
                 {
                     var tmp = item;
-                    Serializer.Process(ref tmp, archive);
+                    Serializer.Process(ref tmp, formatter);
                 }
             }
             else
@@ -34,13 +34,14 @@ namespace EasyToolKit.Core.Serialization
                 for (int i = 0; i < sizeTag.Size; i++)
                 {
                     T item = default;
-                    Serializer.Process(ref item, archive);
+                    Serializer.Process(ref item, formatter);
                     total[i] = item;
                 }
 
                 value = total;
             }
-            archive.FinishNode();
+            formatter.EndObject();
+            formatter.EndMember();
         }
     }
 }
