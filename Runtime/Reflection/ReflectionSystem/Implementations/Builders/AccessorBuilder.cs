@@ -58,6 +58,8 @@ namespace EasyToolKit.Core.Reflection
             PathStep lastStep = pathSteps[pathSteps.Count - 1];
             ValidateSetter(lastStep);
 
+            InstanceSetter setter = CreateInstanceSetter(lastStep);
+
             return (ref object target, object value) =>
             {
                 object current = target;
@@ -69,7 +71,7 @@ namespace EasyToolKit.Core.Reflection
                 }
 
                 // Set the value on the last step
-                SetMemberValue(lastStep, current, value);
+                setter.Invoke(ref current, value);
             };
         }
 
@@ -82,6 +84,8 @@ namespace EasyToolKit.Core.Reflection
             PathStep lastStep = pathSteps[pathSteps.Count - 1];
             ValidateSetter(lastStep);
 
+            StaticSetter setter = CreateStaticSetter(lastStep);
+
             return (value) =>
             {
                 object current = null;
@@ -93,7 +97,7 @@ namespace EasyToolKit.Core.Reflection
                 }
 
                 // Set the value on the last step
-                SetMemberValue(lastStep, current, value);
+                setter.Invoke(value);
             };
         }
 
@@ -114,27 +118,35 @@ namespace EasyToolKit.Core.Reflection
         }
 
         /// <summary>
-        /// Sets a value to a member.
+        /// Creates an instance setter delegate for the given path step.
         /// </summary>
-        private void SetMemberValue(PathStep step, object instance, object value)
+        /// <param name="step">The path step containing the member to create a setter for.</param>
+        /// <returns>An instance setter delegate.</returns>
+        /// <exception cref="ArgumentException">Thrown when the member is not a field or property.</exception>
+        private InstanceSetter CreateInstanceSetter(PathStep step)
         {
-            if (step.StepType != PathStepType.Member)
+            return step.Member switch
             {
-                throw new NotSupportedException($"Cannot set value to {step.StepType}. Only field and property setters are supported.");
-            }
+                FieldInfo field => ReflectionUtility.CreateInstanceFieldSetter(field),
+                PropertyInfo property => ReflectionUtility.CreateInstancePropertySetter(property),
+                _ => throw new ArgumentException($"Cannot create setter for '{step.Member.Name}'. Only fields and properties are supported.")
+            };
+        }
 
-            if (step.Member is FieldInfo field)
+        /// <summary>
+        /// Creates a static setter delegate for the given path step.
+        /// </summary>
+        /// <param name="step">The path step containing the member to create a setter for.</param>
+        /// <returns>A static setter delegate.</returns>
+        /// <exception cref="ArgumentException">Thrown when the member is not a field or property.</exception>
+        private StaticSetter CreateStaticSetter(PathStep step)
+        {
+            return step.Member switch
             {
-                field.SetValue(instance, value);
-            }
-            else if (step.Member is PropertyInfo property)
-            {
-                property.SetValue(instance, value, null);
-            }
-            else
-            {
-                throw new NotSupportedException($"Cannot set value to method '{step.Member.Name}'. Only fields and properties are supported.");
-            }
+                FieldInfo field => ReflectionUtility.CreateStaticFieldSetter(field),
+                PropertyInfo property => ReflectionUtility.CreateStaticPropertySetter(property),
+                _ => throw new ArgumentException($"Cannot create setter for '{step.Member.Name}'. Only fields and properties are supported.")
+            };
         }
     }
 }
