@@ -28,10 +28,11 @@ namespace EasyToolKit.Core.Reflection
             if (pathSteps.Count == 0)
             {
                 // Simple static method
-                return args => method.Invoke(null, args);
+                return ReflectionUtility.CreateStaticMethodInvoker(method);
             }
 
             // Path-based static method
+            StaticFuncInvoker methodInvoker = ReflectionUtility.CreateStaticMethodInvoker(method);
             return args =>
             {
                 object target = null;
@@ -39,7 +40,7 @@ namespace EasyToolKit.Core.Reflection
                 {
                     target = ExecuteStep(pathSteps[i], target);
                 }
-                return method.Invoke(target, args);
+                return methodInvoker(args);
             };
         }
 
@@ -51,10 +52,11 @@ namespace EasyToolKit.Core.Reflection
             if (pathSteps.Count == 0)
             {
                 // Simple instance method
-                return (ref object target, object[] args) => method.Invoke(target, args);
+                return ReflectionUtility.CreateInstanceMethodInvoker(method);
             }
 
             // Path-based instance method
+            InstanceFuncInvoker methodInvoker = ReflectionUtility.CreateInstanceMethodInvoker(method);
             return (ref object target, object[] args) =>
             {
                 object current = target;
@@ -62,7 +64,7 @@ namespace EasyToolKit.Core.Reflection
                 {
                     current = ExecuteStep(pathSteps[i], current);
                 }
-                return method.Invoke(current, args);
+                return methodInvoker.Invoke(ref current, args);
             };
         }
 
