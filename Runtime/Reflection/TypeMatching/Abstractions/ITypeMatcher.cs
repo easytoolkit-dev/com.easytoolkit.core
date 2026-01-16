@@ -65,5 +65,19 @@ namespace EasyToolKit.Core.Reflection
         /// cached results.
         /// </remarks>
         TypeMatchResult[] GetMatches(params Type[] targets);
+
+        /// <summary>
+        /// Gets merged results from multiple type match result arrays.
+        /// Results are merged and cached based on the input arrays to improve performance.
+        /// </summary>
+        /// <param name="resultsList">The list of type match result arrays to merge.</param>
+        /// <returns>A merged array of type match results, ordered by priority (highest first).</returns>
+        /// <remarks>
+        /// This method merges multiple result arrays into a single array, sorted by priority.
+        /// The results are cached based on the hash of the input array list, so subsequent
+        /// calls with the same inputs will return cached results. The cache is specific to
+        /// this type matcher instance.
+        /// </remarks>
+        TypeMatchResult[] GetMergedResults(IReadOnlyList<TypeMatchResult[]> resultsList);
     }
 }
