@@ -216,6 +216,28 @@ namespace EasyToolKit.Core.Reflection
             return !(type.IsPrimitive || type.IsValueType || type.IsEnum);
         }
 
+
+        public static MethodInfo ResolveOverloadMethod(
+            [NotNull] this Type targetType,
+            [NotNull] string methodName,
+            BindingFlags flags, int parameterCount)
+        {
+            if (targetType == null)
+                throw new ArgumentNullException(nameof(targetType));
+            if (string.IsNullOrWhiteSpace(methodName))
+                throw new ArgumentException("Method name cannot be null or whitespace.", nameof(methodName));
+
+            var result = targetType.GetMethods(flags)
+                .FirstOrDefault(info => info.Name == methodName && info.GetParameters().Length == parameterCount);
+            if (result == null)
+            {
+                throw new ArgumentException(
+                    $"Method '{methodName}' with parameter count '{parameterCount}' not found in type '{targetType}'.");
+            }
+
+            return result;
+        }
+
         public static MethodInfo ResolveOverloadMethod([NotNull] this Type targetType, [NotNull] string methodName,
             BindingFlags flags, params Type[] parameterTypes)
         {

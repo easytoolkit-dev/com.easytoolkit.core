@@ -37,19 +37,16 @@ namespace EasyToolKit.Core.Reflection
         /// Creates a type matcher with default match rules.
         /// </summary>
         /// <returns>A configured type matcher instance.</returns>
-        /// <remarks>
-        /// The default rules include:
-        /// <list type="bullet">
-        /// <item><description>ExactMatch - Direct type equality</description></item>
-        /// <item><description>GenericSingleTargetMatch - Generic type definition matching</description></item>
-        /// <item><description>GenericConstraintsMatchRule - Generic constraint satisfaction</description></item>
-        /// <item><description>GenericParameterInference - Generic parameter inference</description></item>
-        /// <item><description>NestedGenericTypeMatch - Nested generic type matching</description></item>
-        /// </list>
-        /// </remarks>
         public static ITypeMatcher CreateDefault()
         {
-            return new Implementations.TypeMatcher(addDefaultMatchRules: true);
+            var typeMatcher = new Implementations.TypeMatcher();
+            var provider = new Implementations.DefaultTypeMatchRuleProvider();
+            foreach (var rule in provider.GetRules())
+            {
+                typeMatcher.AddMatchRule(rule);
+            }
+
+            return typeMatcher;
         }
 
         /// <summary>
@@ -61,26 +58,7 @@ namespace EasyToolKit.Core.Reflection
         /// </remarks>
         public static ITypeMatcher CreateEmpty()
         {
-            return new Implementations.TypeMatcher(addDefaultMatchRules: false);
-        }
-
-        /// <summary>
-        /// Creates a type matcher with custom match rules.
-        /// </summary>
-        /// <param name="rules">The custom rules to add.</param>
-        /// <returns>A configured type matcher instance.</returns>
-        /// <remarks>
-        /// This method creates an empty matcher and adds the specified rules to it.
-        /// The default rules are not added.
-        /// </remarks>
-        public static ITypeMatcher CreateWithRules(params TypeMatchRule[] rules)
-        {
-            var matcher = new Implementations.TypeMatcher(addDefaultMatchRules: false);
-            foreach (var rule in rules)
-            {
-                matcher.AddMatchRule(rule);
-            }
-            return matcher;
+            return new Implementations.TypeMatcher();
         }
     }
 }
