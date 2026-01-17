@@ -16,22 +16,22 @@ namespace EasyToolKit.Core.Reflection
         /// <summary>
         /// Adds type match indices to the current collection.
         /// </summary>
-        /// <param name="matchIndices">The type match indices to add.</param>
+        /// <param name="matchCandidates">The type match indices to add.</param>
         /// <remarks>
         /// This method appends the specified indices to the existing collection.
         /// The cache is automatically cleared after this operation.
         /// </remarks>
-        void AddTypeMatchIndices(IEnumerable<TypeMatchIndex> matchIndices);
+        void AddTypeMatchCabdudates(IEnumerable<TypeMatchCandidate> matchCandidates);
 
         /// <summary>
         /// Replaces the current type match indices with the specified collection.
         /// </summary>
-        /// <param name="matchIndices">The new type match indices to use.</param>
+        /// <param name="matchCandidates">The new type match indices to use.</param>
         /// <remarks>
         /// This method replaces all existing indices with the specified collection.
         /// The cache is automatically cleared after this operation.
         /// </remarks>
-        void SetTypeMatchIndices(IEnumerable<TypeMatchIndex> matchIndices);
+        void SetTypeMatchCabdudates(IEnumerable<TypeMatchCandidate> matchCandidates);
 
         /// <summary>
         /// Adds a custom match rule to the type matcher.
@@ -41,7 +41,7 @@ namespace EasyToolKit.Core.Reflection
         /// Rules are evaluated in the order they were added. The cache is automatically
         /// cleared after this operation.
         /// </remarks>
-        void AddMatchRule(TypeMatchRule rule);
+        void AddMatchRule(ITypeMatchRule rule);
 
         /// <summary>
         /// Removes a match rule from the type matcher.
@@ -50,13 +50,13 @@ namespace EasyToolKit.Core.Reflection
         /// <remarks>
         /// The cache is automatically cleared after this operation.
         /// </remarks>
-        void RemoveMatchRule(TypeMatchRule rule);
+        void RemoveMatchRule(ITypeMatchRule rule);
 
         /// <summary>
         /// Gets type matches for the specified target types.
         /// Results are cached based on the target types to improve performance.
         /// </summary>
-        /// <param name="targets">The target types to match against.</param>
+        /// <param name="targetTypes">The target types to match against.</param>
         /// <returns>An array of type match results, ordered by priority (highest first).</returns>
         /// <remarks>
         /// This method evaluates all registered match indices against the specified
@@ -64,7 +64,7 @@ namespace EasyToolKit.Core.Reflection
         /// performance, so subsequent calls with the same target types will return
         /// cached results.
         /// </remarks>
-        TypeMatchResult[] GetMatches(params Type[] targets);
+        TypeMatchResult[] GetMatches(params Type[] targetTypes);
 
         /// <summary>
         /// Gets merged results from multiple type match result arrays.
