@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 
 namespace EasyToolKit.Core.Reflection
 {
@@ -10,15 +11,10 @@ namespace EasyToolKit.Core.Reflection
     /// including the matched type, the targets that were matched, the rule that
     /// produced the match, and the index that was used.
     /// </remarks>
+    [DebuggerDisplay("{MatchedType} - Rule: {MatchRule}")]
     public class TypeMatchResult
     {
-        /// <summary>
-        /// Gets the match index that was used for this match.
-        /// </summary>
-        /// <value>
-        /// The <see cref="TypeMatchIndex"/> that defines the matched type and its priority.
-        /// </value>
-        public TypeMatchIndex MatchIndex { get; }
+        public TypeMatchCandidate Candidate { get; }
 
         /// <summary>
         /// Gets the actual type that was matched.
@@ -35,33 +31,30 @@ namespace EasyToolKit.Core.Reflection
         /// <value>
         /// An array of target types that were used in the matching operation.
         /// </value>
-        public Type[] MatchTargets { get; }
+        public Type[] Constraints { get; }
 
         /// <summary>
         /// Gets the match rule that produced this result.
         /// </summary>
         /// <value>
-        /// The <see cref="TypeMatchRule"/> delegate that successfully matched
+        /// The <see cref="ITypeMatchRule"/> that successfully matched
         /// the index against the targets.
         /// </value>
-        public TypeMatchRule MatchRule { get; }
+        public ITypeMatchRule MatchRule { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TypeMatchResult"/> class.
         /// </summary>
-        /// <param name="matchIndex">The match index that was used.</param>
+        /// <param name="candidate">The match index that was used.</param>
         /// <param name="matchedType">The actual type that was matched.</param>
-        /// <param name="matchTargets">The target types that were matched against.</param>
+        /// <param name="criteria">The target types that were matched against.</param>
         /// <param name="matchRule">The match rule that produced this result.</param>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown when any parameter is null.
-        /// </exception>
-        public TypeMatchResult(TypeMatchIndex matchIndex, Type matchedType, Type[] matchTargets,
-            TypeMatchRule matchRule)
+        public TypeMatchResult(TypeMatchCandidate candidate, Type matchedType, Type[] criteria,
+            ITypeMatchRule matchRule)
         {
-            MatchIndex = matchIndex ?? throw new ArgumentNullException(nameof(matchIndex));
+            Candidate = candidate ?? throw new ArgumentNullException(nameof(candidate));
             MatchedType = matchedType ?? throw new ArgumentNullException(nameof(matchedType));
-            MatchTargets = matchTargets ?? Type.EmptyTypes;
+            Constraints = criteria ?? Type.EmptyTypes;
             MatchRule = matchRule ?? throw new ArgumentNullException(nameof(matchRule));
         }
     }

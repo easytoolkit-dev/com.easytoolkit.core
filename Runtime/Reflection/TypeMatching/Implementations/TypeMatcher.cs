@@ -14,50 +14,25 @@ namespace EasyToolKit.Core.Reflection.Implementations
         /// <summary>
         /// The collection of registered match rules.
         /// </summary>
-        private readonly List<TypeMatchRule> _matchRules = new List<TypeMatchRule>();
+        private readonly List<ITypeMatchRule> _matchRules = new List<ITypeMatchRule>();
 
-        /// <summary>
-        /// The collection of registered match indices.
-        /// </summary>
-        private List<TypeMatchIndex> _matchIndices;
+        private List<TypeMatchCandidate> _matchCandidates;
 
-        /// <summary>
-        /// The cache for match results, keyed by target type hash code.
-        /// </summary>
-        private readonly Dictionary<int, TypeMatchResult[]> _matchResultsCache =
-            new Dictionary<int, TypeMatchResult[]>();
+        private readonly Dictionary<string, TypeMatchResult[]> _matchResultsCache =
+            new Dictionary<string, TypeMatchResult[]>();
 
-        /// <summary>
-        /// The cache for merged results, keyed by the hash of the input results list.
-        /// </summary>
-        private readonly Dictionary<int, TypeMatchResult[]> _mergedResultsCache =
-            new Dictionary<int, TypeMatchResult[]>();
+        private readonly Dictionary<string, TypeMatchResult[]> _mergedResultsCache =
+            new Dictionary<string, TypeMatchResult[]>();
 
-        /// <summary>
-        /// Adds type match indices to the current collection.
-        /// </summary>
-        /// <param name="matchIndices">The type match indices to add.</param>
-        /// <remarks>
-        /// This method appends the specified indices to the existing collection.
-        /// The cache is automatically cleared after this operation.
-        /// </remarks>
-        public void AddTypeMatchIndices(IEnumerable<TypeMatchIndex> matchIndices)
+        public void AddTypeMatchCabdudates(IEnumerable<TypeMatchCandidate> matchCandidates)
         {
-            _matchIndices.AddRange(matchIndices);
+            _matchCandidates.AddRange(matchCandidates);
             ClearCache();
         }
 
-        /// <summary>
-        /// Replaces the current type match indices with the specified collection.
-        /// </summary>
-        /// <param name="matchIndices">The new type match indices to use.</param>
-        /// <remarks>
-        /// This method replaces all existing indices with the specified collection.
-        /// The cache is automatically cleared after this operation.
-        /// </remarks>
-        public void SetTypeMatchIndices(IEnumerable<TypeMatchIndex> matchIndices)
+        public void SetTypeMatchCabdudates(IEnumerable<TypeMatchCandidate> matchCandidates)
         {
-            _matchIndices = matchIndices.ToList();
+            _matchCandidates = matchCandidates.ToList();
             ClearCache();
         }
 
@@ -69,7 +44,7 @@ namespace EasyToolKit.Core.Reflection.Implementations
         /// Rules are evaluated in the order they were added. The cache is automatically
         /// cleared after this operation.
         /// </remarks>
-        public void AddMatchRule(TypeMatchRule rule)
+        public void AddMatchRule(ITypeMatchRule rule)
         {
             _matchRules.Add(rule);
             ClearCache();
@@ -82,7 +57,7 @@ namespace EasyToolKit.Core.Reflection.Implementations
         /// <remarks>
         /// The cache is automatically cleared after this operation.
         /// </remarks>
-        public void RemoveMatchRule(TypeMatchRule rule)
+        public void RemoveMatchRule(ITypeMatchRule rule)
         {
             _matchRules.Remove(rule);
             ClearCache();
@@ -92,7 +67,7 @@ namespace EasyToolKit.Core.Reflection.Implementations
         /// Gets type matches for the specified target types.
         /// Results are cached based on the target types to improve performance.
         /// </summary>
-        /// <param name="targets">The target types to match against.</param>
+        /// <param name="targetTypes">The target types to match against.</param>
         /// <returns>An array of type match results, ordered by priority (highest first).</returns>
         /// <remarks>
         /// This method evaluates all registered match indices against the specified
@@ -100,44 +75,36 @@ namespace EasyToolKit.Core.Reflection.Implementations
         /// performance, so subsequent calls with the same target types will return
         /// cached results.
         /// </remarks>
-        public TypeMatchResult[] GetMatches(params Type[] targets)
+        public TypeMatchResult[] GetMatches(params Type[] targetTypes)
         {
-            var hash = new HashCode();
-            foreach (var target in targets)
+            var key = TypeMatchCaches.ComputeKey(targetTypes);
+            if (_matchResultsCache.TryGetValue(key, out var final))
             {
-                hash.Add(target);
-            }
-            var hashCode = hash.ToHashCode();
-
-            if (_matchResultsCache.TryGetValue(hashCode, out var ret))
-            {
-                return ret;
+                return final;
             }
 
             var results = new List<TypeMatchResult>();
 
-            foreach (var index in _matchIndices)
+            foreach (var index in _matchCandidates)
             {
-                if (index.Targets.Length != targets.Length)
+                if (index.Constraints.Length != targetTypes.Length)
                     continue;
 
-                foreach (var rule in _matchRules)
+                var validRules = _matchRules
+                    .Where(rule => rule.CanMatch(index, targetTypes))
+                    .ToArray();
+                foreach (var rule in validRules)
                 {
-                    bool stop = false;
-                    var match = rule(index, targets, ref stop);
-                    if (match != null)
-                        results.Add(new TypeMatchResult(index, match, targets, rule));
-
-                    if (stop)
-                        break;
+                    var match = rule.Match(index, targetTypes);
+                    results.Add(new TypeMatchResult(index, match, targetTypes, rule));
                 }
             }
 
-            ret = results
-                .OrderByDescending(result => result.MatchIndex.Priority)
+            final = results
+                .OrderByDescending(result => result.Candidate.Priority)
                 .ToArray();
-            _matchResultsCache[hashCode] = ret;
-            return ret;
+            _matchResultsCache[key] = final;
+            return final;
         }
 
         /// <summary>
@@ -164,25 +131,18 @@ namespace EasyToolKit.Core.Reflection.Implementations
                 return resultsList[0];
             }
 
-            var hash = new HashCode();
-            foreach (var value in resultsList)
-            {
-                hash.Add(value);
-            }
-            var hashCode = hash.ToHashCode();
-
-            //TODO hashCode not good
-            if (_mergedResultsCache.TryGetValue(hashCode, out var ret))
+            var key = TypeMatchCaches.ComputeKey(resultsList);
+            if (_mergedResultsCache.TryGetValue(key, out var ret))
             {
                 return ret;
             }
 
             ret = resultsList
                 .SelectMany(x => x)
-                .OrderByDescending(result => result.MatchIndex.Priority)
+                .OrderByDescending(result => result.Candidate.Priority)
                 .Distinct()
                 .ToArray();
-            _mergedResultsCache[hashCode] = ret;
+            _mergedResultsCache[key] = ret;
             return ret;
         }
 
