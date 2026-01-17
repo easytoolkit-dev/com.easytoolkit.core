@@ -26,7 +26,7 @@ namespace EasyToolKit.Core.Reflection.Implementations
 
             if (matchArgs.Length != matchTargetArgs.Length || matchArgs.Length != targetArgs.Length) return false;
 
-            if (!candidate.SourceType.AreGenericConstraintsSatisfiedBy(targetArgs)) return false;
+            if (!candidate.SourceType.SatisfiesConstraints(targetArgs)) return false;
 
             return true;
         }

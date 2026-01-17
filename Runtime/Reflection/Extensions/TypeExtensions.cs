@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using EasyToolKit.Core.Diagnostics;
-using EasyToolKit.OdinSerializer.Utilities;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -186,14 +185,6 @@ namespace EasyToolKit.Core.Reflection
             return type == typeof(string);
         }
 
-        public static bool IsStructuralType([NotNull] this Type type)
-        {
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-
-            return !type.IsBasicValueType() && !type.IsInheritsFrom<UnityEngine.Object>();
-        }
-
         public static bool IsBasicValueType([NotNull] this Type type)
         {
             if (type == null)
@@ -275,18 +266,18 @@ namespace EasyToolKit.Core.Reflection
             {
                 // Build error message
                 string paramTypeNames = parameterTypes.Length > 0
-                    ? string.Join(", ", parameterTypes.Select(t => t.GetNiceName()))
+                    ? string.Join(", ", parameterTypes.Select(t => t.GetAliases()))
                     : "none";
 
                 string availableSignatures = string.Join("\n  ",
                     candidates.Select(m =>
                     {
                         var parameters = m.GetParameters();
-                        return $"{m.Name}({string.Join(", ", parameters.Select(p => p.ParameterType.GetNiceName()))})";
+                        return $"{m.Name}({string.Join(", ", parameters.Select(p => p.ParameterType.GetAliases()))})";
                     }));
 
                 throw new ArgumentException(
-                    $"No matching method overload found for '{methodName}({paramTypeNames})' on type '{targetType.GetNiceName()}'.\n" +
+                    $"No matching method overload found for '{methodName}({paramTypeNames})' on type '{targetType.GetAliases()}'.\n" +
                     $"Available overloads:\n  {availableSignatures}");
             }
 
@@ -329,28 +320,95 @@ namespace EasyToolKit.Core.Reflection
 
         public static bool IsInheritsFrom(this Type type, Type baseType)
         {
-            return OdinSerializer.Utilities.TypeExtensions.InheritsFrom(type, baseType);
+            if (baseType.IsAssignableFrom(type))
+            {
+                return true;
+            }
+
+            if (type.IsInterface && baseType.IsInterface == false)
+            {
+                return false;
+            }
+
+            if (baseType.IsInterface)
+            {
+                return type.GetInterfaces().Contains(baseType);
+            }
+
+            var currentType = type;
+            while (currentType != null)
+            {
+                if (currentType == baseType)
+                {
+                    return true;
+                }
+
+                if (baseType.IsGenericTypeDefinition && currentType.IsGenericType && currentType.GetGenericTypeDefinition() == baseType)
+                {
+                    return true;
+                }
+
+                currentType = currentType.BaseType;
+            }
+
+            return false;
         }
 
-        public static Type[] GetArgumentsOfInheritedOpenGenericType(this Type candidateType, Type openGenericType)
+        public static Type[] GetArgumentsOfInheritedGenericTypeDefinition(this Type candidateType, Type genericTypeDefinition)
         {
             return OdinSerializer.Utilities.TypeExtensions.GetArgumentsOfInheritedOpenGenericType(
-                candidateType, openGenericType);
+                candidateType, genericTypeDefinition);
         }
 
-        public static bool AreGenericConstraintsSatisfiedBy(this Type genericType, params Type[] parameters)
+        public static bool SatisfiesConstraints(
+            this Type openGenericType,
+            params Type[] providedTypeArguments)
         {
-            return OdinSerializer.Utilities.TypeExtensions.AreGenericConstraintsSatisfiedBy(
-                genericType, parameters);
+            try
+            {
+                return openGenericType.MakeGenericTypeExtended(providedTypeArguments) != null;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
         }
 
-        public static bool TryInferGenericParameters(this Type genericTypeDefinition, out Type[] inferredParams,
-            params Type[] knownParameters)
+        public static Type MakeGenericTypeExtended(
+            this Type openGenericType,
+            params Type[] providedTypeArguments)
         {
-            return OdinSerializer.Utilities.TypeExtensions.TryInferGenericParameters(genericTypeDefinition,
-                out inferredParams, knownParameters);
+            if (openGenericType == null)
+                throw new ArgumentNullException(nameof(openGenericType));
+
+            if (providedTypeArguments == null)
+                throw new ArgumentNullException(nameof(providedTypeArguments));
+
+            if (!openGenericType.IsGenericType)
+                throw new ArgumentException("Type must be a generic type.", nameof(openGenericType));
+
+            var typeArguments = openGenericType.GetCompletedGenericArguments(providedTypeArguments);
+            var genericTypeDefinition = openGenericType.GetGenericTypeDefinition();
+            return genericTypeDefinition.MakeGenericType(typeArguments);
         }
 
+        public static Type[] GetCompletedGenericArguments(this Type openGenericType, params Type[] providedTypeArguments)
+        {
+            if (!OdinSerializer.Utilities.TypeExtensions.TryInferGenericParameters(openGenericType,
+                    out var inferredParams, providedTypeArguments))
+            {
+                throw new ArgumentException();
+            }
+
+            return inferredParams;
+        }
+
+        /// <summary>
+        /// Determines whether a type implements an open generic interface or class such as IList&lt;&gt; or List&lt;&gt;.
+        /// </summary>
+        /// <param name="candidateType">Type of the candidate.</param>
+        /// <param name="openGenericType">Type of the open generic type.</param>
+        /// <returns></returns>
         public static bool IsImplementsOpenGenericType(this Type candidateType, Type openGenericType)
         {
             return OdinSerializer.Utilities.TypeExtensions.ImplementsOpenGenericType(candidateType,
@@ -391,122 +449,46 @@ namespace EasyToolKit.Core.Reflection
             }
         }
 
-        /// <summary>
-        /// Extracts generic type arguments from a target type based on a source type pattern.
-        /// </summary>
-        /// <param name="sourceType">The source type pattern, potentially containing generic parameters (e.g., <c>Dictionary&lt;int, T&gt;</c> or <c>IList&lt;T&gt;</c>).</param>
-        /// <param name="targetType">The target type to extract generic arguments from (e.g., <c>Dictionary&lt;int, float&gt;</c> or <c>List&lt;int&gt;</c>).</param>
-        /// <param name="allowInheritance">
-        /// If true, allows matching through inheritance relationships (e.g., <c>IList&lt;T&gt;</c> can match <c>List&lt;int&gt;</c>).
-        /// If false, requires exact generic type definition match.
-        /// </param>
-        /// <returns>
-        /// An array of extracted generic type arguments corresponding to the generic parameters in <paramref name="sourceType"/>.
-        /// Returns an empty array if no generic arguments can be extracted or if the types are incompatible.
-        /// </returns>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="sourceType"/> or <paramref name="targetType"/> is null.</exception>
-        /// <remarks>
-        /// <para>
-        /// This method enables generic type inference by extracting concrete type arguments from a target type
-        /// that matches the structure of a source type pattern. It is particularly useful for scenarios involving
-        /// partially open generic types or generic handlers that need to be instantiated with concrete type arguments.
-        /// </para>
-        /// <para>
-        /// <b>Examples:</b>
-        /// </para>
-        /// <para>
-        /// Direct generic type matching:
-        /// <code><![CDATA[
-        /// // sourceType: Dictionary<int, T>
-        /// // targetType: Dictionary<int, float>
-        /// // Result: [float]
-        /// ExtractGenericArgumentsFrom(typeof(Dictionary<int, T>), typeof(Dictionary<int, float>))
-        /// ]]></code>
-        /// </para>
-        /// <para>
-        /// Generic parameter matching:
-        /// <code><![CDATA[
-        /// // sourceType: T (where T is a generic parameter)
-        /// // targetType: float
-        /// // Result: [float]
-        /// ExtractGenericArgumentsFrom(typeof(T), typeof(float))
-        /// ]]></code>
-        /// </para>
-        /// <para>
-        /// Inheritance-based matching (<paramref name="allowInheritance"/> = true):
-        /// <code><![CDATA[
-        /// // sourceType: IList<T>
-        /// // targetType: List<int>
-        /// // Result: [int]
-        /// ExtractGenericArgumentsFrom(typeof(IList<T>), typeof(List<int>), allowInheritance: true)
-        /// ]]></code>
-        /// </para>
-        /// <para>
-        /// <b>Extraction Logic:</b>
-        /// </para>
-        /// <list type="number">
-        /// <item><description>Array types: Returns the element type if both source and target are arrays with the same structure.</description></item>
-        /// <item><description>Generic parameters: If source type is a generic parameter, returns the target type directly.</description></item>
-        /// <item><description>Generic types: Compares generic type definitions and extracts corresponding type arguments.</description></item>
-        /// <item><description>Inheritance: When enabled, uses <see cref="GetArgumentsOfInheritedOpenGenericType"/> to find matching base types or interfaces.</description></item>
-        /// </list>
-        /// <para>
-        /// <b>Typical Usage:</b>
-        /// </para>
-        /// <para>
-        /// This method is commonly used in type matching and handler instantiation scenarios.
-        /// For example, in a generic handler system:
-        /// <code><![CDATA[
-        /// // In a generic handler system
-        /// class DictionaryDrawer<TKey, TValue> { }
-        /// // To instantiate DictionaryDrawer<string, int> from Dictionary<string, int>
-        /// var args = typeof(Dictionary<string, int>)
-        ///     .GetGenericTypeDefinition()
-        ///     .ExtractGenericArgumentsFrom(typeof(Dictionary<string, int>));
-        /// // Returns [string, int]
-        /// ]]></code>
-        /// </para>
-        /// </remarks>
-        public static Type[] ExtractGenericArgumentsFrom(this Type sourceType, Type targetType,
-            bool allowInheritance = false)
+        public static Type[] ExtractGenericTypeArguments(this Type openGenericType, Type concreteType,
+            bool allowTypeInheritance = false)
         {
-            if (sourceType == null || targetType == null)
+            if (openGenericType == null || concreteType == null)
             {
                 throw new ArgumentNullException();
             }
 
-            if (sourceType.IsArray != targetType.IsArray ||
-                sourceType.IsSZArray != targetType.IsSZArray)
+            if (openGenericType.IsArray != concreteType.IsArray ||
+                openGenericType.IsSZArray != concreteType.IsSZArray)
             {
                 return new Type[] { };
             }
 
-            if (targetType.IsArray)
+            if (concreteType.IsArray)
             {
-                return new[] { targetType.GetElementType() };
+                return new[] { concreteType.GetElementType() };
             }
 
-            if (sourceType.IsGenericParameter)
+            if (openGenericType.IsGenericParameter)
             {
-                return new Type[] { targetType };
+                return new Type[] { concreteType };
             }
 
-            if (!sourceType.IsGenericType)
+            if (!openGenericType.IsGenericType)
             {
                 return new Type[] { };
             }
 
-            if (!targetType.IsGenericType ||
-                sourceType.GetGenericTypeDefinition() != targetType.GetGenericTypeDefinition())
+            if (!concreteType.IsGenericType ||
+                openGenericType.GetGenericTypeDefinition() != concreteType.GetGenericTypeDefinition())
             {
-                if (!allowInheritance)
+                if (!allowTypeInheritance)
                 {
                     return new Type[] { };
                 }
             }
 
-            var sourceArgs = sourceType.GetGenericArguments();
-            var targetArgs = targetType.GetArgumentsOfInheritedOpenGenericType(sourceType.GetGenericTypeDefinition());
+            var sourceArgs = openGenericType.GetGenericArguments();
+            var targetArgs = concreteType.GetArgumentsOfInheritedGenericTypeDefinition(openGenericType.GetGenericTypeDefinition());
             if (targetArgs.Length == 0)
             {
                 return new Type[] { };

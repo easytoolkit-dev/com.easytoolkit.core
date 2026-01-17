@@ -21,7 +21,7 @@ namespace EasyToolKit.Core.Reflection.Implementations
                 if (!candidate.Constraints[i].IsGenericParameter) return false;
             }
 
-            return candidate.SourceType.IsGenericType && candidate.SourceType.AreGenericConstraintsSatisfiedBy(targets);
+            return candidate.SourceType.IsGenericType && candidate.SourceType.SatisfiesConstraints(targets);
         }
 
         /// <inheritdoc/>
