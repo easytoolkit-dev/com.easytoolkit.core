@@ -133,7 +133,7 @@ namespace EasyToolKit.Core.Reflection
         private static MemberInfo GetStepMember(Type owningType, string name, bool expectMethod)
         {
             MemberInfo result = null;
-            MemberInfo[] possibleMembers = owningType.GetAllMembers(name, BindingFlagsHelper.All).ToArray();
+            MemberInfo[] possibleMembers = owningType.GetAllMembers(name, MemberAccessFlags.All).ToArray();
             int stepMethodParameterCount = int.MaxValue;
 
             for (int j = 0; j < possibleMembers.Length; j++)

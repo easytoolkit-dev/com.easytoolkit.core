@@ -1,144 +1,132 @@
-using System;
+﻿using System;
 
 namespace EasyToolKit.Core.Reflection
 {
     /// <summary>
-    /// Extension methods for <see cref="IAccessorBuilder"/> providing generic API support.
+    /// Extension methods for building strongly-typed member accessors.
     /// </summary>
     public static class AccessorBuilderExtensions
     {
         /// <summary>
-        /// Builds a getter delegate for a static member with a typed return value.
+        /// Builds a strongly-typed static getter delegate for a static member.
         /// </summary>
-        /// <typeparam name="TValue">The type of the value to get.</typeparam>
+        /// <typeparam name="TValue">The type of the value to retrieve.</typeparam>
         /// <param name="builder">The accessor builder.</param>
         /// <param name="targetType">The type containing the static member.</param>
-        /// <returns>A typed delegate that gets the value from the static member path.</returns>
+        /// <returns>A strongly-typed <see cref="StaticGetter{TValue}"/> delegate.</returns>
         /// <exception cref="ArgumentException">Thrown when the member path is invalid.</exception>
         public static StaticGetter<TValue> BuildStaticGetter<TValue>(this IAccessorBuilder builder, Type targetType)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            StaticGetter getter = builder.BuildStaticGetter(targetType);
-            return () => (TValue)getter();
+            return builder.BuildStaticGetter(targetType).AsTyped<TValue>();
         }
 
         /// <summary>
-        /// Builds a setter delegate for a static member with a typed value parameter.
+        /// Builds a partially-typed instance getter delegate for an instance member with known value type.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value to retrieve.</typeparam>
+        /// <param name="builder">The accessor builder.</param>
+        /// <param name="targetType">The type containing the instance member.</param>
+        /// <returns>A value-typed <see cref="InstanceGetter{TValue}"/> delegate.</returns>
+        /// <exception cref="ArgumentException">Thrown when the member path is invalid.</exception>
+        public static InstanceGetter<TValue> BuildInstanceGetter<TValue>(this IAccessorBuilder builder, Type targetType)
+        {
+            return builder.BuildInstanceGetter(targetType).WithTypedValue<TValue>();
+        }
+
+        /// <summary>
+        /// Builds a fully-typed instance getter delegate for an instance member.
+        /// </summary>
+        /// <typeparam name="TInstance">The type of the target instance.</typeparam>
+        /// <typeparam name="TValue">The type of the value to retrieve.</typeparam>
+        /// <param name="builder">The accessor builder.</param>
+        /// <param name="targetType">The type containing the instance member.</param>
+        /// <returns>A strongly-typed <see cref="InstanceGetter{TInstance, TValue}"/> delegate.</returns>
+        /// <exception cref="ArgumentException">Thrown when the member path is invalid.</exception>
+        public static InstanceGetter<TInstance, TValue> BuildInstanceGetter<TInstance, TValue>(
+            this IAccessorBuilder builder, Type targetType)
+        {
+            return builder.BuildInstanceGetter(targetType).AsTyped<TInstance, TValue>();
+        }
+
+        /// <summary>
+        /// Builds a fully-typed instance getter delegate for an instance member.
+        /// </summary>
+        /// <typeparam name="TInstance">The type of the target instance.</typeparam>
+        /// <typeparam name="TValue">The type of the value to retrieve.</typeparam>
+        /// <param name="builder">The accessor builder.</param>
+        /// <returns>A strongly-typed <see cref="InstanceGetter{TInstance, TValue}"/> delegate.</returns>
+        /// <exception cref="ArgumentException">Thrown when the member path is invalid.</exception>
+        public static InstanceGetter<TInstance, TValue> BuildInstanceGetter<TInstance, TValue>(
+            this IAccessorBuilder builder)
+        {
+            return builder.BuildInstanceGetter(typeof(TInstance)).AsTyped<TInstance, TValue>();
+        }
+
+        /// <summary>
+        /// Builds a strongly-typed static setter delegate for a static member.
         /// </summary>
         /// <typeparam name="TValue">The type of the value to set.</typeparam>
         /// <param name="builder">The accessor builder.</param>
         /// <param name="targetType">The type containing the static member.</param>
-        /// <returns>A typed delegate that sets the value to the static member path.</returns>
+        /// <returns>A strongly-typed <see cref="StaticSetter{TValue}"/> delegate.</returns>
         /// <exception cref="ArgumentException">Thrown when the member path is invalid or cannot be set.</exception>
         /// <remarks>
         /// Only fields and properties can be set. The final member in the path must be a field or property.
         /// </remarks>
         public static StaticSetter<TValue> BuildStaticSetter<TValue>(this IAccessorBuilder builder, Type targetType)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            StaticSetter setter = builder.BuildStaticSetter(targetType);
-            return value => setter(value);
+            return builder.BuildStaticSetter(targetType).AsTyped<TValue>();
         }
 
         /// <summary>
-        /// Builds a getter delegate for an instance member with a typed return value.
+        /// Builds a partially-typed instance setter delegate for an instance member with known value type.
         /// </summary>
-        /// <typeparam name="TInstance">The type of the instance.</typeparam>
-        /// <typeparam name="TValue">The type of the value to get.</typeparam>
-        /// <param name="builder">The accessor builder.</param>
-        /// <returns>A typed delegate that gets the value from the instance member path.</returns>
-        /// <exception cref="ArgumentException">Thrown when the member path is invalid.</exception>
-        public static TypedInstanceGetter<TInstance, TValue> BuildTypedInstanceGetter<TInstance, TValue>(this IAccessorBuilder builder)
-        {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            InstanceGetter getter = builder.BuildInstanceGetter(typeof(TInstance));
-            return (ref TInstance instance) =>
-            {
-                object boxedInstance = instance;
-                var result = getter(ref boxedInstance);
-                instance = (TInstance)boxedInstance;
-                return (TValue)result;
-            };
-        }
-
-        /// <summary>
-        /// Builds a setter delegate for an instance member with typed instance and value parameters.
-        /// </summary>
-        /// <typeparam name="TInstance">The type of the instance.</typeparam>
-        /// <typeparam name="TValue">The type of the value to set.</typeparam>
-        /// <param name="builder">The accessor builder.</param>
-        /// <returns>A typed delegate that sets the value to the instance member path.</returns>
-        /// <exception cref="ArgumentException">Thrown when the member path is invalid or cannot be set.</exception>
-        /// <remarks>
-        /// Only fields and properties can be set. The final member in the path must be a field or property.
-        /// </remarks>
-        public static TypedInstanceSetter<TInstance, TValue> BuildTypedInstanceSetter<TInstance, TValue>(this IAccessorBuilder builder)
-        {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            InstanceSetter setter = builder.BuildInstanceSetter(typeof(TInstance));
-            return (ref TInstance instance, TValue value) =>
-            {
-                object boxedInstance = instance;
-                setter(ref boxedInstance, value);
-                instance = (TInstance)boxedInstance;
-            };
-        }
-
-        /// <summary>
-        /// Builds a getter delegate for an instance member with object instance and typed return value.
-        /// </summary>
-        /// <typeparam name="TValue">The type of the value to get.</typeparam>
+        /// <typeparam name="TValue">The type of the value to assign.</typeparam>
         /// <param name="builder">The accessor builder.</param>
         /// <param name="targetType">The type containing the instance member.</param>
-        /// <returns>A typed delegate that gets the value from the instance member path.</returns>
-        /// <exception cref="ArgumentException">Thrown when the member path is invalid.</exception>
-        public static InstanceGetter<TValue> BuildInstanceGetter<TValue>(this IAccessorBuilder builder, Type targetType)
-        {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
-
-            InstanceGetter getter = builder.BuildInstanceGetter(targetType);
-            return (ref object instance) => (TValue)getter(ref instance);
-        }
-
-        /// <summary>
-        /// Builds a setter delegate for an instance member with object instance and typed value parameter.
-        /// </summary>
-        /// <typeparam name="TValue">The type of the value to set.</typeparam>
-        /// <param name="builder">The accessor builder.</param>
-        /// <param name="targetType">The type containing the instance member.</param>
-        /// <returns>A typed delegate that sets the value to the instance member path.</returns>
+        /// <returns>A value-typed <see cref="InstanceSetter{TValue}"/> delegate.</returns>
         /// <exception cref="ArgumentException">Thrown when the member path is invalid or cannot be set.</exception>
         /// <remarks>
         /// Only fields and properties can be set. The final member in the path must be a field or property.
         /// </remarks>
         public static InstanceSetter<TValue> BuildInstanceSetter<TValue>(this IAccessorBuilder builder, Type targetType)
         {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+            return builder.BuildInstanceSetter(targetType).WithTypedValue<TValue>();
+        }
 
-            InstanceSetter setter = builder.BuildInstanceSetter(targetType);
-            return (ref object instance, TValue value) => setter(ref instance, value);
+        /// <summary>
+        /// Builds a fully-typed instance setter delegate for an instance member.
+        /// </summary>
+        /// <typeparam name="TInstance">The type of the target instance.</typeparam>
+        /// <typeparam name="TValue">The type of the value to assign.</typeparam>
+        /// <param name="builder">The accessor builder.</param>
+        /// <param name="targetType">The type containing the instance member.</param>
+        /// <returns>A strongly-typed <see cref="InstanceSetter{TInstance, TValue}"/> delegate.</returns>
+        /// <exception cref="ArgumentException">Thrown when the member path is invalid or cannot be set.</exception>
+        /// <remarks>
+        /// Only fields and properties can be set. The final member in the path must be a field or property.
+        /// </remarks>
+        public static InstanceSetter<TInstance, TValue> BuildInstanceSetter<TInstance, TValue>(
+            this IAccessorBuilder builder, Type targetType)
+        {
+            return builder.BuildInstanceSetter(targetType).AsTyped<TInstance, TValue>();
+        }
+
+        /// <summary>
+        /// Builds a fully-typed instance setter delegate for an instance member.
+        /// </summary>
+        /// <typeparam name="TInstance">The type of the target instance.</typeparam>
+        /// <typeparam name="TValue">The type of the value to assign.</typeparam>
+        /// <param name="builder">The accessor builder.</param>
+        /// <returns>A strongly-typed <see cref="InstanceSetter{TInstance, TValue}"/> delegate.</returns>
+        /// <exception cref="ArgumentException">Thrown when the member path is invalid or cannot be set.</exception>
+        /// <remarks>
+        /// Only fields and properties can be set. The final member in the path must be a field or property.
+        /// </remarks>
+        public static InstanceSetter<TInstance, TValue> BuildInstanceSetter<TInstance, TValue>(
+            this IAccessorBuilder builder)
+        {
+            return builder.BuildInstanceSetter(typeof(TInstance)).AsTyped<TInstance, TValue>();
         }
     }
 }

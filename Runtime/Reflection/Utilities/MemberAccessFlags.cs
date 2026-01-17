@@ -2,7 +2,7 @@ using System.Reflection;
 
 namespace EasyToolKit.Core.Reflection
 {
-    public static class BindingFlagsHelper
+    public static class MemberAccessFlags
     {
         public static readonly BindingFlags AnyVisibility = BindingFlags.Public | BindingFlags.NonPublic;
 
