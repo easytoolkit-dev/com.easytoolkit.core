@@ -77,7 +77,7 @@ namespace EasyToolKit.Core.Reflection
             if (!MemberPath.Contains("."))
             {
                 // Simple method name - use direct method resolution
-                MethodInfo resolvedMethod = targetType.ResolveOverloadMethod(MemberPath, BindingFlagsHelper.All, parameterTypes);
+                MethodInfo resolvedMethod = targetType.ResolveOverloadMethod(MemberPath, MemberAccessFlags.All, parameterTypes);
                 return (resolvedMethod, new List<PathStep>());
             }
 

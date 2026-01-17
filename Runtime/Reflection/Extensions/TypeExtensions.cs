@@ -74,7 +74,7 @@ namespace EasyToolKit.Core.Reflection
             if (type.IsValueType) return true;
 
             var ctor = type.GetConstructor(
-                BindingFlagsHelper.AllInstance,
+                MemberAccessFlags.AllInstance,
                 binder: null,
                 types: Type.EmptyTypes,
                 modifiers: null);

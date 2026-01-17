@@ -20,7 +20,6 @@ namespace EasyToolKit.Core.Reflection
         /// </summary>
         /// <param name="fieldInfo">The static field metadata to create a getter for.</param>
         /// <returns>A delegate that retrieves the static field value when invoked.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="fieldInfo"/> is null.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="fieldInfo"/> is not a static field.</exception>
         public static StaticGetter CreateStaticFieldGetter(FieldInfo fieldInfo)
         {
@@ -42,8 +41,7 @@ namespace EasyToolKit.Core.Reflection
         /// </summary>
         /// <param name="fieldInfo">The instance field metadata to create a getter for.</param>
         /// <returns>A delegate that retrieves the instance field value when invoked.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="fieldInfo"/> is null.</exception>
-        /// <exception cref="ArgumentException">Thrown when <paramref name="fieldInfo"/> is not an instance field.</exception>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="fieldInfo"/> is not an instance field (i.e., it is a static field).</exception>
         public static InstanceGetter CreateInstanceFieldGetter(FieldInfo fieldInfo)
         {
             if (fieldInfo == null)
@@ -64,7 +62,6 @@ namespace EasyToolKit.Core.Reflection
         /// </summary>
         /// <param name="fieldInfo">The static field metadata to create a setter for.</param>
         /// <returns>A delegate that sets the static field value when invoked.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="fieldInfo"/> is null.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="fieldInfo"/> is not a static field.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="fieldInfo"/> is read-only (init-only).</exception>
         public static StaticSetter CreateStaticFieldSetter(FieldInfo fieldInfo)
@@ -92,8 +89,7 @@ namespace EasyToolKit.Core.Reflection
         /// </summary>
         /// <param name="fieldInfo">The instance field metadata to create a setter for.</param>
         /// <returns>A delegate that sets the instance field value when invoked.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="fieldInfo"/> is null.</exception>
-        /// <exception cref="ArgumentException">Thrown when <paramref name="fieldInfo"/> is not an instance field.</exception>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="fieldInfo"/> is not an instance field (i.e., it is a static field).</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="fieldInfo"/> is read-only (init-only).</exception>
         public static InstanceSetter CreateInstanceFieldSetter(FieldInfo fieldInfo)
         {
@@ -124,7 +120,6 @@ namespace EasyToolKit.Core.Reflection
         /// </summary>
         /// <param name="propertyInfo">The static property metadata to create a getter for.</param>
         /// <returns>A delegate that retrieves the static property value when invoked.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="propertyInfo"/> is null.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="propertyInfo"/> is not a static property.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="propertyInfo"/> does not have a getter.</exception>
         public static StaticGetter CreateStaticPropertyGetter(PropertyInfo propertyInfo)
@@ -153,8 +148,7 @@ namespace EasyToolKit.Core.Reflection
         /// </summary>
         /// <param name="propertyInfo">The instance property metadata to create a getter for.</param>
         /// <returns>A delegate that retrieves the instance property value when invoked.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="propertyInfo"/> is null.</exception>
-        /// <exception cref="ArgumentException">Thrown when <paramref name="propertyInfo"/> is not an instance property.</exception>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="propertyInfo"/> is not an instance property (i.e., it is a static property).</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="propertyInfo"/> does not have a getter.</exception>
         public static InstanceGetter CreateInstancePropertyGetter(PropertyInfo propertyInfo)
         {
@@ -182,7 +176,6 @@ namespace EasyToolKit.Core.Reflection
         /// </summary>
         /// <param name="propertyInfo">The static property metadata to create a setter for.</param>
         /// <returns>A delegate that sets the static property value when invoked.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="propertyInfo"/> is null.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="propertyInfo"/> is not a static property.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="propertyInfo"/> does not have a setter.</exception>
         public static StaticSetter CreateStaticPropertySetter(PropertyInfo propertyInfo)
@@ -211,8 +204,7 @@ namespace EasyToolKit.Core.Reflection
         /// </summary>
         /// <param name="propertyInfo">The instance property metadata to create a setter for.</param>
         /// <returns>A delegate that sets the instance property value when invoked.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="propertyInfo"/> is null.</exception>
-        /// <exception cref="ArgumentException">Thrown when <paramref name="propertyInfo"/> is not an instance property.</exception>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="propertyInfo"/> is not an instance property (i.e., it is a static property).</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="propertyInfo"/> does not have a setter.</exception>
         public static InstanceSetter CreateInstancePropertySetter(PropertyInfo propertyInfo)
         {
@@ -244,7 +236,6 @@ namespace EasyToolKit.Core.Reflection
         /// </summary>
         /// <param name="methodInfo">The static method metadata to create an invoker for.</param>
         /// <returns>A delegate that invokes the static method when called.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="methodInfo"/> is null.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="methodInfo"/> is not a static method.</exception>
         public static StaticFuncInvoker CreateStaticMethodInvoker(MethodInfo methodInfo)
         {
@@ -266,8 +257,7 @@ namespace EasyToolKit.Core.Reflection
         /// </summary>
         /// <param name="methodInfo">The instance method metadata to create an invoker for.</param>
         /// <returns>A delegate that invokes the instance method when called.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="methodInfo"/> is null.</exception>
-        /// <exception cref="ArgumentException">Thrown when <paramref name="methodInfo"/> is not an instance method.</exception>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="methodInfo"/> is not an instance method (i.e., it is a static method).</exception>
         public static InstanceFuncInvoker CreateInstanceMethodInvoker(MethodInfo methodInfo)
         {
             if (methodInfo == null)
