@@ -34,7 +34,7 @@ namespace EasyToolKit.Core.Reflection.Implementations
 
             var args = target.GetGenericArguments();
 
-            return candidate.SourceType.AreGenericConstraintsSatisfiedBy(args);
+            return candidate.SourceType.SatisfiesConstraints(args);
         }
 
         /// <inheritdoc/>

@@ -16,23 +16,20 @@ namespace EasyToolKit.Core.Reflection.Implementations
         public override bool CanMatch(TypeMatchCandidate candidate, Type[] targets)
         {
             if (targets.Length != 1) return false;
-            if (!candidate.Constraints[0].IsGenericTypeDefinition) return false;
 
-            var valueType = targets[0];
-            var argType = candidate.Constraints[0];
+            var concreteType = targets[0];
+            var genericPatternType = candidate.Constraints[0];
 
-            // If the argument is not a generic parameter and is a concrete type without generic parameters,
-            // the handler's target type must exactly match the value type.
-            if (!argType.IsGenericParameter && !argType.ContainsGenericParameters)
+            if (!genericPatternType.IsGenericParameter && !genericPatternType.ContainsGenericParameters)
             {
-                return argType == valueType;
+                return genericPatternType == concreteType;
             }
 
-            var missingArgs = argType.ExtractGenericArgumentsFrom(valueType, true);
+            var missingArgs = genericPatternType.ExtractGenericTypeArguments(concreteType, true);
             if (missingArgs.Length == 0)
                 return false;
 
-            return candidate.SourceType.AreGenericConstraintsSatisfiedBy(missingArgs);
+            return candidate.SourceType.SatisfiesConstraints(missingArgs);
         }
 
         /// <inheritdoc/>
@@ -48,8 +45,8 @@ namespace EasyToolKit.Core.Reflection.Implementations
                 return candidate.SourceType;
             }
 
-            var missingArgs = argType.ExtractGenericArgumentsFrom(valueType, true);
-            return candidate.SourceType.MakeGenericType(missingArgs);
+            var missingArgs = argType.ExtractGenericTypeArguments(valueType, true);
+            return candidate.SourceType.MakeGenericTypeExtended(missingArgs);
         }
     }
 }
