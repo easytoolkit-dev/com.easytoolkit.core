@@ -30,7 +30,7 @@ namespace EasyToolKit.Core.Reflection.Implementations
             ClearCache();
         }
 
-        public void SetTypeMatchCabdudates(IEnumerable<TypeMatchCandidate> matchCandidates)
+        public void SetTypeMatchCandidates(IEnumerable<TypeMatchCandidate> matchCandidates)
         {
             _matchCandidates = matchCandidates.ToList();
             ClearCache();

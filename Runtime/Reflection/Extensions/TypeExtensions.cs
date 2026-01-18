@@ -354,6 +354,15 @@ namespace EasyToolKit.Core.Reflection
             return false;
         }
 
+        public static bool IsGenericArray(this Type type)
+        {
+            if (!type.IsArray)
+                return false;
+
+            var elementType = type.GetElementType();
+            return elementType != null && elementType.IsGenericParameter;
+        }
+
         /// <summary>
         /// Gets all members of the specified type, including inherited members, using the specified binding flags.
         /// </summary>

@@ -22,5 +22,15 @@ namespace EasyToolKit.Core.Reflection
 
             return typeMatcher;
         }
+
+        public static ITypeMatcher Create(params ITypeMatchRule[] rules)
+        {
+            var typeMatcher = new Implementations.TypeMatcher();
+            foreach (var rule in rules)
+            {
+                typeMatcher.AddMatchRule(rule);
+            }
+            return typeMatcher;
+        }
     }
 }

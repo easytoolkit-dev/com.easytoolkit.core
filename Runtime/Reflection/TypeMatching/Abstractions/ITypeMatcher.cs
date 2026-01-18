@@ -31,7 +31,7 @@ namespace EasyToolKit.Core.Reflection
         /// This method replaces all existing indices with the specified collection.
         /// The cache is automatically cleared after this operation.
         /// </remarks>
-        void SetTypeMatchCabdudates(IEnumerable<TypeMatchCandidate> matchCandidates);
+        void SetTypeMatchCandidates(IEnumerable<TypeMatchCandidate> matchCandidates);
 
         /// <summary>
         /// Adds a custom match rule to the type matcher.
