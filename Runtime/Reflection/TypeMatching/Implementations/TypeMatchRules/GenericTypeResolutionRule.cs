@@ -2,14 +2,6 @@ using System;
 
 namespace EasyToolKit.Core.Reflection.Implementations
 {
-    /// <summary>
-    /// Provides a type matching rule that resolves generic type arguments for partially open generic types.
-    /// </summary>
-    /// <remarks>
-    /// This rule handles complex scenarios where a handler/serializer's generic parameters correspond to
-    /// specific type parameters within a partially concrete generic target type. It enables automatic
-    /// instantiation of handlers with the correct type arguments based on the actual runtime type.
-    /// </remarks>
     public sealed class GenericTypeResolutionRule : TypeMatchRuleBase
     {
         /// <inheritdoc/>
@@ -18,18 +10,37 @@ namespace EasyToolKit.Core.Reflection.Implementations
             if (targets.Length != 1) return false;
 
             var concreteType = targets[0];
-            var genericPatternType = candidate.Constraints[0];
+            var openGenericType = candidate.Constraints[0];
 
-            if (!genericPatternType.IsGenericParameter && !genericPatternType.ContainsGenericParameters)
+            if (!openGenericType.IsGenericType || !concreteType.IsGenericType)
             {
-                return genericPatternType == concreteType;
+                if (openGenericType.IsArray)
+                {
+                    if (!concreteType.IsArray)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
             }
 
-            var missingArgs = genericPatternType.ExtractGenericTypeArguments(concreteType, true);
-            if (missingArgs.Length == 0)
+            Type[] supplementaryTypeArguments;
+            try
+            {
+                supplementaryTypeArguments = openGenericType.GetSupplementaryGenericTypeArguments(concreteType, true);
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+
+            if (supplementaryTypeArguments.Length == 0)
                 return false;
 
-            return candidate.SourceType.SatisfiesConstraints(missingArgs);
+            return candidate.SourceType.SatisfiesConstraints(supplementaryTypeArguments);
         }
 
         /// <inheritdoc/>
@@ -45,8 +56,8 @@ namespace EasyToolKit.Core.Reflection.Implementations
                 return candidate.SourceType;
             }
 
-            var missingArgs = argType.ExtractGenericTypeArguments(valueType, true);
-            return candidate.SourceType.MakeGenericTypeExtended(missingArgs);
+            var supplementaryTypeArguments = argType.GetSupplementaryGenericTypeArguments(valueType, true);
+            return candidate.SourceType.MakeGenericTypeExtended(supplementaryTypeArguments);
         }
     }
 }
