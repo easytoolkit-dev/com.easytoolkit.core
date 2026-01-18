@@ -274,5 +274,49 @@ namespace EasyToolKit.Core.Reflection
         }
 
         #endregion
+
+        #region Constructor Invokers
+
+        /// <summary>
+        /// Creates an invoker delegate for calling the specified constructor.
+        /// </summary>
+        /// <param name="constructorInfo">The constructor metadata to create an invoker for.</param>
+        /// <returns>A delegate that invokes the constructor when called.</returns>
+        public static ConstructorInvoker CreateConstructorInvoker(ConstructorInfo constructorInfo)
+        {
+            if (constructorInfo == null)
+            {
+                throw new ArgumentNullException(nameof(constructorInfo));
+            }
+
+            return args => constructorInfo.Invoke(args);
+        }
+
+        /// <summary>
+        /// Creates a strongly-typed invoker delegate for calling the specified parameterless constructor.
+        /// </summary>
+        /// <typeparam name="TReturn">The type of the return value (the constructed instance type).</typeparam>
+        /// <param name="constructorInfo">The constructor metadata to create an invoker for.</param>
+        /// <returns>A strongly-typed delegate that invokes the parameterless constructor when called.</returns>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="constructorInfo"/> has parameters.</exception>
+        public static ConstructorInvoker<TReturn> CreateConstructorInvoker<TReturn>(ConstructorInfo constructorInfo)
+        {
+            if (constructorInfo == null)
+            {
+                throw new ArgumentNullException(nameof(constructorInfo));
+            }
+
+            var parameters = constructorInfo.GetParameters();
+            if (parameters.Length != 0)
+            {
+                throw new ArgumentException(
+                    $"Constructor must be parameterless, but has {parameters.Length} parameter(s).",
+                    nameof(constructorInfo));
+            }
+
+            return () => (TReturn)constructorInfo.Invoke(null);
+        }
+
+        #endregion
     }
 }
