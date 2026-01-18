@@ -199,7 +199,7 @@ namespace EasyToolKit.Core.Reflection
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
-            return type.IsInheritsFrom<UnityEngine.Object>();
+            return type.IsDerivedFrom<UnityEngine.Object>();
         }
 
         public static bool IsNullableType(this Type type)
@@ -313,12 +313,12 @@ namespace EasyToolKit.Core.Reflection
             return parentTypes.ToArray();
         }
 
-        public static bool IsInheritsFrom<T>(this Type type)
+        public static bool IsDerivedFrom<T>(this Type type)
         {
-            return type.IsInheritsFrom(typeof(T));
+            return type.IsDerivedFrom(typeof(T));
         }
 
-        public static bool IsInheritsFrom(this Type type, Type baseType)
+        public static bool IsDerivedFrom(this Type type, Type baseType)
         {
             if (baseType.IsAssignableFrom(type))
             {
@@ -354,67 +354,12 @@ namespace EasyToolKit.Core.Reflection
             return false;
         }
 
-        public static Type[] GetArgumentsOfInheritedGenericTypeDefinition(this Type candidateType, Type genericTypeDefinition)
-        {
-            return OdinSerializer.Utilities.TypeExtensions.GetArgumentsOfInheritedOpenGenericType(
-                candidateType, genericTypeDefinition);
-        }
-
-        public static bool SatisfiesConstraints(
-            this Type openGenericType,
-            params Type[] providedTypeArguments)
-        {
-            try
-            {
-                return openGenericType.MakeGenericTypeExtended(providedTypeArguments) != null;
-            }
-            catch (Exception e)
-            {
-                return false;
-            }
-        }
-
-        public static Type MakeGenericTypeExtended(
-            this Type openGenericType,
-            params Type[] providedTypeArguments)
-        {
-            if (openGenericType == null)
-                throw new ArgumentNullException(nameof(openGenericType));
-
-            if (providedTypeArguments == null)
-                throw new ArgumentNullException(nameof(providedTypeArguments));
-
-            if (!openGenericType.IsGenericType)
-                throw new ArgumentException("Type must be a generic type.", nameof(openGenericType));
-
-            var typeArguments = openGenericType.GetCompletedGenericArguments(providedTypeArguments);
-            var genericTypeDefinition = openGenericType.GetGenericTypeDefinition();
-            return genericTypeDefinition.MakeGenericType(typeArguments);
-        }
-
-        public static Type[] GetCompletedGenericArguments(this Type openGenericType, params Type[] providedTypeArguments)
-        {
-            if (!OdinSerializer.Utilities.TypeExtensions.TryInferGenericParameters(openGenericType,
-                    out var inferredParams, providedTypeArguments))
-            {
-                throw new ArgumentException();
-            }
-
-            return inferredParams;
-        }
-
         /// <summary>
-        /// Determines whether a type implements an open generic interface or class such as IList&lt;&gt; or List&lt;&gt;.
+        /// Gets all members of the specified type, including inherited members, using the specified binding flags.
         /// </summary>
-        /// <param name="candidateType">Type of the candidate.</param>
-        /// <param name="openGenericType">Type of the open generic type.</param>
-        /// <returns></returns>
-        public static bool IsImplementsOpenGenericType(this Type candidateType, Type openGenericType)
-        {
-            return OdinSerializer.Utilities.TypeExtensions.ImplementsOpenGenericType(candidateType,
-                openGenericType);
-        }
-
+        /// <param name="type">The type to get members from.</param>
+        /// <param name="flags">A bitmask comprised of one or more BindingFlags that specify how the search is conducted.</param>
+        /// <returns>An enumerable collection of all members matching the binding flags.</returns>
         public static IEnumerable<MemberInfo> GetAllMembers(this Type type, BindingFlags flags)
         {
             if ((flags & BindingFlags.DeclaredOnly) == BindingFlags.DeclaredOnly)
@@ -449,63 +394,21 @@ namespace EasyToolKit.Core.Reflection
             }
         }
 
-        public static Type[] ExtractGenericTypeArguments(this Type openGenericType, Type concreteType,
-            bool allowTypeInheritance = false)
+        /// <summary>
+        /// Gets all members of the specified type with the given name, including inherited members, using the specified binding flags.
+        /// </summary>
+        /// <param name="type">The type to get members from.</param>
+        /// <param name="name">The name of the member to find.</param>
+        /// <param name="flags">A bitmask comprised of one or more BindingFlags that specify how the search is conducted.</param>
+        /// <returns>An enumerable collection of members matching the binding flags and specified name.</returns>
+        public static IEnumerable<MemberInfo> GetAllMembers(this Type type, string name, BindingFlags flags)
         {
-            if (openGenericType == null || concreteType == null)
+            if (string.IsNullOrWhiteSpace(name))
             {
-                throw new ArgumentNullException();
+                throw new ArgumentException("Member name cannot be null or whitespace.", nameof(name));
             }
 
-            if (openGenericType.IsArray != concreteType.IsArray ||
-                openGenericType.IsSZArray != concreteType.IsSZArray)
-            {
-                return new Type[] { };
-            }
-
-            if (concreteType.IsArray)
-            {
-                return new[] { concreteType.GetElementType() };
-            }
-
-            if (openGenericType.IsGenericParameter)
-            {
-                return new Type[] { concreteType };
-            }
-
-            if (!openGenericType.IsGenericType)
-            {
-                return new Type[] { };
-            }
-
-            if (!concreteType.IsGenericType ||
-                openGenericType.GetGenericTypeDefinition() != concreteType.GetGenericTypeDefinition())
-            {
-                if (!allowTypeInheritance)
-                {
-                    return new Type[] { };
-                }
-            }
-
-            var sourceArgs = openGenericType.GetGenericArguments();
-            var targetArgs = concreteType.GetArgumentsOfInheritedGenericTypeDefinition(openGenericType.GetGenericTypeDefinition());
-            if (targetArgs.Length == 0)
-            {
-                return new Type[] { };
-            }
-
-            Assert.IsTrue(sourceArgs.Length == targetArgs.Length);
-
-            var missingArgs = new List<Type>();
-            for (int i = 0; i < sourceArgs.Length; i++)
-            {
-                if (sourceArgs[i].IsGenericParameter)
-                {
-                    missingArgs.Add(targetArgs[i]);
-                }
-            }
-
-            return missingArgs.ToArray();
+            return type.GetAllMembers(flags).Where(member => member.Name == name);
         }
     }
 }

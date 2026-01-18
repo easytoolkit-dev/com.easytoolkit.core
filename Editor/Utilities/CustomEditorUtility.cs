@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using EasyToolKit.Core.Unity;
+using EasyToolKit.OdinSerializer.Utilities;
 using UnityEditor;
 using UnityEngine;
 
@@ -396,7 +397,7 @@ namespace EasyToolKit.Core.Editor
                         .GetValue((object)null)).Clear();
                 }
 
-                if (UnityVersionUtility.IsVersionOrGreater(2019, 1))
+                if (UnityVersionChecker.IsVersionOrGreater(2019, 1))
                 {
                     CustomEditorUtility.Unity_Pre_2023_API.CustomEditorAttributesType_Rebuild.Invoke((object)null,
                         (object[])null);

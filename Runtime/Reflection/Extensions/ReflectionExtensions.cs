@@ -125,5 +125,47 @@ namespace EasyToolKit.Core.Reflection
 
             throw new NotSupportedException();
         }
+
+        /// <summary>
+        /// Determines whether the member is static.
+        /// </summary>
+        /// <param name="member">The member to check.</param>
+        /// <returns>
+        /// <c>true</c> if the member is static; otherwise, <c>false</c>.
+        /// For properties and events, returns <c>true</c> if at least one accessor is static.
+        /// </returns>
+        /// <exception cref="NotSupportedException">Thrown when the member type is not supported.</exception>
+        public static bool IsStatic([NotNull] this MemberInfo member)
+        {
+            if (member == null)
+                throw new ArgumentNullException(nameof(member));
+
+            if (member is FieldInfo field)
+            {
+                return field.IsStatic;
+            }
+
+            if (member is PropertyInfo property)
+            {
+                return property.GetMethod?.IsStatic == true || property.SetMethod?.IsStatic == true;
+            }
+
+            if (member is MethodInfo method)
+            {
+                return method.IsStatic;
+            }
+
+            if (member is EventInfo eventInfo)
+            {
+                return eventInfo.AddMethod?.IsStatic == true || eventInfo.RemoveMethod?.IsStatic == true;
+            }
+
+            if (member is ConstructorInfo)
+            {
+                return true;
+            }
+
+            throw new NotSupportedException($"Member type '{member.MemberType}' is not supported.");
+        }
     }
 }
