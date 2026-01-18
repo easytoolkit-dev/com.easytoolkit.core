@@ -10,13 +10,18 @@ namespace EasyToolKit.Core.Reflection.Implementations
             var targetIndex = 0;
             foreach (var constraint in candidate.Constraints)
             {
-                if (constraint.ContainsGenericParameters)
+                if (constraint.IsGenericParameter)
                 {
-                    if (!constraint.IsStructuralMatchOf(targets[targetIndex++]))
+                    if (!constraint.SatisfiesGenericParameterConstraints(targets[targetIndex++]))
                     {
                         return false;
                     }
                 }
+            }
+
+            if (targetIndex != targets.Length)
+            {
+                return false;
             }
 
             return candidate.SourceType.SatisfiesConstraints(targets);
