@@ -306,7 +306,7 @@ namespace EasyToolKit.Core.Editor
                     return null;
                 }
 
-                if (this.Object.GetType().IsInheritsFrom(typeof(UnityEngine.Object)))
+                if (this.Object.GetType().IsDerivedFrom(typeof(UnityEngine.Object)))
                 {
                     return this.Object;
                 }

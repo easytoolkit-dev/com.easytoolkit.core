@@ -1,6 +1,5 @@
 using System;
 using EasyToolKit.Core.Textual;
-using EasyToolKit.OdinSerializer;
 using JetBrains.Annotations;
 
 namespace EasyToolKit.Core.Reflection.Implementations
@@ -144,7 +143,7 @@ namespace EasyToolKit.Core.Reflection.Implementations
             {
                 try
                 {
-                    rootType = TwoWaySerializationBinder.Default.BindToType(rootTypeText);
+                    rootType = TypeResolver.ResolveType(rootTypeText);
                 }
                 catch (Exception e)
                 {

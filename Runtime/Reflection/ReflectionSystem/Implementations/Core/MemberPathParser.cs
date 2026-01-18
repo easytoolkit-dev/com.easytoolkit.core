@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
-using EasyToolKit.OdinSerializer.Utilities;
 
 namespace EasyToolKit.Core.Reflection
 {
@@ -56,9 +55,9 @@ namespace EasyToolKit.Core.Reflection
                         result.Add(new PathStep(index, elementType, isArray: true));
                         currentType = elementType;
                     }
-                    else if (currentType.ImplementsOpenGenericInterface(typeof(IList<>)))
+                    else if (currentType.IsDerivedFromGenericDefinition(typeof(IList<>)))
                     {
-                        Type elementType = currentType.GetArgumentsOfInheritedOpenGenericInterface(typeof(IList<>))[0];
+                        Type elementType = currentType.GetGenericArgumentsRelativeTo(typeof(IList<>))[0];
                         result.Add(new PathStep(index, elementType, isArray: false));
                         currentType = elementType;
                     }
@@ -169,17 +168,17 @@ namespace EasyToolKit.Core.Reflection
 
             if (result == null)
             {
-                throw new ArgumentException($"Could not find expected {(expectMethod ? "method" : "field or property")} '{name}' on type '{owningType.GetNiceName()}' while parsing reflection path.");
+                throw new ArgumentException($"Could not find expected {(expectMethod ? "method" : "field or property")} '{name}' on type '{owningType}' while parsing reflection path.");
             }
 
             if (expectMethod && stepMethodParameterCount > 0)
             {
-                throw new NotSupportedException($"Method '{result.GetNiceName()}' has {stepMethodParameterCount} parameters, but method parameters are currently not supported in path expressions. Use ReflectionFactory.CreateInvoker for parameterized methods.");
+                throw new NotSupportedException($"Method '{result}' has {stepMethodParameterCount} parameters, but method parameters are currently not supported in path expressions. Use ReflectionFactory.CreateInvoker for parameterized methods.");
             }
 
             if ((result is FieldInfo || result is PropertyInfo || result is MethodInfo) == false)
             {
-                throw new NotSupportedException($"Members of type {result.GetType().GetNiceName()} are not support; only fields, properties and methods are supported.");
+                throw new NotSupportedException($"Members of type {result.GetType()} are not support; only fields, properties and methods are supported.");
             }
 
             return result;

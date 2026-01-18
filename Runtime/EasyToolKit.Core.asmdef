@@ -1,8 +1,7 @@
 {
     "name": "EasyToolKit.Core",
-    "references": [
-        "EasyToolKit.OdinSerializer"
-    ],
+    "rootNamespace": "",
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": true,
