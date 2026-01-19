@@ -17,9 +17,10 @@ namespace EasyToolKit.Core.Reflection
         /// <param name="rootType">The root type to start parsing from.</param>
         /// <param name="path">The member path to parse (e.g., "MyField.NestedProperty[0]").</param>
         /// <param name="isStatic">Whether the root member is static.</param>
+        /// <param name="finalStepIsMethod">Whether the final step should be treated as a method (even without () suffix).</param>
         /// <returns>A list of PathStep objects representing the path.</returns>
         /// <exception cref="ArgumentException">Thrown when the path is invalid or cannot be parsed.</exception>
-        public static List<PathStep> Parse(Type rootType, string path, bool isStatic)
+        public static List<PathStep> Parse(Type rootType, string path, bool isStatic, bool finalStepIsMethod = false)
         {
             if (string.IsNullOrWhiteSpace(path))
             {
@@ -35,6 +36,7 @@ namespace EasyToolKit.Core.Reflection
             {
                 string step = steps[i];
                 bool expectMethod = false;
+                bool isLastStep = (i == steps.Length - 1);
 
                 // Handle array/list element access: "[0]"
                 if (step.StartsWith("[", StringComparison.InvariantCulture) &&
@@ -80,12 +82,17 @@ namespace EasyToolKit.Core.Reflection
                     expectMethod = true;
                     step = step.Substring(0, step.Length - 2);
                 }
+                // Handle final step being a method without () suffix
+                else if (isLastStep && finalStepIsMethod)
+                {
+                    expectMethod = true;
+                }
 
                 // Get the member for this step
                 MemberInfo member = GetStepMember(currentType, step, expectMethod);
 
                 // Check static member constraints
-                if (member.IsStatic())
+                if (member.IsStaticMember())
                 {
                     if (currentType == rootType)
                     {
@@ -169,11 +176,6 @@ namespace EasyToolKit.Core.Reflection
             if (result == null)
             {
                 throw new ArgumentException($"Could not find expected {(expectMethod ? "method" : "field or property")} '{name}' on type '{owningType}' while parsing reflection path.");
-            }
-
-            if (expectMethod && stepMethodParameterCount > 0)
-            {
-                throw new NotSupportedException($"Method '{result}' has {stepMethodParameterCount} parameters, but method parameters are currently not supported in path expressions. Use ReflectionPathFactory.BuildInvoker for parameterized methods.");
             }
 
             if ((result is FieldInfo || result is PropertyInfo || result is MethodInfo) == false)

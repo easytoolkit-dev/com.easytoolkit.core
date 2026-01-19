@@ -135,7 +135,7 @@ namespace EasyToolKit.Core.Reflection
         /// For properties and events, returns <c>true</c> if at least one accessor is static.
         /// </returns>
         /// <exception cref="NotSupportedException">Thrown when the member type is not supported.</exception>
-        public static bool IsStatic([NotNull] this MemberInfo member)
+        public static bool IsStaticMember([NotNull] this MemberInfo member)
         {
             if (member == null)
                 throw new ArgumentNullException(nameof(member));
