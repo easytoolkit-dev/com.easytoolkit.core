@@ -18,7 +18,7 @@ namespace EasyToolKit.Core.Reflection
         }
 
         /// <inheritdoc/>
-        public StaticFuncInvoker BuildStaticFunc(Type targetType, params Type[] parameterTypes)
+        public StaticInvoker BuildStaticFunc(Type targetType, params Type[] parameterTypes)
         {
             var (method, pathSteps) = ResolveMethodInfo(targetType, isStatic: true, parameterTypes ?? Type.EmptyTypes);
 
@@ -29,7 +29,7 @@ namespace EasyToolKit.Core.Reflection
             }
 
             // Path-based static method
-            StaticFuncInvoker methodInvoker = ReflectionCompiler.CreateStaticMethodInvoker(method);
+            StaticInvoker methodInvoker = ReflectionCompiler.CreateStaticMethodInvoker(method);
             return args =>
             {
                 object target = null;
@@ -42,7 +42,7 @@ namespace EasyToolKit.Core.Reflection
         }
 
         /// <inheritdoc/>
-        public InstanceFuncInvoker BuildInstanceFunc(Type targetType, params Type[] parameterTypes)
+        public InstanceInvoker BuildInstanceFunc(Type targetType, params Type[] parameterTypes)
         {
             var (method, pathSteps) = ResolveMethodInfo(targetType, isStatic: false, parameterTypes ?? Type.EmptyTypes);
 
@@ -53,7 +53,7 @@ namespace EasyToolKit.Core.Reflection
             }
 
             // Path-based instance method
-            InstanceFuncInvoker methodInvoker = ReflectionCompiler.CreateInstanceMethodInvoker(method);
+            InstanceInvoker methodInvoker = ReflectionCompiler.CreateInstanceMethodInvoker(method);
             return (target, args) =>
             {
                 object current = target;
