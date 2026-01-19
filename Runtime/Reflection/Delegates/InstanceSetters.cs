@@ -21,5 +21,5 @@ namespace EasyToolKit.Core.Reflection
     /// When setting properties on a struct instance, modifications would be lost without <c>ref</c> as the setter
     /// would operate on a copy. Using <c>ref</c> ensures the original instance is modified.
     /// </remarks>
-    public delegate void InstanceSetter<TInstance, TValue>(ref TInstance instance, TValue value);
+    public delegate void InstanceSetter<TInstance, in TValue>(ref TInstance instance, TValue value);
 }

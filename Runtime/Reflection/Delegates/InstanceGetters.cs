@@ -19,5 +19,5 @@ namespace EasyToolKit.Core.Reflection
     /// <remarks>
     /// The instance parameter is passed by reference (<c>ref</c>) to avoid unnecessary copying of value types (structs).
     /// </remarks>
-    public delegate TValue InstanceGetter<TInstance, TValue>(ref TInstance instance);
+    public delegate TValue InstanceGetter<TInstance, out TValue>(ref TInstance instance);
 }

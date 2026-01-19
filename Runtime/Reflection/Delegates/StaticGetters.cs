@@ -13,5 +13,5 @@ namespace EasyToolKit.Core.Reflection
     /// </summary>
     /// <typeparam name="TValue">The type of value to retrieve.</typeparam>
     /// <returns>The value retrieved from the static member.</returns>
-    public delegate TValue StaticGetter<TValue>();
+    public delegate TValue StaticGetter<out TValue>();
 }
