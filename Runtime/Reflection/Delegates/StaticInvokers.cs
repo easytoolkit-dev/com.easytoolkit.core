@@ -7,13 +7,11 @@ namespace EasyToolKit.Core.Reflection
     /// </summary>
     /// <param name="args">The method arguments.</param>
     /// <returns>The return value of the method invocation.</returns>
-    public delegate object StaticFuncInvoker(params object[] args);
+    public delegate object StaticInvoker(params object[] args);
 
     /// <summary>
-    /// Delegate for invoking instance methods with variable parameters.
+    /// Delegate for invoking static methods without return values with variable parameters.
     /// </summary>
-    /// <param name="instance">The instance to invoke the method on.</param>
     /// <param name="args">The method arguments.</param>
-    /// <returns>The return value of the method invocation.</returns>
-    public delegate object InstanceFuncInvoker(object instance, params object[] args);
+    public delegate void StaticVoidInvoker(params object[] args);
 }

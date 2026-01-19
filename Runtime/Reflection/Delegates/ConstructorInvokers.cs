@@ -12,7 +12,7 @@ namespace EasyToolKit.Core.Reflection
     /// <summary>
     /// Delegate for invoking parameterless constructors.
     /// </summary>
-    /// <typeparam name="TReturn">The type of the return value (the constructed instance type).</typeparam>
+    /// <typeparam name="TInstance">The type of the constructed instance value.</typeparam>
     /// <returns>The created instance.</returns>
-    public delegate TReturn ConstructorInvoker<out TReturn>();
+    public delegate TInstance ConstructorInvoker<out TInstance>();
 }

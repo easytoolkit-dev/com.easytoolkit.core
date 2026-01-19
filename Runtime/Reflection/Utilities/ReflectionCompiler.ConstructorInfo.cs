@@ -60,11 +60,11 @@ namespace EasyToolKit.Core.Reflection
         /// <summary>
         /// Creates a strongly-typed invoker delegate for calling the specified parameterless constructor.
         /// </summary>
-        /// <typeparam name="TReturn">The type of the return value (the constructed instance type).</typeparam>
+        /// <typeparam name="TInstance">The type of the constructed instance value.</typeparam>
         /// <param name="constructorInfo">The constructor metadata to create an invoker for.</param>
         /// <returns>A strongly-typed delegate that invokes the parameterless constructor when called.</returns>
         /// <exception cref="ArgumentException">Thrown when <paramref name="constructorInfo"/> has parameters.</exception>
-        public static ConstructorInvoker<TReturn> CreateConstructorInvoker<TReturn>(ConstructorInfo constructorInfo)
+        public static ConstructorInvoker<TInstance> CreateConstructorInvoker<TInstance>(ConstructorInfo constructorInfo)
         {
             if (constructorInfo == null)
             {
@@ -84,12 +84,12 @@ namespace EasyToolKit.Core.Reflection
             var newExpression = Expression.New(constructorInfo);
 
             // Convert result to TReturn if necessary
-            Expression bodyExpression = typeof(TReturn) == constructorInfo.DeclaringType
-                ? (Expression)newExpression
-                : Expression.Convert(newExpression, typeof(TReturn));
+            Expression bodyExpression = typeof(TInstance) == constructorInfo.DeclaringType
+                ? newExpression
+                : Expression.Convert(newExpression, typeof(TInstance));
 
             // Create and compile the lambda expression
-            var lambda = Expression.Lambda<ConstructorInvoker<TReturn>>(bodyExpression);
+            var lambda = Expression.Lambda<ConstructorInvoker<TInstance>>(bodyExpression);
             return lambda.Compile();
 #else
             return () => (TReturn)constructorInfo.Invoke(null);
