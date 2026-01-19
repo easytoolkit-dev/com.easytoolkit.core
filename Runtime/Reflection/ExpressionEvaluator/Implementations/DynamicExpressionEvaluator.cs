@@ -103,22 +103,22 @@ namespace EasyToolKit.Core.Reflection.Implementations
             if (rootType != null)
             {
                 // Static member access
-                var getter = ReflectionFactory.CreateAccessor(path).BuildStaticGetter(sourceType);
+                var getter = ReflectionPathFactory.BuildAccessor(path).BuildStaticGetter(sourceType);
                 return o => getter();
             }
 
             // Instance member access
             try
             {
-                var getter = ReflectionFactory.CreateAccessor(path).BuildInstanceGetter(sourceType);
-                return o => getter(ref o);
+                var getter = ReflectionPathFactory.BuildAccessor(path).BuildInstanceGetter(sourceType);
+                return o => getter(o);
             }
             catch (ArgumentException e)
             {
                 // Fallback to static member
                 try
                 {
-                    var getter = ReflectionFactory.CreateAccessor(path).BuildStaticGetter(sourceType);
+                    var getter = ReflectionPathFactory.BuildAccessor(path).BuildStaticGetter(sourceType);
                     return o => getter();
                 }
                 catch (Exception)

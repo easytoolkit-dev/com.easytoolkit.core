@@ -21,19 +21,6 @@ namespace EasyToolKit.Core.Reflection
         }
 
         /// <summary>
-        /// Builds a partially-typed instance getter delegate for an instance member with known value type.
-        /// </summary>
-        /// <typeparam name="TValue">The type of the value to retrieve.</typeparam>
-        /// <param name="builder">The accessor builder.</param>
-        /// <param name="targetType">The type containing the instance member.</param>
-        /// <returns>A value-typed <see cref="InstanceGetter{TValue}"/> delegate.</returns>
-        /// <exception cref="ArgumentException">Thrown when the member path is invalid.</exception>
-        public static InstanceGetter<TValue> BuildInstanceGetter<TValue>(this IAccessorBuilder builder, Type targetType)
-        {
-            return builder.BuildInstanceGetter(targetType).WithTypedValue<TValue>();
-        }
-
-        /// <summary>
         /// Builds a fully-typed instance getter delegate for an instance member.
         /// </summary>
         /// <typeparam name="TInstance">The type of the target instance.</typeparam>
@@ -76,22 +63,6 @@ namespace EasyToolKit.Core.Reflection
         public static StaticSetter<TValue> BuildStaticSetter<TValue>(this IAccessorBuilder builder, Type targetType)
         {
             return builder.BuildStaticSetter(targetType).AsTyped<TValue>();
-        }
-
-        /// <summary>
-        /// Builds a partially-typed instance setter delegate for an instance member with known value type.
-        /// </summary>
-        /// <typeparam name="TValue">The type of the value to assign.</typeparam>
-        /// <param name="builder">The accessor builder.</param>
-        /// <param name="targetType">The type containing the instance member.</param>
-        /// <returns>A value-typed <see cref="InstanceSetter{TValue}"/> delegate.</returns>
-        /// <exception cref="ArgumentException">Thrown when the member path is invalid or cannot be set.</exception>
-        /// <remarks>
-        /// Only fields and properties can be set. The final member in the path must be a field or property.
-        /// </remarks>
-        public static InstanceSetter<TValue> BuildInstanceSetter<TValue>(this IAccessorBuilder builder, Type targetType)
-        {
-            return builder.BuildInstanceSetter(targetType).WithTypedValue<TValue>();
         }
 
         /// <summary>
