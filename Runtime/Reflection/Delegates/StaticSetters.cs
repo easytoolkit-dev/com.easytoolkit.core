@@ -13,5 +13,5 @@ namespace EasyToolKit.Core.Reflection
     /// </summary>
     /// <typeparam name="TValue">The type of value to set.</typeparam>
     /// <param name="value">The value to set.</param>
-    public delegate void StaticSetter<TValue>(TValue value);
+    public delegate void StaticSetter<in TValue>(TValue value);
 }

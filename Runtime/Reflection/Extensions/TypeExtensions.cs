@@ -56,7 +56,16 @@ namespace EasyToolKit.Core.Reflection
             return $"{typeName}<{genericArgs}>";
         }
 
-        public static bool IsInstantiable(this Type type)
+        /// <summary>
+        /// Determines whether the specified type can be instantiated.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <param name="allowLenient">
+        /// If true, uses lenient mode where any constructor (not just parameterless) is considered instantiable.
+        /// If false, requires a parameterless constructor for reference types.
+        /// </param>
+        /// <returns>true if the type can be instantiated; otherwise, false.</returns>
+        public static bool IsInstantiable(this Type type, bool allowLenient = false)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
@@ -72,12 +81,22 @@ namespace EasyToolKit.Core.Reflection
 
             if (type.IsValueType) return true;
 
-            var ctor = type.GetConstructor(
-                MemberAccessFlags.AllInstance,
-                binder: null,
-                types: Type.EmptyTypes,
-                modifiers: null);
-            return ctor != null;
+            if (allowLenient)
+            {
+                // Lenient mode: any constructor is acceptable
+                var ctors = type.GetConstructors(MemberAccessFlags.AllInstance);
+                return ctors.Length > 0;
+            }
+            else
+            {
+                // Strict mode: requires parameterless constructor
+                var ctor = type.GetConstructor(
+                    MemberAccessFlags.AllInstance,
+                    binder: null,
+                    types: Type.EmptyTypes,
+                    modifiers: null);
+                return ctor != null;
+            }
         }
 
 

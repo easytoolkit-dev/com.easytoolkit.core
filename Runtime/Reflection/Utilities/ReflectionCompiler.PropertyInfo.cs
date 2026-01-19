@@ -25,7 +25,7 @@ namespace EasyToolKit.Core.Reflection
             }
 
             var getMethod = propertyInfo.GetMethod;
-            if (getMethod == null || !getMethod.IsPublic)
+            if (getMethod == null)
             {
                 throw new ArgumentException($"Property '{propertyInfo.Name}' does not have a getter.",
                     nameof(propertyInfo));
@@ -68,7 +68,7 @@ namespace EasyToolKit.Core.Reflection
             }
 
             var getMethod = propertyInfo.GetMethod;
-            if (getMethod == null || !getMethod.IsPublic)
+            if (getMethod == null)
             {
                 throw new ArgumentException($"Property '{propertyInfo.Name}' does not have a getter.",
                     nameof(propertyInfo));
@@ -118,7 +118,7 @@ namespace EasyToolKit.Core.Reflection
             }
 
             var setMethod = propertyInfo.SetMethod;
-            if (setMethod == null || !setMethod.IsPublic)
+            if (setMethod == null)
             {
                 throw new ArgumentException($"Property '{propertyInfo.Name}' does not have a setter.",
                     nameof(propertyInfo));
@@ -165,7 +165,7 @@ namespace EasyToolKit.Core.Reflection
             }
 
             var setMethod = propertyInfo.SetMethod;
-            if (setMethod == null || !setMethod.IsPublic)
+            if (setMethod == null)
             {
                 throw new ArgumentException($"Property '{propertyInfo.Name}' does not have a setter.",
                     nameof(propertyInfo));
