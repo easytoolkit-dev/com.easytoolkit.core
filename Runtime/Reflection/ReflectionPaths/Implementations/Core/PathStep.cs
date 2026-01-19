@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Reflection;
 using System.Collections.Generic;
 
@@ -20,11 +21,21 @@ namespace EasyToolKit.Core.Reflection
     }
 
     /// <summary>
+    /// Unified delegate type for getting values from a path step, supporting both instance and static members.
+    /// </summary>
+    /// <param name="instance">The instance to get the value from (null for static members).</param>
+    /// <returns>The value retrieved from this step.</returns>
+    public delegate object PathStepGetter(object instance);
+
+    /// <summary>
     /// Represents a single step in a reflection path, containing information about how to access
     /// the next value in the path traversal.
     /// </summary>
     public class PathStep
     {
+        private PathStepGetter _compiledGetter;
+        private bool _isGetterCompiled;
+
         /// <summary>
         /// Gets the type of this path step.
         /// </summary>
@@ -49,6 +60,22 @@ namespace EasyToolKit.Core.Reflection
         /// Gets the method info for accessing strongly typed list elements.
         /// </summary>
         public MethodInfo StrongListGetItemMethod { get; }
+
+        /// <summary>
+        /// Gets the compiled getter delegate for optimized value retrieval.
+        /// </summary>
+        public PathStepGetter CompiledGetter
+        {
+            get
+            {
+                if (!_isGetterCompiled)
+                {
+                    _compiledGetter = CompileGetter();
+                    _isGetterCompiled = true;
+                }
+                return _compiledGetter;
+            }
+        }
 
         /// <summary>
         /// Creates a member access path step.
@@ -92,6 +119,79 @@ namespace EasyToolKit.Core.Reflection
         }
 
         /// <summary>
+        /// Compiles an optimized getter delegate for this path step using ReflectionCompiler.
+        /// </summary>
+        /// <returns>A compiled getter delegate for fast value retrieval.</returns>
+        private PathStepGetter CompileGetter()
+        {
+            PathStepGetter stepGetter;
+            switch (StepType)
+            {
+                case PathStepType.Member:
+                    if (Member is FieldInfo field)
+                    {
+                        if (field.IsStatic)
+                        {
+                            var getter = ReflectionCompiler.CreateStaticFieldGetter(field);
+                            stepGetter = _ => getter();
+                        }
+                        else
+                        {
+                            var getter = ReflectionCompiler.CreateInstanceFieldGetter(field);
+                            stepGetter = instance => getter(instance);
+                        }
+                        break;
+                    }
+                    if (Member is PropertyInfo property)
+                    {
+                        if (property.GetMethod.IsStatic)
+                        {
+                            var getter = ReflectionCompiler.CreateStaticPropertyGetter(property);
+                            stepGetter = _ => getter();
+                        }
+                        else
+                        {
+                            var getter = ReflectionCompiler.CreateInstancePropertyGetter(property);
+                            stepGetter = instance => getter(instance);
+                        }
+                        break;
+                    }
+                    if (Member is MethodInfo method)
+                    {
+                        if (method.IsStatic)
+                        {
+                            var getter = ReflectionCompiler.CreateStaticMethodInvoker(method);
+                            stepGetter = _ => getter();
+                        }
+                        else
+                        {
+                            var getter = ReflectionCompiler.CreateInstanceMethodInvoker(method);
+                            stepGetter = instance => getter(instance);
+                        }
+                        break;
+                    }
+                    throw new NotSupportedException($"Member type '{Member.GetType()}' is not supported for compiled getters.");
+
+                case PathStepType.WeakListElement:
+                    return instance => ((IList)instance)[ElementIndex];
+
+                case PathStepType.ArrayElement:
+                    return instance => ((Array)instance).GetValue(ElementIndex);
+
+                case PathStepType.StrongListElement:
+                {
+                    var getter = ReflectionCompiler.CreateInstanceMethodInvoker(StrongListGetItemMethod);
+                    stepGetter = instance => getter(instance, ElementIndex);
+                    break;
+                }
+                default:
+                    throw new NotImplementedException($"PathStepType '{StepType}' is not implemented for compiled getters.");
+            }
+
+            return stepGetter;
+        }
+
+        /// <summary>
         /// Gets a value indicating whether this step is a static member access.
         /// </summary>
         public bool IsStatic
@@ -101,7 +201,7 @@ namespace EasyToolKit.Core.Reflection
                 if (StepType != PathStepType.Member || Member == null)
                     return false;
 
-                return Member.IsStatic();
+                return Member.IsStaticMember();
             }
         }
 

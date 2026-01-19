@@ -27,7 +27,7 @@ namespace EasyToolKit.Core.Reflection
                 object current = null;
                 foreach (var step in pathSteps)
                 {
-                    current = ExecuteStep(step, current);
+                    current = step.CompiledGetter(current);
                 }
                 return current;
             };
@@ -43,7 +43,7 @@ namespace EasyToolKit.Core.Reflection
                 object current = target;
                 foreach (var step in pathSteps)
                 {
-                    current = ExecuteStep(step, current);
+                    current = step.CompiledGetter(current);
                 }
                 return current;
             };
@@ -67,7 +67,7 @@ namespace EasyToolKit.Core.Reflection
                 // Navigate to the parent of the last step
                 for (int i = 0; i < pathSteps.Count - 1; i++)
                 {
-                    current = ExecuteStep(pathSteps[i], current);
+                    current = pathSteps[i].CompiledGetter(current);
                 }
 
                 // Set the value on the last step
@@ -84,21 +84,31 @@ namespace EasyToolKit.Core.Reflection
             PathStep lastStep = pathSteps[pathSteps.Count - 1];
             ValidateSetter(lastStep);
 
-            StaticSetter setter = CreateStaticSetter(lastStep);
+            // Create the appropriate setter based on whether the final member is static or instance
+            StaticSetter staticSetter = CreateStaticSetter(lastStep, out InstanceSetter instanceSetter);
 
-            return (value) =>
+            // If the final member is an instance member, we need to navigate to the parent and use instance setter
+            if (instanceSetter != null)
             {
-                object current = null;
-
-                // Navigate to the parent of the last step
-                for (int i = 0; i < pathSteps.Count - 1; i++)
+                return (value) =>
                 {
-                    current = ExecuteStep(pathSteps[i], current);
-                }
+                    object current = null;
 
-                // Set the value on the last step
-                setter.Invoke(value);
-            };
+                    // Navigate to the parent of the last step
+                    for (int i = 0; i < pathSteps.Count - 1; i++)
+                    {
+                        current = pathSteps[i].CompiledGetter(current);
+                    }
+
+                    // Set the value on the last step using the instance setter
+                    instanceSetter.Invoke(current, value);
+                };
+            }
+            else
+            {
+                // Static member - use the static setter directly
+                return staticSetter;
+            }
         }
 
         /// <summary>
@@ -134,19 +144,48 @@ namespace EasyToolKit.Core.Reflection
         }
 
         /// <summary>
-        /// Creates a static setter delegate for the given path step.
+        /// Creates a setter delegate for the given path step.
+        /// For nested paths, the final step may be an instance field/property on a statically accessed object.
+        /// This method returns both a static setter (for static members) and an instance setter (for instance members).
         /// </summary>
         /// <param name="step">The path step containing the member to create a setter for.</param>
-        /// <returns>A static setter delegate.</returns>
+        /// <param name="instanceSetter">Output parameter for the instance setter (used when the member is an instance member).</param>
+        /// <returns>A static setter delegate, or null if an instance setter should be used instead.</returns>
         /// <exception cref="ArgumentException">Thrown when the member is not a field or property.</exception>
-        private StaticSetter CreateStaticSetter(PathStep step)
+        private StaticSetter CreateStaticSetter(PathStep step, out InstanceSetter instanceSetter)
         {
-            return step.Member switch
+            instanceSetter = null;
+
+            if (step.Member is FieldInfo field)
             {
-                FieldInfo field => ReflectionCompiler.CreateStaticFieldSetter(field),
-                PropertyInfo property => ReflectionCompiler.CreateStaticPropertySetter(property),
-                _ => throw new ArgumentException($"Cannot create setter for '{step.Member.Name}'. Only fields and properties are supported.")
-            };
+                if (field.IsStatic)
+                {
+                    return ReflectionCompiler.CreateStaticFieldSetter(field);
+                }
+                else
+                {
+                    // For instance fields in nested static paths, return an instance setter
+                    instanceSetter = ReflectionCompiler.CreateInstanceFieldSetter(field);
+                    return null;
+                }
+            }
+            else if (step.Member is PropertyInfo property)
+            {
+                if (property.GetMethod.IsStatic)
+                {
+                    return ReflectionCompiler.CreateStaticPropertySetter(property);
+                }
+                else
+                {
+                    // For instance properties in nested static paths, return an instance setter
+                    instanceSetter = ReflectionCompiler.CreateInstancePropertySetter(property);
+                    return null;
+                }
+            }
+            else
+            {
+                throw new ArgumentException($"Cannot create setter for '{step.Member.Name}'. Only fields and properties are supported.");
+            }
         }
     }
 }

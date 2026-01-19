@@ -25,44 +25,5 @@ namespace EasyToolKit.Core.Reflection
         /// Gets the member path this builder operates on.
         /// </summary>
         public string MemberPath => _memberPath;
-
-        /// <summary>
-        /// Executes a single path step to get the value.
-        /// </summary>
-        /// <param name="step">The path step to execute.</param>
-        /// <param name="instance">The instance to execute the step on.</param>
-        /// <returns>The value retrieved from this step.</returns>
-        protected object ExecuteStep(PathStep step, object instance)
-        {
-            switch (step.StepType)
-            {
-                case PathStepType.Member:
-                    if (step.Member is FieldInfo field)
-                    {
-                        return field.GetValue(instance);
-                    }
-                    if (step.Member is PropertyInfo property)
-                    {
-                        return property.GetValue(instance, null);
-                    }
-                    if (step.Member is MethodInfo method)
-                    {
-                        return method.Invoke(instance, null);
-                    }
-                    throw new NotSupportedException($"Member type '{step.Member.GetType()}' is not supported for getting values.");
-
-                case PathStepType.WeakListElement:
-                    return ((IList)instance)[step.ElementIndex];
-
-                case PathStepType.ArrayElement:
-                    return ((Array)instance).GetValue(step.ElementIndex);
-
-                case PathStepType.StrongListElement:
-                    return step.StrongListGetItemMethod.Invoke(instance, new object[] { step.ElementIndex });
-
-                default:
-                    throw new NotImplementedException($"PathStepType '{step.StepType}' is not implemented for getting values.");
-            }
-        }
     }
 }

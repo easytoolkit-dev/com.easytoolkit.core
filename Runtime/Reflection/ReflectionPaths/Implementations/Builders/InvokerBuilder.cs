@@ -28,17 +28,37 @@ namespace EasyToolKit.Core.Reflection
                 return ReflectionCompiler.CreateStaticMethodInvoker(method);
             }
 
-            // Path-based static method
-            StaticInvoker methodInvoker = ReflectionCompiler.CreateStaticMethodInvoker(method);
-            return args =>
+            // Path-based method: navigate through static members to reach the target
+            // Note: The path can include static fields/properties, but the final method can be either
+            // static or instance on the final object
+            if (method.IsStatic)
             {
-                object target = null;
-                for (int i = 0; i < pathSteps.Count; i++)
+                // Final method is static - create static invoker
+                var methodInvoker = ReflectionCompiler.CreateStaticMethodInvoker(method);
+                return args =>
                 {
-                    target = ExecuteStep(pathSteps[i], target);
-                }
-                return methodInvoker(args);
-            };
+                    object current = null;
+                    for (int i = 0; i < pathSteps.Count; i++)
+                    {
+                        current = pathSteps[i].CompiledGetter(current);
+                    }
+                    return methodInvoker(args);
+                };
+            }
+            else
+            {
+                // Final method is instance - create instance invoker
+                var methodInvoker = ReflectionCompiler.CreateInstanceMethodInvoker(method);
+                return args =>
+                {
+                    object current = null;
+                    for (int i = 0; i < pathSteps.Count; i++)
+                    {
+                        current = pathSteps[i].CompiledGetter(current);
+                    }
+                    return methodInvoker(current, args);
+                };
+            }
         }
 
         /// <inheritdoc/>
@@ -53,13 +73,13 @@ namespace EasyToolKit.Core.Reflection
             }
 
             // Path-based instance method
-            InstanceInvoker methodInvoker = ReflectionCompiler.CreateInstanceMethodInvoker(method);
+            var methodInvoker = ReflectionCompiler.CreateInstanceMethodInvoker(method);
             return (target, args) =>
             {
                 object current = target;
                 for (int i = 0; i < pathSteps.Count; i++)
                 {
-                    current = ExecuteStep(pathSteps[i], current);
+                    current = pathSteps[i].CompiledGetter(current);
                 }
                 return methodInvoker.Invoke(current, args);
             };
@@ -74,21 +94,21 @@ namespace EasyToolKit.Core.Reflection
             if (!MemberPath.Contains("."))
             {
                 // Simple method name - use direct method resolution
-                MethodInfo resolvedMethod = targetType.ResolveOverloadMethod(MemberPath, MemberAccessFlags.All, parameterTypes);
+                var resolvedMethod = targetType.ResolveOverloadMethod(MemberPath, MemberAccessFlags.All, parameterTypes);
                 return (resolvedMethod, new List<PathStep>());
             }
 
             // Complex path - parse the path and get the final method
-            List<PathStep> pathSteps = MemberPathParser.Parse(targetType, MemberPath, isStatic);
+            var pathSteps = MemberPathParser.Parse(targetType, MemberPath, isStatic, finalStepIsMethod: true);
 
             // The last step should be a method
-            PathStep lastStep = pathSteps[^1];
+            var lastStep = pathSteps[^1];
             if (lastStep.StepType != PathStepType.Member || lastStep.Member is not MethodInfo)
             {
                 throw new ArgumentException($"The last element in path '{MemberPath}' is not a method.");
             }
 
-            MethodInfo method = (MethodInfo)lastStep.Member;
+            var method = (MethodInfo)lastStep.Member;
 
             // For parameterized methods, we need to find the correct overload
             if (parameterTypes.Length > 0)
