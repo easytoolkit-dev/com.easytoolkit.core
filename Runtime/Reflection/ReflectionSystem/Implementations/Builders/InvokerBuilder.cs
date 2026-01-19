@@ -7,7 +7,7 @@ namespace EasyToolKit.Core.Reflection
     /// <summary>
     /// Builder for creating method invokers that call methods with optional parameters.
     /// </summary>
-    public sealed class InvokerBuilder : MemberPathBuilderBase, IInvokerBuilder
+    public sealed class InvokerBuilder : ReflectionBuilderBase, IInvokerBuilder
     {
         /// <summary>
         /// Initializes a new instance of the InvokerBuilder.
@@ -18,9 +18,6 @@ namespace EasyToolKit.Core.Reflection
         }
 
         /// <inheritdoc/>
-        public string MethodPath => MemberPath;
-
-        /// <inheritdoc/>
         public StaticFuncInvoker BuildStaticFunc(Type targetType, params Type[] parameterTypes)
         {
             var (method, pathSteps) = ResolveMethodInfo(targetType, isStatic: true, parameterTypes ?? Type.EmptyTypes);
@@ -28,11 +25,11 @@ namespace EasyToolKit.Core.Reflection
             if (pathSteps.Count == 0)
             {
                 // Simple static method
-                return ReflectionUtility.CreateStaticMethodInvoker(method);
+                return ReflectionCompiler.CreateStaticMethodInvoker(method);
             }
 
             // Path-based static method
-            StaticFuncInvoker methodInvoker = ReflectionUtility.CreateStaticMethodInvoker(method);
+            StaticFuncInvoker methodInvoker = ReflectionCompiler.CreateStaticMethodInvoker(method);
             return args =>
             {
                 object target = null;
@@ -52,19 +49,19 @@ namespace EasyToolKit.Core.Reflection
             if (pathSteps.Count == 0)
             {
                 // Simple instance method
-                return ReflectionUtility.CreateInstanceMethodInvoker(method);
+                return ReflectionCompiler.CreateInstanceMethodInvoker(method);
             }
 
             // Path-based instance method
-            InstanceFuncInvoker methodInvoker = ReflectionUtility.CreateInstanceMethodInvoker(method);
-            return (ref object target, object[] args) =>
+            InstanceFuncInvoker methodInvoker = ReflectionCompiler.CreateInstanceMethodInvoker(method);
+            return (target, args) =>
             {
                 object current = target;
                 for (int i = 0; i < pathSteps.Count; i++)
                 {
                     current = ExecuteStep(pathSteps[i], current);
                 }
-                return methodInvoker.Invoke(ref current, args);
+                return methodInvoker.Invoke(current, args);
             };
         }
 

@@ -173,7 +173,7 @@ namespace EasyToolKit.Core.Reflection
 
             if (expectMethod && stepMethodParameterCount > 0)
             {
-                throw new NotSupportedException($"Method '{result}' has {stepMethodParameterCount} parameters, but method parameters are currently not supported in path expressions. Use ReflectionFactory.CreateInvoker for parameterized methods.");
+                throw new NotSupportedException($"Method '{result}' has {stepMethodParameterCount} parameters, but method parameters are currently not supported in path expressions. Use ReflectionPathFactory.BuildInvoker for parameterized methods.");
             }
 
             if ((result is FieldInfo || result is PropertyInfo || result is MethodInfo) == false)

@@ -7,7 +7,7 @@ namespace EasyToolKit.Core.Reflection
     /// <summary>
     /// Builder for creating member accessors that get or set values through member paths.
     /// </summary>
-    public sealed class AccessorBuilder : MemberPathBuilderBase, IAccessorBuilder
+    public sealed class AccessorBuilder : ReflectionBuilderBase, IAccessorBuilder
     {
         /// <summary>
         /// Initializes a new instance of the AccessorBuilder.
@@ -38,7 +38,7 @@ namespace EasyToolKit.Core.Reflection
         {
             List<PathStep> pathSteps = MemberPathParser.Parse(targetType, MemberPath, isStatic: false);
 
-            return (ref object target) =>
+            return target =>
             {
                 object current = target;
                 foreach (var step in pathSteps)
@@ -60,7 +60,7 @@ namespace EasyToolKit.Core.Reflection
 
             InstanceSetter setter = CreateInstanceSetter(lastStep);
 
-            return (ref object target, object value) =>
+            return (target, value) =>
             {
                 object current = target;
 
@@ -71,7 +71,7 @@ namespace EasyToolKit.Core.Reflection
                 }
 
                 // Set the value on the last step
-                setter.Invoke(ref current, value);
+                setter.Invoke(current, value);
             };
         }
 
@@ -127,8 +127,8 @@ namespace EasyToolKit.Core.Reflection
         {
             return step.Member switch
             {
-                FieldInfo field => ReflectionUtility.CreateInstanceFieldSetter(field),
-                PropertyInfo property => ReflectionUtility.CreateInstancePropertySetter(property),
+                FieldInfo field => ReflectionCompiler.CreateInstanceFieldSetter(field),
+                PropertyInfo property => ReflectionCompiler.CreateInstancePropertySetter(property),
                 _ => throw new ArgumentException($"Cannot create setter for '{step.Member.Name}'. Only fields and properties are supported.")
             };
         }
@@ -143,8 +143,8 @@ namespace EasyToolKit.Core.Reflection
         {
             return step.Member switch
             {
-                FieldInfo field => ReflectionUtility.CreateStaticFieldSetter(field),
-                PropertyInfo property => ReflectionUtility.CreateStaticPropertySetter(property),
+                FieldInfo field => ReflectionCompiler.CreateStaticFieldSetter(field),
+                PropertyInfo property => ReflectionCompiler.CreateStaticPropertySetter(property),
                 _ => throw new ArgumentException($"Cannot create setter for '{step.Member.Name}'. Only fields and properties are supported.")
             };
         }

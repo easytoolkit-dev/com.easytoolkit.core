@@ -5,26 +5,8 @@ namespace EasyToolKit.Core.Reflection
     /// <summary>
     /// Builder interface for creating member accessors that get or set values through member paths.
     /// </summary>
-    /// <remarks>
-    /// <para>
-    /// An accessor can traverse complex member paths including fields, properties, and parameterless methods.
-    /// For example, a path like "Player.Stats.Health" can access nested members.
-    /// </para>
-    /// <para>
-    /// The getter methods return delegates that retrieve values from the member path.
-    /// The setter methods return delegates that set values to the final member in the path.
-    /// </para>
-    /// <para>
-    /// Only fields and properties can be set. Methods, array elements, and list elements cannot be set.
-    /// </para>
-    /// </remarks>
-    public interface IAccessorBuilder
+    public interface IAccessorBuilder : IReflectionBuilder
     {
-        /// <summary>
-        /// Gets the member path this accessor operates on.
-        /// </summary>
-        string MemberPath { get; }
-
         /// <summary>
         /// Builds a getter delegate for a static member.
         /// </summary>

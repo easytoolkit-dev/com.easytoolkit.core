@@ -8,15 +8,15 @@ namespace EasyToolKit.Core.Reflection
     /// Base class for builders that operate on member paths.
     /// Provides common functionality for parsing and navigating member paths.
     /// </summary>
-    public abstract class MemberPathBuilderBase
+    public abstract class ReflectionBuilderBase : IReflectionBuilder
     {
         private readonly string _memberPath;
 
         /// <summary>
-        /// Initializes a new instance of the MemberPathBuilderBase.
+        /// Initializes a new instance of the ReflectionBuilderBase.
         /// </summary>
         /// <param name="memberPath">The path to the member (e.g., "Field", "Property", "Nested.Method()").</param>
-        protected MemberPathBuilderBase(string memberPath)
+        protected ReflectionBuilderBase(string memberPath)
         {
             _memberPath = memberPath ?? throw new ArgumentNullException(nameof(memberPath));
         }
