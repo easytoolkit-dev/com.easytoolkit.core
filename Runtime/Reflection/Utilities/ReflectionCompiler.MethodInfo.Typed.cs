@@ -29,70 +29,70 @@ namespace EasyToolKit.Core.Reflection
         /// <summary>
         /// Creates a strongly-typed invoker delegate for calling the specified static method with one parameter.
         /// </summary>
-        /// <typeparam name="TResult">The type of the return value.</typeparam>
         /// <typeparam name="TArg1">The type of the first parameter.</typeparam>
+        /// <typeparam name="TResult">The type of the return value.</typeparam>
         /// <param name="methodInfo">The static method metadata to create an invoker for.</param>
         /// <returns>A strongly-typed delegate that invokes the static method when called.</returns>
         /// <exception cref="ArgumentException">Thrown when <paramref name="methodInfo"/> is not static.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="methodInfo"/> does not have exactly one parameter.</exception>
-        public static StaticInvoker<TResult, TArg1> CreateStaticMethodInvoker<TResult, TArg1>(MethodInfo methodInfo)
+        public static StaticInvoker<TArg1, TResult> CreateStaticMethodInvoker<TArg1, TResult>(MethodInfo methodInfo)
         {
             ValidateStaticMethod(methodInfo, expectedParameterCount: 1);
-            return CompileStaticInvoker<TResult, TArg1>(methodInfo);
+            return CompileStaticInvoker<TArg1, TResult>(methodInfo);
         }
 
         /// <summary>
         /// Creates a strongly-typed invoker delegate for calling the specified static method with two parameters.
         /// </summary>
-        /// <typeparam name="TResult">The type of the return value.</typeparam>
         /// <typeparam name="TArg1">The type of the first parameter.</typeparam>
         /// <typeparam name="TArg2">The type of the second parameter.</typeparam>
+        /// <typeparam name="TResult">The type of the return value.</typeparam>
         /// <param name="methodInfo">The static method metadata to create an invoker for.</param>
         /// <returns>A strongly-typed delegate that invokes the static method when called.</returns>
         /// <exception cref="ArgumentException">Thrown when <paramref name="methodInfo"/> is not static.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="methodInfo"/> does not have exactly two parameters.</exception>
-        public static StaticInvoker<TResult, TArg1, TArg2> CreateStaticMethodInvoker<TResult, TArg1, TArg2>(
+        public static StaticInvoker<TArg1, TArg2, TResult> CreateStaticMethodInvoker<TArg1, TArg2, TResult>(
             MethodInfo methodInfo)
         {
             ValidateStaticMethod(methodInfo, expectedParameterCount: 2);
-            return CompileStaticInvoker<TResult, TArg1, TArg2>(methodInfo);
+            return CompileStaticInvoker<TArg1, TArg2, TResult>(methodInfo);
         }
 
         /// <summary>
         /// Creates a strongly-typed invoker delegate for calling the specified static method with three parameters.
         /// </summary>
-        /// <typeparam name="TResult">The type of the return value.</typeparam>
         /// <typeparam name="TArg1">The type of the first parameter.</typeparam>
         /// <typeparam name="TArg2">The type of the second parameter.</typeparam>
         /// <typeparam name="TArg3">The type of the third parameter.</typeparam>
+        /// <typeparam name="TResult">The type of the return value.</typeparam>
         /// <param name="methodInfo">The static method metadata to create an invoker for.</param>
         /// <returns>A strongly-typed delegate that invokes the static method when called.</returns>
         /// <exception cref="ArgumentException">Thrown when <paramref name="methodInfo"/> is not static.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="methodInfo"/> does not have exactly three parameters.</exception>
-        public static StaticInvoker<TResult, TArg1, TArg2, TArg3> CreateStaticMethodInvoker<TResult, TArg1, TArg2, TArg3>(
+        public static StaticInvoker<TArg1, TArg2, TArg3, TResult> CreateStaticMethodInvoker<TArg1, TArg2, TArg3, TResult>(
             MethodInfo methodInfo)
         {
             ValidateStaticMethod(methodInfo, expectedParameterCount: 3);
-            return CompileStaticInvoker<TResult, TArg1, TArg2, TArg3>(methodInfo);
+            return CompileStaticInvoker<TArg1, TArg2, TArg3, TResult>(methodInfo);
         }
 
         /// <summary>
         /// Creates a strongly-typed invoker delegate for calling the specified static method with four parameters.
         /// </summary>
-        /// <typeparam name="TResult">The type of the return value.</typeparam>
         /// <typeparam name="TArg1">The type of the first parameter.</typeparam>
         /// <typeparam name="TArg2">The type of the second parameter.</typeparam>
         /// <typeparam name="TArg3">The type of the third parameter.</typeparam>
         /// <typeparam name="TArg4">The type of the fourth parameter.</typeparam>
+        /// <typeparam name="TResult">The type of the return value.</typeparam>
         /// <param name="methodInfo">The static method metadata to create an invoker for.</param>
         /// <returns>A strongly-typed delegate that invokes the static method when called.</returns>
         /// <exception cref="ArgumentException">Thrown when <paramref name="methodInfo"/> is not static.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="methodInfo"/> does not have exactly four parameters.</exception>
-        public static StaticInvoker<TResult, TArg1, TArg2, TArg3, TArg4> CreateStaticMethodInvoker
-            <TResult, TArg1, TArg2, TArg3, TArg4>(MethodInfo methodInfo)
+        public static StaticInvoker<TArg1, TArg2, TArg3, TArg4, TResult> CreateStaticMethodInvoker
+            <TArg1, TArg2, TArg3, TArg4, TResult>(MethodInfo methodInfo)
         {
             ValidateStaticMethod(methodInfo, expectedParameterCount: 4);
-            return CompileStaticInvoker<TResult, TArg1, TArg2, TArg3, TArg4>(methodInfo);
+            return CompileStaticInvoker<TArg1, TArg2, TArg3, TArg4, TResult>(methodInfo);
         }
 
         #endregion
@@ -188,74 +188,74 @@ namespace EasyToolKit.Core.Reflection
         /// Creates a strongly-typed invoker delegate for calling the specified instance method with one parameter.
         /// </summary>
         /// <typeparam name="TInstance">The type of the instance.</typeparam>
-        /// <typeparam name="TResult">The type of the return value.</typeparam>
         /// <typeparam name="TArg1">The type of the first parameter.</typeparam>
+        /// <typeparam name="TResult">The type of the return value.</typeparam>
         /// <param name="methodInfo">The instance method metadata to create an invoker for.</param>
         /// <returns>A strongly-typed delegate that invokes the instance method when called.</returns>
         /// <exception cref="ArgumentException">Thrown when <paramref name="methodInfo"/> is not an instance method.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="methodInfo"/> does not have exactly one parameter.</exception>
-        public static InstanceInvoker<TInstance, TResult, TArg1> CreateInstanceMethodInvoker<TInstance, TResult, TArg1>(
+        public static InstanceInvoker<TInstance, TArg1, TResult> CreateInstanceMethodInvoker<TInstance, TArg1, TResult>(
             MethodInfo methodInfo)
         {
             ValidateInstanceMethod(methodInfo, expectedParameterCount: 1);
-            return CompileInstanceInvoker<TInstance, TResult, TArg1>(methodInfo);
+            return CompileInstanceInvoker<TInstance, TArg1, TResult>(methodInfo);
         }
 
         /// <summary>
         /// Creates a strongly-typed invoker delegate for calling the specified instance method with two parameters.
         /// </summary>
         /// <typeparam name="TInstance">The type of the instance.</typeparam>
-        /// <typeparam name="TResult">The type of the return value.</typeparam>
         /// <typeparam name="TArg1">The type of the first parameter.</typeparam>
         /// <typeparam name="TArg2">The type of the second parameter.</typeparam>
+        /// <typeparam name="TResult">The type of the return value.</typeparam>
         /// <param name="methodInfo">The instance method metadata to create an invoker for.</param>
         /// <returns>A strongly-typed delegate that invokes the instance method when called.</returns>
         /// <exception cref="ArgumentException">Thrown when <paramref name="methodInfo"/> is not an instance method.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="methodInfo"/> does not have exactly two parameters.</exception>
-        public static InstanceInvoker<TInstance, TResult, TArg1, TArg2> CreateInstanceMethodInvoker
-            <TInstance, TResult, TArg1, TArg2>(MethodInfo methodInfo)
+        public static InstanceInvoker<TInstance, TArg1, TArg2, TResult> CreateInstanceMethodInvoker
+            <TInstance, TArg1, TArg2, TResult>(MethodInfo methodInfo)
         {
             ValidateInstanceMethod(methodInfo, expectedParameterCount: 2);
-            return CompileInstanceInvoker<TInstance, TResult, TArg1, TArg2>(methodInfo);
+            return CompileInstanceInvoker<TInstance, TArg1, TArg2, TResult>(methodInfo);
         }
 
         /// <summary>
         /// Creates a strongly-typed invoker delegate for calling the specified instance method with three parameters.
         /// </summary>
         /// <typeparam name="TInstance">The type of the instance.</typeparam>
-        /// <typeparam name="TResult">The type of the return value.</typeparam>
         /// <typeparam name="TArg1">The type of the first parameter.</typeparam>
         /// <typeparam name="TArg2">The type of the second parameter.</typeparam>
         /// <typeparam name="TArg3">The type of the third parameter.</typeparam>
+        /// <typeparam name="TResult">The type of the return value.</typeparam>
         /// <param name="methodInfo">The instance method metadata to create an invoker for.</param>
         /// <returns>A strongly-typed delegate that invokes the instance method when called.</returns>
         /// <exception cref="ArgumentException">Thrown when <paramref name="methodInfo"/> is not an instance method.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="methodInfo"/> does not have exactly three parameters.</exception>
-        public static InstanceInvoker<TInstance, TResult, TArg1, TArg2, TArg3> CreateInstanceMethodInvoker
-            <TInstance, TResult, TArg1, TArg2, TArg3>(MethodInfo methodInfo)
+        public static InstanceInvoker<TInstance, TArg1, TArg2, TArg3, TResult> CreateInstanceMethodInvoker
+            <TInstance, TArg1, TArg2, TArg3, TResult>(MethodInfo methodInfo)
         {
             ValidateInstanceMethod(methodInfo, expectedParameterCount: 3);
-            return CompileInstanceInvoker<TInstance, TResult, TArg1, TArg2, TArg3>(methodInfo);
+            return CompileInstanceInvoker<TInstance, TArg1, TArg2, TArg3, TResult>(methodInfo);
         }
 
         /// <summary>
         /// Creates a strongly-typed invoker delegate for calling the specified instance method with four parameters.
         /// </summary>
         /// <typeparam name="TInstance">The type of the instance.</typeparam>
-        /// <typeparam name="TResult">The type of the return value.</typeparam>
         /// <typeparam name="TArg1">The type of the first parameter.</typeparam>
         /// <typeparam name="TArg2">The type of the second parameter.</typeparam>
         /// <typeparam name="TArg3">The type of the third parameter.</typeparam>
         /// <typeparam name="TArg4">The type of the fourth parameter.</typeparam>
+        /// <typeparam name="TResult">The type of the return value.</typeparam>
         /// <param name="methodInfo">The instance method metadata to create an invoker for.</param>
         /// <returns>A strongly-typed delegate that invokes the instance method when called.</returns>
         /// <exception cref="ArgumentException">Thrown when <paramref name="methodInfo"/> is not an instance method.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="methodInfo"/> does not have exactly four parameters.</exception>
-        public static InstanceInvoker<TInstance, TResult, TArg1, TArg2, TArg3, TArg4> CreateInstanceMethodInvoker
-            <TInstance, TResult, TArg1, TArg2, TArg3, TArg4>(MethodInfo methodInfo)
+        public static InstanceInvoker<TInstance, TArg1, TArg2, TArg3, TArg4, TResult> CreateInstanceMethodInvoker
+            <TInstance, TArg1, TArg2, TArg3, TArg4, TResult>(MethodInfo methodInfo)
         {
             ValidateInstanceMethod(methodInfo, expectedParameterCount: 4);
-            return CompileInstanceInvoker<TInstance, TResult, TArg1, TArg2, TArg3, TArg4>(methodInfo);
+            return CompileInstanceInvoker<TInstance, TArg1, TArg2, TArg3, TArg4, TResult>(methodInfo);
         }
 
         #endregion

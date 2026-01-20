@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace EasyToolKit.Core.Reflection
 {
-    public static class OpenGenericTypeExtensions
+    public static partial class TypeExtensions
     {
         public static Type[] GetGenericArgumentsRelativeTo(this Type openGenericType, Type genericTypeDefinition)
         {
@@ -232,7 +232,7 @@ namespace EasyToolKit.Core.Reflection
                 throw new ArgumentException($"Type '{openGenericType}' must be a generic type.",
                     nameof(openGenericType));
 
-            var typeArguments = openGenericType.GetCompletedGenericArgumentsByMergeTypeArguments(providedTypeArguments);
+            var typeArguments = openGenericType.GetMergedGenericArguments(providedTypeArguments);
             var genericTypeDefinition = openGenericType.GetGenericTypeDefinition();
             return genericTypeDefinition.MakeGenericType(typeArguments);
         }
@@ -313,7 +313,7 @@ namespace EasyToolKit.Core.Reflection
         /// <returns>An array of completed generic type arguments.</returns>
         /// <exception cref="ArgumentException">Thrown when openGenericType is not a generic type,
         /// or when the number of provided type arguments doesn't match the number of remaining generic parameters.</exception>
-        public static Type[] GetCompletedGenericArgumentsByMergeTypeArguments(this Type openGenericType,
+        public static Type[] GetMergedGenericArguments(this Type openGenericType,
             params Type[] providedTypeArguments)
         {
             if (openGenericType == null)
@@ -322,51 +322,31 @@ namespace EasyToolKit.Core.Reflection
             if (!openGenericType.IsGenericType)
                 throw new ArgumentException("Type must be a generic type.", nameof(openGenericType));
 
-            Type[] existingArgs = openGenericType.GetGenericArguments();
-            int placeholderCount = existingArgs.Count(t => t.IsGenericParameter);
-            int providedCount = providedTypeArguments.Length;
+            var existingArgs = openGenericType.GetGenericArguments();
 
-            if (providedCount != placeholderCount)
-            {
-                throw new ArgumentException(
-                    $"Number of provided type arguments ({providedCount}) does not match " +
-                    $"the number of remaining generic parameters ({placeholderCount}).",
-                    nameof(providedTypeArguments));
-            }
+            var result = new Type[existingArgs.Length];
+            var providedIndex = 0;
 
-            Type[] result = new Type[existingArgs.Length];
-            int providedIndex = 0;
-
-            for (int i = 0; i < existingArgs.Length; i++)
+            for (var i = 0; i < existingArgs.Length; i++)
             {
                 if (existingArgs[i].IsGenericParameter)
                 {
-                    result[i] = providedTypeArguments[providedIndex++];
+                    if (providedTypeArguments.Length > providedIndex)
+                    {
+                        result[i] = providedTypeArguments[providedIndex++];
+                        if (!existingArgs[i].SatisfiesGenericParameterConstraints(result[i]))
+                        {
+                            throw new ArgumentException(
+                                $"Type '{result[i]}' does not satisfy the constraints of generic parameter '{existingArgs[i]}'.",
+                                nameof(providedTypeArguments));
+                        }
+                        continue;
+                    }
                 }
-                else
-                {
-                    result[i] = existingArgs[i];
-                }
+                result[i] = existingArgs[i];
             }
 
             return result;
-        }
-
-        public static bool IsStructuralMatchOf(this Type openGenericType, Type concreteType)
-        {
-            if (openGenericType.IsGenericParameter)
-            {
-                return openGenericType.SatisfiesGenericParameterConstraints(concreteType);
-            }
-
-            try
-            {
-                return GetSupplementaryGenericTypeArguments(openGenericType, concreteType, true) != null;
-            }
-            catch (Exception e)
-            {
-                return false;
-            }
         }
 
         /// <summary>
@@ -380,7 +360,7 @@ namespace EasyToolKit.Core.Reflection
         /// <exception cref="ArgumentException">
         /// Thrown when array ranks don't match or when types are incompatible.
         /// </exception>
-        public static Type[] GetSupplementaryGenericTypeArguments(this Type openGenericType, Type targetType,
+        public static Type[] GetCompletedGenericArguments(this Type openGenericType, Type targetType,
             bool allowTypeInheritance = false)
         {
             // Handle array types by processing their element types recursively
@@ -412,7 +392,7 @@ namespace EasyToolKit.Core.Reflection
                 }
 
                 // Recursively process element types
-                return openElementType.GetSupplementaryGenericTypeArguments(targetElementType, allowTypeInheritance);
+                return openElementType.GetCompletedGenericArguments(targetElementType, allowTypeInheritance);
             }
 
             // Handle non-generic type parameters (like T) by extracting from the target type

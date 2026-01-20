@@ -4,10 +4,7 @@ using System.Reflection;
 
 namespace EasyToolKit.Core.Reflection
 {
-    /// <summary>
-    /// Provides extension methods for <see cref="Type"/> objects representing generic type parameters.
-    /// </summary>
-    public static class GenericParameterTypeExtensions
+    public static partial class TypeExtensions
     {
         /// <summary>
         /// Determines whether a target <see cref="Type"/> satisfies the constraints of a generic type parameter.

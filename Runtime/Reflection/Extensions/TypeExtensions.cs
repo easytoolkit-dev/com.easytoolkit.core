@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reflection;
-using EasyToolKit.Core.Diagnostics;
-using JetBrains.Annotations;
 using UnityEngine;
 
 namespace EasyToolKit.Core.Reflection
 {
-    public static class TypeExtensions
+    /// <summary>
+    /// Provides extension methods for System.Type reflection operations.
+    /// </summary>
+    public static partial class TypeExtensions
     {
         private static readonly Dictionary<Type, string> TypeAliasesByType = new Dictionary<Type, string>
         {
@@ -30,17 +31,20 @@ namespace EasyToolKit.Core.Reflection
             { typeof(string), "string" }
         };
 
-        public static string GetAliases(this Type t)
+        /// <summary>
+        /// Gets the friendly name alias for a type.
+        /// </summary>
+        /// <param name="type">The type to get the alias for.</param>
+        /// <returns>The friendly type name (e.g., "int", "string", "List&lt;T&gt;").</returns>
+        public static string GetAliases(this Type type)
         {
-            if (TypeAliasesByType.TryGetValue(t, out string alias))
+            if (TypeAliasesByType.TryGetValue(type, out string alias))
             {
                 return alias;
             }
 
-            // If not found in the alias dictionary, return the full name without the namespace
-            return t.IsGenericType ? GetGenericTypeName(t) : t.Name;
+            return type.IsGenericType ? GetGenericTypeName(type) : type.Name;
         }
-
 
         private static string GetGenericTypeName(this Type type)
         {
@@ -54,6 +58,201 @@ namespace EasyToolKit.Core.Reflection
 
             var genericArgs = string.Join(", ", Array.ConvertAll(genericArguments, GetAliases));
             return $"{typeName}<{genericArgs}>";
+        }
+
+
+        /// <summary>
+        /// Determines whether the specified type is a struct type (value type excluding primitives and enums).
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>true if the type is a struct; otherwise, false.</returns>
+        public static bool IsStructType(this Type type)
+        {
+            return type.IsValueType && !type.IsPrimitive && !type.IsEnum;
+        }
+
+        /// <summary>
+        /// Determines whether the specified type is a Unity built-in type (e.g., Vector2, Vector3, Color, etc.).
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>true if the type is a Unity built-in type; otherwise, false.</returns>
+        public static bool IsUnityBuiltInType(this Type type)
+        {
+            return type == typeof(Vector2) || type == typeof(Vector2Int) || type == typeof(Vector3) ||
+                   type == typeof(Vector3Int) ||
+                   type == typeof(Vector4) || type == typeof(Quaternion) || type == typeof(Color) ||
+                   type == typeof(Color32) ||
+                   type == typeof(Rect) || type == typeof(RectInt) || type == typeof(Bounds) ||
+                   type == typeof(BoundsInt);
+        }
+
+        /// <summary>
+        /// Determines whether the specified type is an integer type.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>true if the type is an integer type; otherwise, false.</returns>
+        public static bool IsIntegerType(this Type type)
+        {
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Byte:
+                case TypeCode.Char:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.SByte:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// Determines whether the specified type is a floating-point type.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>true if the type is a floating-point type; otherwise, false.</returns>
+        public static bool IsFloatingPointType(this Type type)
+        {
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Single:
+                case TypeCode.Double:
+                case TypeCode.Decimal:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// Determines whether the specified type is a boolean type.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>true if the type is a boolean; otherwise, false.</returns>
+        public static bool IsBooleanType(this Type type)
+        {
+            return type == typeof(bool);
+        }
+
+        /// <summary>
+        /// Determines whether the specified type is a string type.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>true if the type is a string; otherwise, false.</returns>
+        public static bool IsStringType(this Type type)
+        {
+            return type == typeof(string);
+        }
+
+        /// <summary>
+        /// Determines whether the specified type is a basic value type (enum, string, boolean, integer, or floating-point).
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>true if the type is a basic value type; otherwise, false.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when type is null.</exception>
+        public static bool IsBasicValueType([NotNull] this Type type)
+        {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            return type.IsEnum || type.IsStringType() || type.IsBooleanType() || type.IsFloatingPointType() ||
+                   type.IsIntegerType();
+        }
+
+        /// <summary>
+        /// Determines whether the specified type is derived from UnityEngine.Object.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>true if the type is a Unity object type; otherwise, false.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when type is null.</exception>
+        public static bool IsUnityObjectType([NotNull] this Type type)
+        {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            return type.IsDerivedFrom<UnityEngine.Object>();
+        }
+
+        /// <summary>
+        /// Determines whether the specified type is a nullable reference type.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>true if the type is nullable (not a primitive, value type, or enum); otherwise, false.</returns>
+        public static bool IsNullableType(this Type type)
+        {
+            return !(type.IsPrimitive || type.IsValueType || type.IsEnum);
+        }
+
+        /// <summary>
+        /// Determines whether the specified type is a generic array (array with generic parameter element type).
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>true if the type is a generic array; otherwise, false.</returns>
+        public static bool IsGenericArray(this Type type)
+        {
+            if (!type.IsArray)
+                return false;
+
+            var elementType = type.GetElementType();
+            return elementType != null && elementType.IsGenericParameter;
+        }
+
+        /// <summary>
+        /// Determines whether the specified type is derived from type T.
+        /// </summary>
+        /// <typeparam name="T">The base type to check.</typeparam>
+        /// <param name="type">The type to check.</param>
+        /// <returns>true if the type is derived from T; otherwise, false.</returns>
+        public static bool IsDerivedFrom<T>(this Type type)
+        {
+            return type.IsDerivedFrom(typeof(T));
+        }
+
+        /// <summary>
+        /// Determines whether the specified type is derived from the given base type.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <param name="baseType">The base type to check against.</param>
+        /// <returns>true if the type is derived from baseType; otherwise, false.</returns>
+        public static bool IsDerivedFrom(this Type type, Type baseType)
+        {
+            if (baseType.IsAssignableFrom(type))
+            {
+                return true;
+            }
+
+            if (type.IsInterface && baseType.IsInterface == false)
+            {
+                return false;
+            }
+
+            if (baseType.IsInterface)
+            {
+                return type.GetInterfaces().Contains(baseType);
+            }
+
+            var currentType = type;
+            while (currentType != null)
+            {
+                if (currentType == baseType)
+                {
+                    return true;
+                }
+
+                if (baseType.IsGenericTypeDefinition && currentType.IsGenericType &&
+                    currentType.GetGenericTypeDefinition() == baseType)
+                {
+                    return true;
+                }
+
+                currentType = currentType.BaseType;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -83,13 +282,11 @@ namespace EasyToolKit.Core.Reflection
 
             if (allowLenient)
             {
-                // Lenient mode: any constructor is acceptable
                 var ctors = type.GetConstructors(MemberAccessFlags.AllInstance);
                 return ctors.Length > 0;
             }
             else
             {
-                // Strict mode: requires parameterless constructor
                 var ctor = type.GetConstructor(
                     MemberAccessFlags.AllInstance,
                     binder: null,
@@ -99,7 +296,13 @@ namespace EasyToolKit.Core.Reflection
             }
         }
 
-
+        /// <summary>
+        /// Tries to create an instance of the specified type.
+        /// </summary>
+        /// <param name="type">The type to instantiate.</param>
+        /// <param name="instance">When this method returns, contains the created instance, or null if creation failed.</param>
+        /// <param name="args">Constructor arguments.</param>
+        /// <returns>true if an instance was created; otherwise, false.</returns>
         public static bool TryCreateInstance(this Type type, out object instance, params object[] args)
         {
             instance = null;
@@ -114,6 +317,14 @@ namespace EasyToolKit.Core.Reflection
             }
         }
 
+        /// <summary>
+        /// Tries to create an instance of the specified type as type T.
+        /// </summary>
+        /// <typeparam name="T">The type to cast the instance to.</typeparam>
+        /// <param name="type">The type to instantiate.</param>
+        /// <param name="instance">When this method returns, contains the created instance, or default if creation failed.</param>
+        /// <param name="args">Constructor arguments.</param>
+        /// <returns>true if an instance was created; otherwise, false.</returns>
         public static bool TryCreateInstance<T>(this Type type, out T instance, params object[] args)
         {
             instance = default;
@@ -128,6 +339,12 @@ namespace EasyToolKit.Core.Reflection
             }
         }
 
+        /// <summary>
+        /// Creates an instance of the specified type.
+        /// </summary>
+        /// <param name="type">The type to instantiate.</param>
+        /// <param name="args">Constructor arguments.</param>
+        /// <returns>A new instance of the specified type.</returns>
         public static object CreateInstance(this Type type, params object[] args)
         {
             if (type == null)
@@ -139,304 +356,19 @@ namespace EasyToolKit.Core.Reflection
             return Activator.CreateInstance(type, args);
         }
 
-
+        /// <summary>
+        /// Creates an instance of the specified type as type T.
+        /// </summary>
+        /// <typeparam name="T">The type to cast the instance to.</typeparam>
+        /// <param name="type">The type to instantiate.</param>
+        /// <param name="args">Constructor arguments.</param>
+        /// <returns>A new instance of the specified type cast to T.</returns>
+        /// <exception cref="ArgumentException">Generic type T is not assignable from the created instance.</exception>
         public static T CreateInstance<T>(this Type type, params object[] args)
         {
             if (!typeof(T).IsAssignableFrom(type))
                 throw new ArgumentException($"Generic type '{typeof(T)}' must be convertible by '{type}'");
             return (T)CreateInstance(type, args);
-        }
-
-        public static bool IsStructType(this Type type)
-        {
-            return type.IsValueType && !type.IsPrimitive && !type.IsEnum;
-        }
-
-        public static bool IsUnityBuiltInType(this Type type)
-        {
-            return type == typeof(Vector2) || type == typeof(Vector2Int) || type == typeof(Vector3) ||
-                   type == typeof(Vector3Int) ||
-                   type == typeof(Vector4) || type == typeof(Quaternion) || type == typeof(Color) ||
-                   type == typeof(Color32) ||
-                   type == typeof(Rect) || type == typeof(RectInt) || type == typeof(Bounds) ||
-                   type == typeof(BoundsInt);
-        }
-
-        public static bool IsIntegerType(this Type type)
-        {
-            switch (Type.GetTypeCode(type))
-            {
-                case TypeCode.Byte:
-                case TypeCode.Char:
-                case TypeCode.Int16:
-                case TypeCode.Int32:
-                case TypeCode.Int64:
-                case TypeCode.SByte:
-                case TypeCode.UInt16:
-                case TypeCode.UInt32:
-                case TypeCode.UInt64:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        public static bool IsFloatingPointType(this Type type)
-        {
-            switch (Type.GetTypeCode(type))
-            {
-                case TypeCode.Single:
-                case TypeCode.Double:
-                case TypeCode.Decimal:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        public static bool IsBooleanType(this Type type)
-        {
-            return type == typeof(bool);
-        }
-
-        public static bool IsStringType(this Type type)
-        {
-            return type == typeof(string);
-        }
-
-        public static bool IsBasicValueType([NotNull] this Type type)
-        {
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-
-            return type.IsEnum || type.IsStringType() || type.IsBooleanType() || type.IsFloatingPointType() ||
-                   type.IsIntegerType();
-        }
-
-        public static bool IsUnityObjectType([NotNull] this Type type)
-        {
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-
-            return type.IsDerivedFrom<UnityEngine.Object>();
-        }
-
-        public static bool IsNullableType(this Type type)
-        {
-            return !(type.IsPrimitive || type.IsValueType || type.IsEnum);
-        }
-
-
-        public static MethodInfo ResolveOverloadMethod(
-            [NotNull] this Type targetType,
-            [NotNull] string methodName,
-            BindingFlags flags, int parameterCount)
-        {
-            if (targetType == null)
-                throw new ArgumentNullException(nameof(targetType));
-            if (string.IsNullOrWhiteSpace(methodName))
-                throw new ArgumentException("Method name cannot be null or whitespace.", nameof(methodName));
-
-            var result = targetType.GetMethods(flags)
-                .FirstOrDefault(info => info.Name == methodName && info.GetParameters().Length == parameterCount);
-            if (result == null)
-            {
-                throw new ArgumentException(
-                    $"Method '{methodName}' with parameter count '{parameterCount}' not found in type '{targetType}'.");
-            }
-
-            return result;
-        }
-
-        public static MethodInfo ResolveOverloadMethod([NotNull] this Type targetType, [NotNull] string methodName,
-            BindingFlags flags, params Type[] parameterTypes)
-        {
-            if (targetType == null)
-                throw new ArgumentNullException(nameof(targetType));
-            if (string.IsNullOrWhiteSpace(methodName))
-                throw new ArgumentException("Method name cannot be null or whitespace.", nameof(methodName));
-
-            var candidates = targetType.GetMethods(flags).Where(info => info.Name == methodName).ToArray();
-
-            var result = candidates.FirstOrDefault(info =>
-            {
-                var parameters = info.GetParameters();
-                if (parameterTypes == null)
-                {
-                    return parameters.Length == 0;
-                }
-
-                if (parameterTypes.Length != parameters.Length)
-                {
-                    return false;
-                }
-
-                for (int i = 0; i < parameters.Length; i++)
-                {
-                    if (!parameters[i].ParameterType.IsAssignableFrom(parameterTypes[i]))
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            });
-            if (result == null)
-            {
-                // Build error message
-                string paramTypeNames = parameterTypes.Length > 0
-                    ? string.Join(", ", parameterTypes.Select(t => t.GetAliases()))
-                    : "none";
-
-                string availableSignatures = string.Join("\n  ",
-                    candidates.Select(m =>
-                    {
-                        var parameters = m.GetParameters();
-                        return $"{m.Name}({string.Join(", ", parameters.Select(p => p.ParameterType.GetAliases()))})";
-                    }));
-
-                throw new ArgumentException(
-                    $"No matching method overload found for '{methodName}({paramTypeNames})' on type '{targetType.GetAliases()}'.\n" +
-                    $"Available overloads:\n  {availableSignatures}");
-            }
-
-            return result;
-        }
-
-        public static Type[] GetAllBaseTypes(this Type type, bool includeInterface = true,
-            bool includeTargetType = false)
-        {
-            var parentTypes = new List<Type>();
-
-            if (includeTargetType)
-            {
-                parentTypes.Add(type);
-            }
-
-            var baseType = type.BaseType;
-
-            while (baseType != null)
-            {
-                parentTypes.Add(baseType);
-                baseType = baseType.BaseType;
-            }
-
-            if (includeInterface)
-            {
-                foreach (var i in type.GetInterfaces())
-                {
-                    parentTypes.Add(i);
-                }
-            }
-
-            return parentTypes.ToArray();
-        }
-
-        public static bool IsDerivedFrom<T>(this Type type)
-        {
-            return type.IsDerivedFrom(typeof(T));
-        }
-
-        public static bool IsDerivedFrom(this Type type, Type baseType)
-        {
-            if (baseType.IsAssignableFrom(type))
-            {
-                return true;
-            }
-
-            if (type.IsInterface && baseType.IsInterface == false)
-            {
-                return false;
-            }
-
-            if (baseType.IsInterface)
-            {
-                return type.GetInterfaces().Contains(baseType);
-            }
-
-            var currentType = type;
-            while (currentType != null)
-            {
-                if (currentType == baseType)
-                {
-                    return true;
-                }
-
-                if (baseType.IsGenericTypeDefinition && currentType.IsGenericType && currentType.GetGenericTypeDefinition() == baseType)
-                {
-                    return true;
-                }
-
-                currentType = currentType.BaseType;
-            }
-
-            return false;
-        }
-
-        public static bool IsGenericArray(this Type type)
-        {
-            if (!type.IsArray)
-                return false;
-
-            var elementType = type.GetElementType();
-            return elementType != null && elementType.IsGenericParameter;
-        }
-
-        /// <summary>
-        /// Gets all members of the specified type, including inherited members, using the specified binding flags.
-        /// </summary>
-        /// <param name="type">The type to get members from.</param>
-        /// <param name="flags">A bitmask comprised of one or more BindingFlags that specify how the search is conducted.</param>
-        /// <returns>An enumerable collection of all members matching the binding flags.</returns>
-        public static IEnumerable<MemberInfo> GetAllMembers(this Type type, BindingFlags flags)
-        {
-            if ((flags & BindingFlags.DeclaredOnly) == BindingFlags.DeclaredOnly)
-            {
-                var members = type.GetMembers(flags);
-                for (int i = 0; i < members.Length; i++)
-                {
-                    yield return members[i];
-                }
-
-                yield break;
-            }
-
-            flags |= BindingFlags.DeclaredOnly;
-
-            var currentType = type;
-            var baseTypes = new Stack<Type>();
-            do
-            {
-                baseTypes.Push(currentType);
-                currentType = currentType.BaseType;
-            } while (currentType != null);
-
-            while (baseTypes.Count > 0)
-            {
-                currentType = baseTypes.Pop();
-                var members = currentType.GetMembers(flags);
-                for (int i = 0; i < members.Length; i++)
-                {
-                    yield return members[i];
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets all members of the specified type with the given name, including inherited members, using the specified binding flags.
-        /// </summary>
-        /// <param name="type">The type to get members from.</param>
-        /// <param name="name">The name of the member to find.</param>
-        /// <param name="flags">A bitmask comprised of one or more BindingFlags that specify how the search is conducted.</param>
-        /// <returns>An enumerable collection of members matching the binding flags and specified name.</returns>
-        public static IEnumerable<MemberInfo> GetAllMembers(this Type type, string name, BindingFlags flags)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentException("Member name cannot be null or whitespace.", nameof(name));
-            }
-
-            return type.GetAllMembers(flags).Where(member => member.Name == name);
         }
     }
 }
