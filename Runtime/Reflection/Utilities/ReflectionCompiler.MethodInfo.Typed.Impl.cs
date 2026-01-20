@@ -21,18 +21,18 @@ namespace EasyToolKit.Core.Reflection
             return lambda.Compile();
         }
 
-        private static StaticInvoker<TResult, TArg1> CompileStaticInvoker<TResult, TArg1>(MethodInfo methodInfo)
+        private static StaticInvoker<TArg1, TResult> CompileStaticInvoker<TArg1, TResult>(MethodInfo methodInfo)
         {
             var parameters = methodInfo.GetParameters();
             var arg1Parameter = Expression.Parameter(typeof(TArg1), "arg1");
             var convertedArg1 = ConvertParameter(arg1Parameter, parameters[0].ParameterType);
             var callExpression = Expression.Call(null, methodInfo, convertedArg1);
             var bodyExpression = ConvertReturnType<TResult>(callExpression, methodInfo.ReturnType);
-            var lambda = Expression.Lambda<StaticInvoker<TResult, TArg1>>(bodyExpression, arg1Parameter);
+            var lambda = Expression.Lambda<StaticInvoker<TArg1, TResult>>(bodyExpression, arg1Parameter);
             return lambda.Compile();
         }
 
-        private static StaticInvoker<TResult, TArg1, TArg2> CompileStaticInvoker<TResult, TArg1, TArg2>(
+        private static StaticInvoker<TArg1, TArg2, TResult> CompileStaticInvoker<TArg1, TArg2, TResult>(
             MethodInfo methodInfo)
         {
             var parameters = methodInfo.GetParameters();
@@ -43,11 +43,11 @@ namespace EasyToolKit.Core.Reflection
             var callExpression = Expression.Call(null, methodInfo, convertedArg1, convertedArg2);
             var bodyExpression = ConvertReturnType<TResult>(callExpression, methodInfo.ReturnType);
             var lambda =
-                Expression.Lambda<StaticInvoker<TResult, TArg1, TArg2>>(bodyExpression, arg1Parameter, arg2Parameter);
+                Expression.Lambda<StaticInvoker<TArg1, TArg2, TResult>>(bodyExpression, arg1Parameter, arg2Parameter);
             return lambda.Compile();
         }
 
-        private static StaticInvoker<TResult, TArg1, TArg2, TArg3> CompileStaticInvoker<TResult, TArg1, TArg2, TArg3>(
+        private static StaticInvoker<TArg1, TArg2, TArg3, TResult> CompileStaticInvoker<TArg1, TArg2, TArg3, TResult>(
             MethodInfo methodInfo)
         {
             var parameters = methodInfo.GetParameters();
@@ -59,13 +59,13 @@ namespace EasyToolKit.Core.Reflection
             var convertedArg3 = ConvertParameter(arg3Parameter, parameters[2].ParameterType);
             var callExpression = Expression.Call(null, methodInfo, convertedArg1, convertedArg2, convertedArg3);
             var bodyExpression = ConvertReturnType<TResult>(callExpression, methodInfo.ReturnType);
-            var lambda = Expression.Lambda<StaticInvoker<TResult, TArg1, TArg2, TArg3>>(bodyExpression, arg1Parameter,
+            var lambda = Expression.Lambda<StaticInvoker<TArg1, TArg2, TArg3, TResult>>(bodyExpression, arg1Parameter,
                 arg2Parameter, arg3Parameter);
             return lambda.Compile();
         }
 
-        private static StaticInvoker<TResult, TArg1, TArg2, TArg3, TArg4> CompileStaticInvoker
-            <TResult, TArg1, TArg2, TArg3, TArg4>(MethodInfo methodInfo)
+        private static StaticInvoker<TArg1, TArg2, TArg3, TArg4, TResult> CompileStaticInvoker
+            <TArg1, TArg2, TArg3, TArg4, TResult>(MethodInfo methodInfo)
         {
             var parameters = methodInfo.GetParameters();
             var arg1Parameter = Expression.Parameter(typeof(TArg1), "arg1");
@@ -79,7 +79,7 @@ namespace EasyToolKit.Core.Reflection
             var callExpression = Expression.Call(null, methodInfo, convertedArg1, convertedArg2, convertedArg3,
                 convertedArg4);
             var bodyExpression = ConvertReturnType<TResult>(callExpression, methodInfo.ReturnType);
-            var lambda = Expression.Lambda<StaticInvoker<TResult, TArg1, TArg2, TArg3, TArg4>>(bodyExpression,
+            var lambda = Expression.Lambda<StaticInvoker<TArg1, TArg2, TArg3, TArg4, TResult>>(bodyExpression,
                 arg1Parameter,
                 arg2Parameter, arg3Parameter, arg4Parameter);
             return lambda.Compile();
@@ -162,7 +162,7 @@ namespace EasyToolKit.Core.Reflection
             return lambda.Compile();
         }
 
-        private static InstanceInvoker<TInstance, TResult, TArg1> CompileInstanceInvoker<TInstance, TResult, TArg1>(
+        private static InstanceInvoker<TInstance, TArg1, TResult> CompileInstanceInvoker<TInstance, TArg1, TResult>(
             MethodInfo methodInfo)
         {
             var parameters = methodInfo.GetParameters();
@@ -172,14 +172,14 @@ namespace EasyToolKit.Core.Reflection
             var convertedArg1 = ConvertParameter(arg1Parameter, parameters[0].ParameterType);
             var callExpression = Expression.Call(convertedInstance, methodInfo, convertedArg1);
             var bodyExpression = ConvertReturnType<TResult>(callExpression, methodInfo.ReturnType);
-            var lambda = Expression.Lambda<InstanceInvoker<TInstance, TResult, TArg1>>(bodyExpression,
+            var lambda = Expression.Lambda<InstanceInvoker<TInstance, TArg1, TResult>>(bodyExpression,
                 instanceParameter,
                 arg1Parameter);
             return lambda.Compile();
         }
 
-        private static InstanceInvoker<TInstance, TResult, TArg1, TArg2> CompileInstanceInvoker
-            <TInstance, TResult, TArg1, TArg2>(MethodInfo methodInfo)
+        private static InstanceInvoker<TInstance, TArg1, TArg2, TResult> CompileInstanceInvoker
+            <TInstance, TArg1, TArg2, TResult>(MethodInfo methodInfo)
         {
             var parameters = methodInfo.GetParameters();
             var instanceParameter = Expression.Parameter(typeof(TInstance).MakeByRefType(), "instance");
@@ -190,13 +190,13 @@ namespace EasyToolKit.Core.Reflection
             var convertedArg2 = ConvertParameter(arg2Parameter, parameters[1].ParameterType);
             var callExpression = Expression.Call(convertedInstance, methodInfo, convertedArg1, convertedArg2);
             var bodyExpression = ConvertReturnType<TResult>(callExpression, methodInfo.ReturnType);
-            var lambda = Expression.Lambda<InstanceInvoker<TInstance, TResult, TArg1, TArg2>>(bodyExpression,
+            var lambda = Expression.Lambda<InstanceInvoker<TInstance, TArg1, TArg2, TResult>>(bodyExpression,
                 instanceParameter, arg1Parameter, arg2Parameter);
             return lambda.Compile();
         }
 
-        private static InstanceInvoker<TInstance, TResult, TArg1, TArg2, TArg3> CompileInstanceInvoker
-            <TInstance, TResult, TArg1, TArg2, TArg3>(MethodInfo methodInfo)
+        private static InstanceInvoker<TInstance, TArg1, TArg2, TArg3, TResult> CompileInstanceInvoker
+            <TInstance, TArg1, TArg2, TArg3, TResult>(MethodInfo methodInfo)
         {
             var parameters = methodInfo.GetParameters();
             var instanceParameter = Expression.Parameter(typeof(TInstance).MakeByRefType(), "instance");
@@ -210,13 +210,13 @@ namespace EasyToolKit.Core.Reflection
             var callExpression =
                 Expression.Call(convertedInstance, methodInfo, convertedArg1, convertedArg2, convertedArg3);
             var bodyExpression = ConvertReturnType<TResult>(callExpression, methodInfo.ReturnType);
-            var lambda = Expression.Lambda<InstanceInvoker<TInstance, TResult, TArg1, TArg2, TArg3>>(bodyExpression,
+            var lambda = Expression.Lambda<InstanceInvoker<TInstance, TArg1, TArg2, TArg3, TResult>>(bodyExpression,
                 instanceParameter, arg1Parameter, arg2Parameter, arg3Parameter);
             return lambda.Compile();
         }
 
-        private static InstanceInvoker<TInstance, TResult, TArg1, TArg2, TArg3, TArg4> CompileInstanceInvoker
-            <TInstance, TResult, TArg1, TArg2, TArg3, TArg4>(MethodInfo methodInfo)
+        private static InstanceInvoker<TInstance, TArg1, TArg2, TArg3, TArg4, TResult> CompileInstanceInvoker
+            <TInstance, TArg1, TArg2, TArg3, TArg4, TResult>(MethodInfo methodInfo)
         {
             var parameters = methodInfo.GetParameters();
             var instanceParameter = Expression.Parameter(typeof(TInstance).MakeByRefType(), "instance");
@@ -233,7 +233,7 @@ namespace EasyToolKit.Core.Reflection
                 convertedArg3,
                 convertedArg4);
             var bodyExpression = ConvertReturnType<TResult>(callExpression, methodInfo.ReturnType);
-            var lambda = Expression.Lambda<InstanceInvoker<TInstance, TResult, TArg1, TArg2, TArg3, TArg4>>(
+            var lambda = Expression.Lambda<InstanceInvoker<TInstance, TArg1, TArg2, TArg3, TArg4, TResult>>(
                 bodyExpression,
                 instanceParameter, arg1Parameter, arg2Parameter, arg3Parameter, arg4Parameter);
             return lambda.Compile();
@@ -364,19 +364,19 @@ namespace EasyToolKit.Core.Reflection
         private static StaticInvoker<TResult> CompileStaticInvoker<TResult>(MethodInfo methodInfo) =>
             () => (TResult)methodInfo.Invoke(null, null);
 
-        private static StaticInvoker<TResult, TArg1> CompileStaticInvoker<TResult, TArg1>(MethodInfo methodInfo) =>
+        private static StaticInvoker<TArg1, TResult> CompileStaticInvoker<TArg1, TResult>(MethodInfo methodInfo) =>
             arg1 => (TResult)methodInfo.Invoke(null, new object[] { arg1 });
 
-        private static StaticInvoker<TResult, TArg1, TArg2> CompileStaticInvoker<TResult, TArg1, TArg2>(
+        private static StaticInvoker<TArg1, TArg2, TResult> CompileStaticInvoker<TArg1, TArg2, TResult>(
             MethodInfo methodInfo) =>
             (arg1, arg2) => (TResult)methodInfo.Invoke(null, new object[] { arg1, arg2 });
 
-        private static StaticInvoker<TResult, TArg1, TArg2, TArg3> CompileStaticInvoker<TResult, TArg1, TArg2, TArg3>(
+        private static StaticInvoker<TArg1, TArg2, TArg3, TResult> CompileStaticInvoker<TArg1, TArg2, TArg3, TResult>(
             MethodInfo methodInfo) =>
             (arg1, arg2, arg3) => (TResult)methodInfo.Invoke(null, new object[] { arg1, arg2, arg3 });
 
-        private static StaticInvoker<TResult, TArg1, TArg2, TArg3, TArg4> CompileStaticInvoker
-            <TResult, TArg1, TArg2, TArg3, TArg4>(MethodInfo methodInfo) =>
+        private static StaticInvoker<TArg1, TArg2, TArg3, TArg4, TResult> CompileStaticInvoker
+            <TArg1, TArg2, TArg3, TArg4, TResult>(MethodInfo methodInfo) =>
             (arg1, arg2, arg3, arg4) => (TResult)methodInfo.Invoke(null, new object[] { arg1, arg2, arg3, arg4 });
 
         private static StaticVoidInvoker<TArg1> CompileStaticVoidInvoker<TArg1>(MethodInfo methodInfo) =>
@@ -397,21 +397,21 @@ namespace EasyToolKit.Core.Reflection
             MethodInfo methodInfo) =>
             (ref TInstance instance) => (TResult)methodInfo.Invoke(instance, null);
 
-        private static InstanceInvoker<TInstance, TResult, TArg1> CompileInstanceInvoker<TInstance, TResult, TArg1>(
+        private static InstanceInvoker<TInstance, TArg1, TResult> CompileInstanceInvoker<TInstance, TArg1, TResult>(
             MethodInfo methodInfo) =>
             (ref TInstance instance, TArg1 arg1) => (TResult)methodInfo.Invoke(instance, new object[] { arg1 });
 
-        private static InstanceInvoker<TInstance, TResult, TArg1, TArg2> CompileInstanceInvoker
-            <TInstance, TResult, TArg1, TArg2>(MethodInfo methodInfo) =>
+        private static InstanceInvoker<TInstance, TArg1, TArg2, TResult> CompileInstanceInvoker
+            <TInstance, TArg1, TArg2, TResult>(MethodInfo methodInfo) =>
             (ref TInstance instance, TArg1 arg1, TArg2 arg2) => (TResult)methodInfo.Invoke(instance, new object[] { arg1, arg2 });
 
-        private static InstanceInvoker<TInstance, TResult, TArg1, TArg2, TArg3> CompileInstanceInvoker
-            <TInstance, TResult, TArg1, TArg2, TArg3>(MethodInfo methodInfo) =>
+        private static InstanceInvoker<TInstance, TArg1, TArg2, TArg3, TResult> CompileInstanceInvoker
+            <TInstance, TArg1, TArg2, TArg3, TResult>(MethodInfo methodInfo) =>
             (ref TInstance instance, TArg1 arg1, TArg2 arg2, TArg3 arg3) =>
                 (TResult)methodInfo.Invoke(instance, new object[] { arg1, arg2, arg3 });
 
-        private static InstanceInvoker<TInstance, TResult, TArg1, TArg2, TArg3, TArg4> CompileInstanceInvoker
-            <TInstance, TResult, TArg1, TArg2, TArg3, TArg4>(MethodInfo methodInfo) =>
+        private static InstanceInvoker<TInstance, TArg1, TArg2, TArg3, TArg4, TResult> CompileInstanceInvoker
+            <TInstance, TArg1, TArg2, TArg3, TArg4, TResult>(MethodInfo methodInfo) =>
             (ref TInstance instance, TArg1 arg1, TArg2 arg2, TArg3 arg3, TArg4 arg4) =>
                 (TResult)methodInfo.Invoke(instance, new object[] { arg1, arg2, arg3, arg4 });
 

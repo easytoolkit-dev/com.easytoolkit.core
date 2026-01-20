@@ -27,20 +27,20 @@ namespace EasyToolKit.Core.Reflection.Implementations
                 }
             }
 
-            Type[] supplementaryTypeArguments;
+            Type[] completedArguments;
             try
             {
-                supplementaryTypeArguments = openGenericType.GetSupplementaryGenericTypeArguments(concreteType, true);
+                completedArguments = openGenericType.GetCompletedGenericArguments(concreteType, true);
             }
             catch (Exception e)
             {
                 return false;
             }
 
-            if (supplementaryTypeArguments.Length == 0)
+            if (completedArguments.Length == 0)
                 return false;
 
-            return candidate.SourceType.SatisfiesConstraints(supplementaryTypeArguments);
+            return candidate.SourceType.SatisfiesConstraints(completedArguments);
         }
 
         /// <inheritdoc/>
@@ -56,8 +56,8 @@ namespace EasyToolKit.Core.Reflection.Implementations
                 return candidate.SourceType;
             }
 
-            var supplementaryTypeArguments = argType.GetSupplementaryGenericTypeArguments(valueType, true);
-            return candidate.SourceType.MakeGenericTypeExtended(supplementaryTypeArguments);
+            var completedArguments = argType.GetCompletedGenericArguments(valueType, true);
+            return candidate.SourceType.MakeGenericTypeExtended(completedArguments);
         }
     }
 }

@@ -12,6 +12,11 @@ namespace EasyToolKit.Core.Reflection.Implementations
             {
                 if (constraint.IsGenericParameter)
                 {
+                    if (targets.Length <= targetIndex)
+                    {
+                        break;
+                    }
+
                     if (!constraint.SatisfiesGenericParameterConstraints(targets[targetIndex++]))
                     {
                         return false;
