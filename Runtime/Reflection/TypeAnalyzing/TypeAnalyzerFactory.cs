@@ -9,15 +9,16 @@ namespace EasyToolKit.Core.Reflection
     /// </summary>
     public static class TypeAnalyzerFactory
     {
-        private static readonly Dictionary<Type, IGenericTypeAnalyzer> GenericTypeAnalyzerCache = new();
+        private static readonly Dictionary<Type, IGenericTypeDefinitionAnalyzer> GenericTypeAnalyzerCache = new();
         private static readonly Dictionary<Type, IGenericParameterAnalyzer> GenericParameterAnalyzerCache = new();
+        private static readonly Dictionary<Type, IOpenGenericTypeAnalyzer> OpenGenericTypeAnalyzerCache = new();
 
         /// <summary>
         /// Gets a generic type analyzer for the specified generic type definition.
         /// </summary>
         /// <param name="genericType">The generic type definition to analyze.</param>
-        /// <returns>An <see cref="IGenericTypeAnalyzer"/> for analyzing the generic type.</returns>
-        public static IGenericTypeAnalyzer GetGenericTypeAnalyzer(Type genericType)
+        /// <returns>An <see cref="IGenericTypeDefinitionAnalyzer"/> for analyzing the generic type definition.</returns>
+        public static IGenericTypeDefinitionAnalyzer GetGenericTypeDefinitionAnalyzer(Type genericType)
         {
             if (!genericType.IsGenericTypeDefinition)
                 throw new ArgumentException($"Type '{genericType.Name}' must be a generic type definition.",
@@ -28,7 +29,7 @@ namespace EasyToolKit.Core.Reflection
                 return cached;
             }
 
-            var analyzer = new GenericTypeAnalyzer(genericType);
+            var analyzer = new GenericTypeDefinitionAnalyzer(genericType);
             GenericTypeAnalyzerCache[genericType] = analyzer;
             return analyzer;
         }
@@ -51,6 +52,31 @@ namespace EasyToolKit.Core.Reflection
 
             var analyzer = new GenericParameterAnalyzer(genericParameterType);
             GenericParameterAnalyzerCache[genericParameterType] = analyzer;
+            return analyzer;
+        }
+
+        /// <summary>
+        /// Gets an open generic type analyzer for the specified open generic type.
+        /// </summary>
+        /// <param name="openGenericType">The open generic type to analyze. Can be a generic type definition,
+        /// partially constructed type, or fully constructed type.</param>
+        /// <returns>An <see cref="IOpenGenericTypeAnalyzer"/> for analyzing the open generic type.</returns>
+        /// <exception cref="ArgumentException">
+        /// Thrown when <paramref name="openGenericType"/> is not a generic type.
+        /// </exception>
+        public static IOpenGenericTypeAnalyzer GetOpenGenericTypeAnalyzer(Type openGenericType)
+        {
+            if (!openGenericType.IsGenericType)
+                throw new ArgumentException($"Type '{openGenericType.Name}' must be a generic type.",
+                    nameof(openGenericType));
+
+            if (OpenGenericTypeAnalyzerCache.TryGetValue(openGenericType, out var cached))
+            {
+                return cached;
+            }
+
+            var analyzer = new OpenGenericTypeAnalyzer(openGenericType);
+            OpenGenericTypeAnalyzerCache[openGenericType] = analyzer;
             return analyzer;
         }
     }

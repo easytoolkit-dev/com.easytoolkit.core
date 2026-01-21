@@ -25,7 +25,7 @@ namespace EasyToolKit.Core.Reflection.Implementations
         public int Position { get; }
 
         /// <inheritdoc />
-        public GenericParameterSpecialConstraints SpecialConstraints { get; }
+        public GenericParameterAttributes SpecialConstraints { get; }
 
         /// <inheritdoc />
         public IReadOnlyList<Type> TypeConstraints { get; }
@@ -62,35 +62,12 @@ namespace EasyToolKit.Core.Reflection.Implementations
             ParameterType = genericParameterType;
             Name = genericParameterType.Name;
             Position = genericParameterType.GenericParameterPosition;
-            SpecialConstraints = ExtractSpecialConstraints(genericParameterType);
+            SpecialConstraints = genericParameterType.GenericParameterAttributes;
             TypeConstraints = genericParameterType.GetGenericParameterConstraints().ToList();
 
             _lazyDependsOn = new Lazy<IReadOnlyList<Type>>(ResolveDependsOn);
             _lazyDependedOnBy = new Lazy<IReadOnlyList<Type>>(ResolveDependedOnBy);
             _lazyParameterInfo = new Lazy<GenericParameterInfo>(BuildParameterInfo);
-        }
-
-        private GenericParameterSpecialConstraints ExtractSpecialConstraints(Type genericParameter)
-        {
-            var attributes = genericParameter.GenericParameterAttributes;
-            var constraints = GenericParameterSpecialConstraints.None;
-
-            if ((attributes & GenericParameterAttributes.ReferenceTypeConstraint) != 0)
-            {
-                constraints |= GenericParameterSpecialConstraints.ReferenceType;
-            }
-
-            if ((attributes & GenericParameterAttributes.NotNullableValueTypeConstraint) != 0)
-            {
-                constraints |= GenericParameterSpecialConstraints.ValueType;
-            }
-
-            if ((attributes & GenericParameterAttributes.DefaultConstructorConstraint) != 0)
-            {
-                constraints |= GenericParameterSpecialConstraints.DefaultConstructor;
-            }
-
-            return constraints;
         }
 
         private IReadOnlyList<Type> ResolveDependsOn()
@@ -175,10 +152,8 @@ namespace EasyToolKit.Core.Reflection.Implementations
         {
             // Get analyzers for dependencies to build GenericParameterInfo objects
             return new GenericParameterInfo(
-                Name,
-                Position,
-                SpecialConstraints,
-                TypeConstraints,
+                ParameterType,
+                null, // No substituted type in this context
                 DependsOn,
                 DependedOnBy
             );
@@ -378,21 +353,21 @@ namespace EasyToolKit.Core.Reflection.Implementations
             var constraints = SpecialConstraints;
 
             // Check reference type constraint
-            if ((constraints & GenericParameterSpecialConstraints.ReferenceType) != 0)
+            if ((constraints & GenericParameterAttributes.ReferenceTypeConstraint) != 0)
             {
                 if (targetType.IsValueType)
                     return false;
             }
 
             // Check value type constraint
-            if ((constraints & GenericParameterSpecialConstraints.ValueType) != 0)
+            if ((constraints & GenericParameterAttributes.NotNullableValueTypeConstraint) != 0)
             {
                 if (!targetType.IsValueType)
                     return false;
             }
 
             // Check default constructor constraint
-            if ((constraints & GenericParameterSpecialConstraints.DefaultConstructor) != 0)
+            if ((constraints & GenericParameterAttributes.DefaultConstructorConstraint) != 0)
             {
                 // Value types have default constructors
                 if (targetType.IsValueType)

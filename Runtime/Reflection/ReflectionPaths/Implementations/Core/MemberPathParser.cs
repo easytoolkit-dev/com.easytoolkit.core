@@ -57,7 +57,7 @@ namespace EasyToolKit.Core.Reflection
                         result.Add(new PathStep(index, elementType, isArray: true));
                         currentType = elementType;
                     }
-                    else if (currentType.IsDerivedFromGenericDefinition(typeof(IList<>)))
+                    else if (currentType.IsImplementsGenericDefinition(typeof(IList<>)))
                     {
                         Type elementType = currentType.GetGenericArgumentsRelativeTo(typeof(IList<>))[0];
                         result.Add(new PathStep(index, elementType, isArray: false));
