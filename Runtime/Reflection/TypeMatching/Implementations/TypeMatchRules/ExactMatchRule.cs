@@ -5,11 +5,6 @@ namespace EasyToolKit.Core.Reflection.Implementations
     /// <summary>
     /// Provides a type matching rule that matches types exactly.
     /// </summary>
-    /// <remarks>
-    /// This rule performs direct type equality checking. Both the type and all
-    /// target types must match exactly for the rule to succeed. This is the
-    /// most specific matching rule and is evaluated first.
-    /// </remarks>
     public sealed class ExactMatchRule : TypeMatchRuleBase
     {
         /// <inheritdoc/>

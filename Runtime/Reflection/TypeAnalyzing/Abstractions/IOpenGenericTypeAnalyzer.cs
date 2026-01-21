@@ -20,7 +20,7 @@ namespace EasyToolKit.Core.Reflection
         /// <summary>
         /// Gets the generic type being analyzed.
         /// </summary>
-        Type Type { get; }
+        Type OpenGenericType { get; }
 
         /// <summary>
         /// Gets all generic parameter information for the type, including both generic parameters
@@ -74,5 +74,46 @@ namespace EasyToolKit.Core.Reflection
         /// and provides the current type arguments in the output parameter.
         /// </remarks>
         bool TryInferTypeArguments(out Type[] inferredTypes);
+
+        /// <summary>
+        /// Determines whether the analyzed type implements the given generic type definition,
+        /// including interface implementations and inheritance hierarchy.
+        /// </summary>
+        /// <param name="genericTypeDefinition">The generic type definition to compare with. Must be a generic type definition.</param>
+        /// <returns>
+        /// <c>true</c> if the analyzed type implements or inherits from a type constructed from
+        /// <paramref name="genericTypeDefinition"/>; otherwise, <c>false</c>.
+        /// </returns>
+        /// <exception cref="ArgumentException">
+        /// Thrown when <paramref name="genericTypeDefinition"/> is not a generic type definition.
+        /// </exception>
+        bool IsImplementsGenericDefinition(Type genericTypeDefinition);
+
+        /// <summary>
+        /// Gets the generic type arguments relative to the specified generic type definition.
+        /// </summary>
+        /// <param name="genericTypeDefinition">The generic type definition to compare with. Must be a generic type definition.</param>
+        /// <returns>
+        /// An array of type arguments that correspond to the generic parameters of <paramref name="genericTypeDefinition"/>.
+        /// </returns>
+        /// <exception cref="ArgumentException">
+        /// Thrown when <paramref name="genericTypeDefinition"/> is not a generic type definition.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when the analyzed type does not implement or inherit from <paramref name="genericTypeDefinition"/>.
+        /// </exception>
+        Type[] GetGenericArgumentsRelativeTo(Type genericTypeDefinition);
+
+        /// <summary>
+        /// Gets the supplementary generic type arguments from a target type relative to the analyzed open generic type.
+        /// Supports array types (e.g., T[], List&lt;T&gt;[]) by recursively processing element types.
+        /// </summary>
+        /// <param name="targetType">The target type from which to extract type arguments.</param>
+        /// <param name="allowTypeInheritance">If true, allows type inheritance when extracting generic arguments.</param>
+        /// <returns>An array of supplementary generic type arguments.</returns>
+        /// <exception cref="ArgumentException">
+        /// Thrown when array ranks don't match or when types are incompatible.
+        /// </exception>
+        Type[] GetCompletedGenericArguments(Type targetType, bool allowTypeInheritance = false);
     }
 }

@@ -103,7 +103,7 @@ namespace EasyToolKit.Core.Reflection.Implementations
             final = results
                 .OrderByDescending(result => result.Candidate.Priority)
                 .ToArray();
-            _matchResultsCache[key] = final;
+            // _matchResultsCache[key] = final;
             return final;
         }
 
@@ -142,7 +142,7 @@ namespace EasyToolKit.Core.Reflection.Implementations
                 .OrderByDescending(result => result.Candidate.Priority)
                 .Distinct()
                 .ToArray();
-            _mergedResultsCache[key] = ret;
+            // _mergedResultsCache[key] = ret;
             return ret;
         }
 

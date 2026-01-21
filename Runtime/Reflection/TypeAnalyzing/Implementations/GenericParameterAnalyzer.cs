@@ -281,7 +281,8 @@ namespace EasyToolKit.Core.Reflection.Implementations
                 if (fullPath.Length == 1)
                 {
                     int targetIndex = fullPath[0];
-                    var completedArgs = constraint.GetCompletedGenericArguments(concreteType, true);
+                    var completedArgs = TypeAnalyzerFactory.GetOpenGenericTypeAnalyzer(constraint)
+                        .GetCompletedGenericArguments(concreteType, true);
                     inferredType = completedArgs[targetIndex];
                     return true;
                 }
@@ -300,7 +301,8 @@ namespace EasyToolKit.Core.Reflection.Implementations
 
                     // Use the last index to get the target from parent's generic arguments
                     int targetIndex = fullPath[^1];
-                    var completedArgs = parentConstraint.GetCompletedGenericArguments(parentConcrete, true);
+                    var completedArgs = TypeAnalyzerFactory.GetOpenGenericTypeAnalyzer(parentConstraint)
+                        .GetCompletedGenericArguments(parentConcrete, true);
                     inferredType = completedArgs[targetIndex];
                     return true;
                 }
@@ -396,7 +398,8 @@ namespace EasyToolKit.Core.Reflection.Implementations
 
                 try
                 {
-                    constraint.GetCompletedGenericArguments(targetType, true);
+                    TypeAnalyzerFactory.GetOpenGenericTypeAnalyzer(constraint)
+                        .GetCompletedGenericArguments(targetType, true);
                 }
                 catch (Exception e)
                 {

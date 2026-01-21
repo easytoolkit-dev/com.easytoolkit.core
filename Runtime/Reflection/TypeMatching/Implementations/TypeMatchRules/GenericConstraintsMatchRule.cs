@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace EasyToolKit.Core.Reflection.Implementations
 {
@@ -7,35 +8,45 @@ namespace EasyToolKit.Core.Reflection.Implementations
         /// <inheritdoc/>
         public override bool CanMatch(TypeMatchCandidate candidate, Type[] targets)
         {
-            var targetIndex = 0;
-            foreach (var constraint in candidate.Constraints)
-            {
-                if (constraint.IsGenericParameter)
-                {
-                    if (targets.Length <= targetIndex)
-                    {
-                        break;
-                    }
+            var typeArguments = candidate.SourceType.GetMergedGenericArguments(targets);
 
-                    if (!constraint.SatisfiesGenericParameterConstraints(targets[targetIndex++]))
+            try
+            {
+                var genericType = candidate.SourceType.GetGenericTypeDefinition().MakeGenericType(typeArguments);
+                if (genericType.ContainsGenericParameters)
+                {
+                    if (!genericType.TryInferTypeArguments(out var inferredTypes))
                     {
                         return false;
                     }
+
+                    if (inferredTypes.Any(type => type.IsGenericParameter))
+                    {
+                        return false;
+                    }
+
+                    return true;
                 }
             }
-
-            if (targetIndex != targets.Length)
+            catch (Exception e)
             {
                 return false;
             }
-
-            return candidate.SourceType.SatisfiesConstraints(targets);
+            return true;
         }
 
         /// <inheritdoc/>
         public override Type Match(TypeMatchCandidate candidate, Type[] targets)
         {
-            return candidate.SourceType.MakeGenericTypeExtended(targets);
+            var typeArguments = candidate.SourceType.GetMergedGenericArguments(targets);
+            var genericType = candidate.SourceType.GetGenericTypeDefinition().MakeGenericType(typeArguments);
+            if (genericType.ContainsGenericParameters)
+            {
+                genericType.TryInferTypeArguments(out var inferredTypes);
+                return genericType.GetGenericTypeDefinition().MakeGenericType(inferredTypes);
+            }
+
+            return genericType;
         }
     }
 }
