@@ -7,7 +7,7 @@ namespace EasyToolKit.Core.Reflection.Implementations
     /// <summary>
     /// Provides analysis capabilities for generic type definitions, extracting parameter constraints and dependencies.
     /// </summary>
-    public class GenericTypeAnalyzer : IGenericTypeAnalyzer
+    public class GenericTypeDefinitionAnalyzer : IGenericTypeDefinitionAnalyzer
     {
         private readonly Dictionary<int, IGenericParameterAnalyzer> _analyzersByPosition;
         private readonly Dictionary<string, IGenericParameterAnalyzer> _analyzersByName;
@@ -20,13 +20,13 @@ namespace EasyToolKit.Core.Reflection.Implementations
         public IReadOnlyList<GenericParameterInfo> Parameters => _parameters.Value;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GenericTypeAnalyzer"/> class.
+        /// Initializes a new instance of the <see cref="GenericTypeDefinitionAnalyzer"/> class.
         /// </summary>
         /// <param name="type">The generic type definition to analyze.</param>
         /// <exception cref="ArgumentException">
         /// Thrown when <paramref name="type"/> is not a generic type definition.
         /// </exception>
-        public GenericTypeAnalyzer(Type type)
+        public GenericTypeDefinitionAnalyzer(Type type)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type), "Type cannot be null.");
@@ -103,69 +103,6 @@ namespace EasyToolKit.Core.Reflection.Implementations
             }
 
             return true;
-        }
-
-        /// <inheritdoc />
-        public bool TryInferTypeArguments(Type[] typeArguments, out Type[] inferredTypes)
-        {
-            if (typeArguments == null)
-                throw new ArgumentNullException(nameof(typeArguments));
-
-            if (typeArguments.Length != _analyzersByPosition.Count)
-                throw new ArgumentException(
-                    $"Expected {_analyzersByPosition.Count} type arguments, but got {typeArguments.Length}.",
-                    nameof(typeArguments));
-
-            // Start with a copy of the original type arguments
-            inferredTypes = (Type[])typeArguments.Clone();
-
-            bool anyInferred = false;
-            bool changedInPass;
-
-            // Multiple passes to support chain inference (e.g., T1 -> T2 -> T3)
-            do
-            {
-                changedInPass = false;
-
-                // Try to infer types for parameters that are still generic parameters
-                for (int i = 0; i < inferredTypes.Length; i++)
-                {
-                    // Skip if already inferred or is a concrete type
-                    if (inferredTypes[i] == null || !inferredTypes[i].IsGenericParameter)
-                    {
-                        continue;
-                    }
-
-                    var currentAnalyzer = _analyzersByPosition[i];
-
-                    // Try to infer from parameters that depend on this one
-                    foreach (var dependedOnByType in currentAnalyzer.DependedOnBy)
-                    {
-                        // Find the analyzer and type of the dependent parameter
-                        var dependentAnalyzer = _analyzersByName[dependedOnByType.Name];
-                        int dependentIndex = dependentAnalyzer.Position;
-                        var dependentType = inferredTypes[dependentIndex];
-
-                        // Skip if dependent parameter is also not inferred
-                        if (dependentType == null || dependentType.IsGenericParameter)
-                        {
-                            continue;
-                        }
-
-                        // Try to infer using the dependent parameter's type
-                        if (currentAnalyzer.TryInferTypeFrom(dependedOnByType, dependentType, out var inferredType))
-                        {
-                            inferredTypes[i] = inferredType;
-                            anyInferred = true;
-                            changedInPass = true;
-                            break; // Successfully inferred, move to next parameter
-                        }
-                    }
-                }
-            }
-            while (changedInPass); // Continue until no more types can be inferred in a pass
-
-            return anyInferred;
         }
 
         private Type SubstituteGenericParameters(Type type, Dictionary<string, Type> typeArgumentsByName)

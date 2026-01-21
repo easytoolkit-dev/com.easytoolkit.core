@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace EasyToolKit.Core.Reflection
 {
@@ -26,7 +27,7 @@ namespace EasyToolKit.Core.Reflection
         /// <summary>
         /// Gets the special constraints applied to this generic parameter.
         /// </summary>
-        GenericParameterSpecialConstraints SpecialConstraints { get; }
+        GenericParameterAttributes SpecialConstraints { get; }
 
         /// <summary>
         /// Gets the type constraints (base class and interface constraints) applied to this generic parameter.

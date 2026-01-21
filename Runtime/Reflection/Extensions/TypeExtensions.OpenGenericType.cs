@@ -176,19 +176,19 @@ namespace EasyToolKit.Core.Reflection
         }
 
         /// <summary>
-        /// Determines whether the specified open generic type is derived from or implements
+        /// Determines whether the specified open generic type is implements
         /// the given generic type definition, including interface implementations.
         /// </summary>
         /// <param name="openGenericType">The type to check. This can be a concrete type, generic type definition, or constructed generic type.</param>
         /// <param name="genericTypeDefinition">The generic type definition to compare with. Must be a generic type definition.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="openGenericType"/> is derived from or implements
+        /// <c>true</c> if <paramref name="openGenericType"/> is implements
         /// a type constructed from <paramref name="genericTypeDefinition"/>; otherwise, <c>false</c>.
         /// </returns>
         /// <exception cref="ArgumentException">
         /// Thrown when <paramref name="genericTypeDefinition"/> is not a generic type definition.
         /// </exception>
-        public static bool IsDerivedFromGenericDefinition(this Type openGenericType, Type genericTypeDefinition)
+        public static bool IsImplementsGenericDefinition(this Type openGenericType, Type genericTypeDefinition)
         {
             if (openGenericType == null)
                 throw new ArgumentNullException(nameof(openGenericType));
@@ -219,7 +219,7 @@ namespace EasyToolKit.Core.Reflection
                     return true;
 
                 // Check if any of the interface's base interfaces match
-                if (IsDerivedFromGenericDefinition(iface, genericTypeDefinition))
+                if (IsImplementsGenericDefinition(iface, genericTypeDefinition))
                     return true;
             }
 
@@ -449,7 +449,7 @@ namespace EasyToolKit.Core.Reflection
 
             if (allowTypeInheritance)
             {
-                if (!targetType.IsDerivedFromGenericDefinition(openGenericType.GetGenericTypeDefinition()))
+                if (!targetType.IsImplementsGenericDefinition(openGenericType.GetGenericTypeDefinition()))
                 {
                     throw new ArgumentException(
                         $"The target type '{targetType}' must be derived from the open generic type '{openGenericType}'.",

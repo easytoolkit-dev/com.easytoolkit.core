@@ -6,7 +6,7 @@ namespace EasyToolKit.Core.Reflection
     /// <summary>
     /// Provides analysis capabilities for generic type definitions, extracting parameter constraints and dependencies.
     /// </summary>
-    public interface IGenericTypeAnalyzer
+    public interface IGenericTypeDefinitionAnalyzer
     {
         /// <summary>
         /// Gets the generic type definition being analyzed.
@@ -41,21 +41,5 @@ namespace EasyToolKit.Core.Reflection
         /// Thrown when the number of type arguments does not match the number of generic parameters.
         /// </exception>
         bool ValidateTypeArguments(params Type[] typeArguments);
-
-        /// <summary>
-        /// Attempts to infer generic type arguments from the provided type arguments.
-        /// </summary>
-        /// <param name="typeArguments">The type arguments used for inference.</param>
-        /// <param name="inferredTypes">
-        /// When this method returns <c>true</c>, contains the inferred type arguments.
-        /// Generic parameters that cannot be inferred retain their original types.
-        /// </param>
-        /// <returns>
-        /// <c>true</c> if at least one type argument was successfully inferred; otherwise, <c>false</c>.
-        /// </returns>
-        /// <exception cref="ArgumentException">
-        /// Thrown when the number of type arguments does not match the number of generic parameters.
-        /// </exception>
-        bool TryInferTypeArguments(Type[] typeArguments, out Type[] inferredTypes);
     }
 }
