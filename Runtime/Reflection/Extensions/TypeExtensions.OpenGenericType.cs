@@ -1,11 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EasyToolKit.Core.Reflection
 {
     public static partial class TypeExtensions
     {
+        /// <summary>
+        /// Gets the generic type arguments relative to the specified generic type definition.
+        /// </summary>
+        /// <param name="openGenericType">A partially constructed generic type or generic type definition.</param>
+        /// <param name="genericTypeDefinition">The generic type definition to compare with. Must be a generic type definition.</param>
+        /// <returns>
+        /// An array of type arguments that correspond to the generic parameters of <paramref name="genericTypeDefinition"/>.
+        /// </returns>
+        /// <exception cref="ArgumentException">
+        /// Thrown when <paramref name="genericTypeDefinition"/> is not a generic type definition.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when the analyzed type does not implement or inherit from <paramref name="genericTypeDefinition"/>.
+        /// </exception>
         public static Type[] GetGenericArgumentsRelativeTo(this Type openGenericType, Type genericTypeDefinition)
         {
             if (openGenericType == null)
@@ -13,177 +25,58 @@ namespace EasyToolKit.Core.Reflection
             if (genericTypeDefinition == null)
                 throw new ArgumentNullException(nameof(genericTypeDefinition));
 
-            // Handle array types
-            if (openGenericType.IsArray)
-            {
-                // If the target is also an array, process element types recursively
-                if (genericTypeDefinition.IsArray)
-                {
-                    // Validate array ranks match
-                    var openRank = openGenericType.GetArrayRank();
-                    var targetRank = genericTypeDefinition.GetArrayRank();
-
-                    if (openRank != targetRank)
-                    {
-                        throw new ArgumentException(
-                            $"Array ranks do not match. Open generic array rank: {openRank}, Target array rank: {targetRank}");
-                    }
-
-                    // Get array element types
-                    var openElementType = openGenericType.GetElementType();
-                    var targetElementType = genericTypeDefinition.GetElementType();
-
-                    if (openElementType == null || targetElementType == null)
-                    {
-                        throw new ArgumentException("Failed to get element type of array.");
-                    }
-
-                    // Recursively process element types
-                    return openElementType.GetGenericArgumentsRelativeTo(targetElementType);
-                }
-
-                // If the target is a non-array generic definition (e.g., IList<T>),
-                // get generic arguments from the implemented generic interface
-                if (genericTypeDefinition.IsGenericTypeDefinition)
-                {
-                    var elementType = openGenericType.GetElementType();
-                    if (elementType == null)
-                    {
-                        throw new ArgumentException("Failed to get element type of array.");
-                    }
-
-                    // Special case: if the element type is a generic parameter (e.g., T in T[]),
-                    // return the generic parameter directly
-                    if (elementType.IsGenericParameter)
-                    {
-                        // Find the corresponding type argument in the generic definition
-                        var genericParams = genericTypeDefinition.GetGenericArguments();
-                        if (genericParams.Length == 1)
-                        {
-                            return new[] { elementType };
-                        }
-                    }
-
-                    // For concrete arrays (e.g., int[], string[]), find the implemented
-                    // generic interface and extract its type arguments
-                    foreach (var iface in openGenericType.GetInterfaces())
-                    {
-                        if (iface.IsGenericType && iface.GetGenericTypeDefinition() == genericTypeDefinition)
-                        {
-                            return iface.GetGenericArguments();
-                        }
-                    }
-
-                    throw new InvalidOperationException(
-                        $"Array type '{openGenericType.FullName}' does not implement generic type definition '{genericTypeDefinition.FullName}'");
-                }
-
-                throw new ArgumentException(
-                    $"When the open type is an array, the target type must be either an array or a generic type definition.",
-                    nameof(genericTypeDefinition));
-            }
-
-            // Handle generic parameters
-            if (openGenericType.IsGenericParameter)
-            {
-                // If the open generic definition is a generic parameter,
-                // return the corresponding type
-                return new[] { genericTypeDefinition };
-            }
-
-            if (!genericTypeDefinition.IsGenericTypeDefinition)
-                throw new ArgumentException("genericTypeDefinition must be a generic type definition",
-                    nameof(genericTypeDefinition));
-
-            var typeMapping = BuildTypeMapping(openGenericType);
-            var result = FindGenericArgumentsInHierarchy(openGenericType, genericTypeDefinition, typeMapping);
-
-            if (result == null)
-                throw new InvalidOperationException(
-                    $"Type {openGenericType.FullName} does not implement or inherit from {genericTypeDefinition.FullName}");
-
-            return result;
-        }
-
-        private static Type[] FindGenericArgumentsInHierarchy(Type typeToSearch, Type genericTypeDefinition,
-            Dictionary<Type, Type> typeMapping)
-        {
-            if (typeToSearch.IsGenericType)
-            {
-                var genericDef = typeToSearch.GetGenericTypeDefinition();
-                if (genericDef == genericTypeDefinition)
-                {
-                    return ResolveTypeArguments(typeToSearch.GetGenericArguments(), typeMapping);
-                }
-            }
-
-            var baseType = typeToSearch.BaseType;
-            if (baseType != null)
-            {
-                var baseResult = FindGenericArgumentsInHierarchy(baseType, genericTypeDefinition, typeMapping);
-                if (baseResult != null)
-                    return baseResult;
-            }
-
-            foreach (var interfaceType in typeToSearch.GetInterfaces())
-            {
-                var interfaceResult =
-                    FindGenericArgumentsInHierarchy(interfaceType, genericTypeDefinition, typeMapping);
-                if (interfaceResult != null)
-                    return interfaceResult;
-            }
-
-            return null;
-        }
-
-        private static Dictionary<Type, Type> BuildTypeMapping(Type type)
-        {
-            var mapping = new Dictionary<Type, Type>();
-
-            if (type.IsGenericType && !type.IsGenericTypeDefinition)
-            {
-                var genericParams = type.GetGenericTypeDefinition().GetGenericArguments();
-                var actualArgs = type.GetGenericArguments();
-
-                for (int i = 0; i < genericParams.Length; i++)
-                {
-                    mapping[genericParams[i]] = actualArgs[i];
-                }
-            }
-
-            return mapping;
-        }
-
-        private static Type[] ResolveTypeArguments(Type[] typeArguments, Dictionary<Type, Type> typeMapping)
-        {
-            var result = new Type[typeArguments.Length];
-
-            for (int i = 0; i < typeArguments.Length; i++)
-            {
-                var arg = typeArguments[i];
-
-                if (arg.IsGenericParameter && typeMapping.TryGetValue(arg, out var resolvedType))
-                {
-                    result[i] = resolvedType;
-                }
-                else
-                {
-                    result[i] = arg;
-                }
-            }
-
-            return result;
+            return TypeAnalyzerFactory.GetOpenGenericTypeAnalyzer(openGenericType)
+                .GetGenericArgumentsRelativeTo(genericTypeDefinition);
         }
 
         /// <summary>
-        /// Determines whether the specified open generic type is implements
-        /// the given generic type definition, including interface implementations.
+        /// Attempts to infer remaining generic type arguments based on substituted parameters and dependencies.
         /// </summary>
-        /// <param name="openGenericType">The type to check. This can be a concrete type, generic type definition, or constructed generic type.</param>
+        /// <param name="openGenericType">A partially constructed generic type or generic type definition.</param>
+        /// <param name="inferredTypes">
+        /// When this method returns, contains the type arguments with any inferred types filled in.
+        /// Generic parameters that cannot be inferred retain their original types.
+        /// For fully constructed types, this contains all concrete types.
+        /// </param>
+        /// <returns>
+        /// <c>true</c> if at least one type argument was successfully inferred; otherwise, <c>false</c>.
+        /// Returns <c>false</c> for fully constructed types (no inference needed).
+        /// </returns>
+        /// <remarks>
+        /// This method uses the current type's substituted parameters to infer remaining generic parameters
+        /// based on parameter dependencies. For example, in a type like <c>DependencyContainer&lt;List&lt;int&gt;, T&gt;</c>,
+        /// if T1 is substituted with <c>List&lt;int&gt;</c> and T1 depends on T2 (e.g., <c>T1 : List&lt;T2&gt;</c>),
+        /// this method can infer that T2 should be <c>int</c>.
+        /// For fully constructed types where all parameters are already concrete, this method returns <c>false</c>
+        /// and provides the current type arguments in the output parameter.
+        /// </remarks>
+        public static bool TryInferTypeArguments(this Type openGenericType, out Type[] inferredTypes)
+        {
+            if (openGenericType == null)
+                throw new ArgumentNullException(nameof(openGenericType));
+
+            return TypeAnalyzerFactory.GetOpenGenericTypeAnalyzer(openGenericType)
+                .TryInferTypeArguments(out inferredTypes);
+        }
+
+        public static int GetGenericParameterCount(this Type openGenericType)
+        {
+            if (openGenericType == null)
+                throw new ArgumentNullException(nameof(openGenericType));
+
+            return TypeAnalyzerFactory.GetOpenGenericTypeAnalyzer(openGenericType)
+                .GenericParameters.Count;
+        }
+
+        /// <summary>
+        /// Determines whether the analyzed type implements the given generic type definition,
+        /// including interface implementations and inheritance hierarchy.
+        /// </summary>
+        /// <param name="openGenericType">A partially constructed generic type or generic type definition.</param>
         /// <param name="genericTypeDefinition">The generic type definition to compare with. Must be a generic type definition.</param>
         /// <returns>
-        /// <c>true</c> if <paramref name="openGenericType"/> is implements
-        /// a type constructed from <paramref name="genericTypeDefinition"/>; otherwise, <c>false</c>.
+        /// <c>true</c> if the analyzed type implements or inherits from a type constructed from
+        /// <paramref name="genericTypeDefinition"/>; otherwise, <c>false</c>.
         /// </returns>
         /// <exception cref="ArgumentException">
         /// Thrown when <paramref name="genericTypeDefinition"/> is not a generic type definition.
@@ -198,32 +91,17 @@ namespace EasyToolKit.Core.Reflection
                 throw new ArgumentException("The specified type must be a generic type definition.",
                     nameof(genericTypeDefinition));
 
-            // Quick check: if the types are the same generic definition
-            if (openGenericType == genericTypeDefinition)
-                return true;
-
-            // Check base types (including the type itself)
-            Type currentType = openGenericType;
-            while (currentType != null)
+            IOpenGenericTypeAnalyzer analyzer;
+            try
             {
-                if (currentType.IsGenericType && currentType.GetGenericTypeDefinition() == genericTypeDefinition)
-                    return true;
-                currentType = currentType.BaseType;
+                analyzer = TypeAnalyzerFactory.GetOpenGenericTypeAnalyzer(openGenericType);
+            }
+            catch (Exception e)
+            {
+                return false;
             }
 
-            // Check all implemented interfaces recursively
-            var interfaces = openGenericType.GetInterfaces();
-            foreach (var iface in interfaces)
-            {
-                if (iface.IsGenericType && iface.GetGenericTypeDefinition() == genericTypeDefinition)
-                    return true;
-
-                // Check if any of the interface's base interfaces match
-                if (IsImplementsGenericDefinition(iface, genericTypeDefinition))
-                    return true;
-            }
-
-            return false;
+            return analyzer.IsImplementsGenericDefinition(genericTypeDefinition);
         }
 
         public static bool SatisfiesConstraints(
@@ -374,9 +252,8 @@ namespace EasyToolKit.Core.Reflection
                         result[i] = providedTypeArguments[providedIndex++];
                         if (!existingArgs[i].SatisfiesGenericParameterConstraints(result[i]))
                         {
-                            throw new ArgumentException(
-                                $"Type '{result[i]}' does not satisfy the constraints of generic parameter '{existingArgs[i]}'.",
-                                nameof(providedTypeArguments));
+                            //TODO error info
+                            throw new ArgumentException();
                         }
                         continue;
                     }
@@ -388,8 +265,8 @@ namespace EasyToolKit.Core.Reflection
         }
 
         /// <summary>
-        /// Gets the supplementary generic type arguments from a target type relative to an open generic type.
-        /// Supports array types (e.g., T[], MyClass&lt;T&gt;[]) by recursively processing element types.
+        /// Gets the supplementary generic type arguments from a target type relative to the analyzed open generic type.
+        /// Supports array types (e.g., T[], List&lt;T&gt;[]) by recursively processing element types.
         /// </summary>
         /// <param name="openGenericType">The open generic type to compare against.</param>
         /// <param name="targetType">The target type from which to extract type arguments.</param>
@@ -401,98 +278,11 @@ namespace EasyToolKit.Core.Reflection
         public static Type[] GetCompletedGenericArguments(this Type openGenericType, Type targetType,
             bool allowTypeInheritance = false)
         {
-            // Handle array types by processing their element types recursively
-            if (openGenericType.IsArray)
-            {
-                if (!targetType.IsArray)
-                {
-                    throw new ArgumentException($"The target type '{targetType}' must both be arrays.",
-                        nameof(targetType));
-                }
+            if (openGenericType == null)
+                throw new ArgumentNullException(nameof(openGenericType), "Open generic type cannot be null.");
 
-                // Validate array ranks match
-                var openRank = openGenericType.GetArrayRank();
-                var targetRank = targetType.GetArrayRank();
-
-                if (openRank != targetRank)
-                {
-                    throw new ArgumentException(
-                        $"Array ranks do not match. Open generic array rank: {openRank}, Target array rank: {targetRank}");
-                }
-
-                // Get array element types
-                var openElementType = openGenericType.GetElementType();
-                var targetElementType = targetType.GetElementType();
-
-                if (openElementType == null || targetElementType == null)
-                {
-                    throw new ArgumentException("Failed to get element type of array.");
-                }
-
-                // Recursively process element types
-                return openElementType.GetCompletedGenericArguments(targetElementType, allowTypeInheritance);
-            }
-
-            // Handle non-generic type parameters (like T) by extracting from the target type
-            // This case occurs when processing array element types that are generic parameters
-            if (openGenericType.IsGenericParameter)
-            {
-                return new[] { targetType };
-            }
-
-            // Original logic for non-array, non-generic-parameter types
-            if (!openGenericType.IsGenericType)
-            {
-                throw new ArgumentException(
-                    "The openGenericType must be a generic type, generic parameter, or array of such types.");
-            }
-
-            if (allowTypeInheritance)
-            {
-                if (!targetType.IsImplementsGenericDefinition(openGenericType.GetGenericTypeDefinition()))
-                {
-                    throw new ArgumentException(
-                        $"The target type '{targetType}' must be derived from the open generic type '{openGenericType}'.",
-                        nameof(targetType));
-                }
-            }
-            else
-            {
-                if (targetType.GetGenericTypeDefinition() != openGenericType.GetGenericTypeDefinition())
-                {
-                    throw new ArgumentException(
-                        $"The generic type definition of target type '{targetType}' " +
-                        $"must be same as the generic type definition of open generic type '{openGenericType}'.",
-                        nameof(targetType));
-                }
-            }
-
-            var genericTypeDefinition = openGenericType.GetGenericTypeDefinition();
-
-            var typeArguments = allowTypeInheritance
-                ? targetType.GetGenericArgumentsRelativeTo(genericTypeDefinition)
-                : targetType.GetGenericArguments();
-            var existingTypeArguments = openGenericType.GetGenericArguments();
-            var missingTypeArguments = new List<Type>();
-
-            for (var i = 0; i < existingTypeArguments.Length; i++)
-            {
-                var existingTypeArgument = existingTypeArguments[i];
-                if (existingTypeArgument.IsGenericParameter)
-                {
-                    missingTypeArguments.Add(typeArguments[i]);
-                }
-                else
-                {
-                    if (existingTypeArgument != typeArguments[i])
-                    {
-                        throw new ArgumentException(
-                            $"Type arguments do not match. Open generic type: {openGenericType}, Target type: {targetType}");
-                    }
-                }
-            }
-
-            return missingTypeArguments.ToArray();
+            return TypeAnalyzerFactory.GetOpenGenericTypeAnalyzer(openGenericType)
+                .GetCompletedGenericArguments(targetType, allowTypeInheritance);
         }
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using EasyToolKit.Core.Reflection.Implementations;
 
 namespace EasyToolKit.Core.Reflection
 {
@@ -29,7 +28,7 @@ namespace EasyToolKit.Core.Reflection
                 return cached;
             }
 
-            var analyzer = new GenericTypeDefinitionAnalyzer(genericType);
+            var analyzer = new Implementations.GenericTypeDefinitionAnalyzer(genericType);
             GenericTypeAnalyzerCache[genericType] = analyzer;
             return analyzer;
         }
@@ -50,7 +49,7 @@ namespace EasyToolKit.Core.Reflection
                 return cached;
             }
 
-            var analyzer = new GenericParameterAnalyzer(genericParameterType);
+            var analyzer = new Implementations.GenericParameterAnalyzer(genericParameterType);
             GenericParameterAnalyzerCache[genericParameterType] = analyzer;
             return analyzer;
         }
@@ -66,16 +65,16 @@ namespace EasyToolKit.Core.Reflection
         /// </exception>
         public static IOpenGenericTypeAnalyzer GetOpenGenericTypeAnalyzer(Type openGenericType)
         {
-            if (!openGenericType.IsGenericType)
-                throw new ArgumentException($"Type '{openGenericType.Name}' must be a generic type.",
-                    nameof(openGenericType));
+            if (!Implementations.OpenGenericTypeAnalyzer.IsValidType(openGenericType))
+                throw new ArgumentException($"Type '{openGenericType.Name}' must be a generic type, an array of a generic type, or inherit from a generic type.", nameof(openGenericType));
+
 
             if (OpenGenericTypeAnalyzerCache.TryGetValue(openGenericType, out var cached))
             {
                 return cached;
             }
 
-            var analyzer = new OpenGenericTypeAnalyzer(openGenericType);
+            var analyzer = new Implementations.OpenGenericTypeAnalyzer(openGenericType);
             OpenGenericTypeAnalyzerCache[openGenericType] = analyzer;
             return analyzer;
         }
