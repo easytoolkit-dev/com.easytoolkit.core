@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 
 namespace EasyToolKit.Core.Reflection.Implementations
 {
@@ -218,7 +219,7 @@ namespace EasyToolKit.Core.Reflection.Implementations
             // Search through all constraints of the dependent parameter
             foreach (var constraint in dependentAnalyzer.TypeConstraints)
             {
-                if (TryFindParameterInConstraint(constraint, dependentParameterType, ParameterType, out var foundType))
+                if (TryFindParameterInConstraint(constraint, dependentParameterType, out var foundType))
                 {
                     inferredType = foundType;
                     return true;
@@ -228,122 +229,138 @@ namespace EasyToolKit.Core.Reflection.Implementations
             return false;
         }
 
-        private bool TryFindParameterInConstraint(Type constraint, Type concreteType, Type targetParameter, out Type inferredType)
+        /// <inheritdoc />
+        public int[] FindPositionPathIn(Type targetType)
+        {
+            if (targetType == null)
+                return null;
+
+            var path = new List<int>();
+            if (TryFindParameterPath(targetType, ParameterType, path))
+            {
+                return path.ToArray();
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Recursively finds the path to a generic parameter within a type's generic hierarchy.
+        /// </summary>
+        /// <param name="type">The type to search in.</param>
+        /// <param name="targetParameter">The generic parameter to find.</param>
+        /// <param name="path">The current path being built.</param>
+        /// <returns><c>true</c> if the parameter was found; otherwise, <c>false</c>.</returns>
+        private bool TryFindParameterPath(Type type, Type targetParameter, List<int> path)
+        {
+            // Direct match: type itself is the target generic parameter
+            if (type.IsGenericParameter && IsSameGenericParameter(type, targetParameter))
+            {
+                return true;
+            }
+
+            // Search in generic arguments if this is a generic type
+            if (type.IsGenericType)
+            {
+                var genericArgs = type.GetGenericArguments();
+                for (int i = 0; i < genericArgs.Length; i++)
+                {
+                    path.Add(i);
+                    if (TryFindParameterPath(genericArgs[i], targetParameter, path))
+                    {
+                        return true;
+                    }
+                    path.RemoveAt(path.Count - 1);
+                }
+            }
+
+            // Check element type for arrays
+            if (type.HasElementType)
+            {
+                return TryFindParameterPath(type.GetElementType(), targetParameter, path);
+            }
+
+            return false;
+        }
+
+        private bool TryFindParameterInConstraint(Type constraint, Type concreteType, out Type inferredType)
         {
             inferredType = null;
 
             // Direct match: constraint is the target parameter
-            if (constraint.IsGenericParameter && IsSameGenericParameter(constraint, targetParameter))
+            if (constraint.IsGenericParameter && IsSameGenericParameter(constraint, ParameterType))
             {
                 inferredType = concreteType;
                 return true;
             }
 
-            // Handle generic types: search recursively in generic arguments
-            if (constraint.IsGenericType)
+            try
             {
-                // Get the generic type definition of the constraint
-                var constraintDef = constraint.GetGenericTypeDefinition();
-
-                // Check if concreteType is directly a matching generic type
-                if (concreteType.IsGenericType)
+                // Get the position path of target parameter in the constraint
+                var fullPath = FindPositionPathIn(constraint);
+                if (fullPath == null)
                 {
-                    var concreteDef = concreteType.GetGenericTypeDefinition();
-
-                    // Direct match: generic type definitions are the same
-                    if (constraintDef == concreteDef)
-                    {
-                        var constraintArgs = constraint.GetGenericArguments();
-                        var concreteArgs = concreteType.GetGenericArguments();
-
-                        // Recursively search in generic arguments
-                        for (int i = 0; i < constraintArgs.Length; i++)
-                        {
-                            if (TryFindParameterInConstraint(constraintArgs[i], concreteArgs[i], targetParameter, out var found))
-                            {
-                                inferredType = found;
-                                return true;
-                            }
-                        }
-                    }
+                    return false;
                 }
 
-                // Handle interface implementations and type inheritance
-                // Use GetCompletedGenericArguments with allowTypeInheritance to support derived types
-                if (concreteType.IsDerivedFromGenericDefinition(constraintDef))
+                // If the path only has one level, the target is directly in constraint's generic arguments
+                if (fullPath.Length == 1)
                 {
-                    try
-                    {
-                        // Extract type arguments from the concrete type relative to the constraint definition
-                        var extractedArgs = constraint.GetCompletedGenericArguments(concreteType, true);
-                        var constraintArgs = constraint.GetGenericArguments();
+                    int targetIndex = fullPath[0];
+                    var completedArgs = constraint.GetCompletedGenericArguments(concreteType, true);
+                    inferredType = completedArgs[targetIndex];
+                    return true;
+                }
+                else
+                {
+                    // For nested types, navigate to the parent type first
+                    // Create parent path by removing the last element
+                    var parentPath = fullPath.Take(fullPath.Length - 1).ToArray();
+                    var parentConstraint = NavigatePath(constraint, parentPath);
+                    var parentConcrete = NavigatePath(concreteType, parentPath);
 
-                        // Map the extracted arguments to the constraint parameters
-                        for (int i = 0; i < constraintArgs.Length && i < extractedArgs.Length; i++)
-                        {
-                            if (TryFindParameterInConstraint(constraintArgs[i], extractedArgs[i], targetParameter, out var found))
-                            {
-                                inferredType = found;
-                                return true;
-                            }
-                        }
-                    }
-                    catch
+                    if (parentConstraint == null || parentConcrete == null)
                     {
-                        // If GetCompletedGenericArguments fails, continue to other cases
+                        return false;
                     }
+
+                    // Use the last index to get the target from parent's generic arguments
+                    int targetIndex = fullPath[^1];
+                    var completedArgs = parentConstraint.GetCompletedGenericArguments(parentConcrete, true);
+                    inferredType = completedArgs[targetIndex];
+                    return true;
                 }
             }
-
-            // Handle arrays (arrays can implement generic interfaces like IList<T>)
-            if (concreteType.IsArray && constraint.IsGenericType)
+            catch (Exception)
             {
-                try
-                {
-                    var constraintDef = constraint.GetGenericTypeDefinition();
+                return false;
+            }
+        }
 
-                    // Check if array types implement this generic interface
-                    if (concreteType.IsDerivedFromGenericDefinition(constraintDef))
-                    {
-                        // Use GetGenericArgumentsRelativeTo to extract type arguments from the implemented interface
-                        var extractedArgs = concreteType.GetGenericArgumentsRelativeTo(constraintDef);
-                        var constraintArgs = constraint.GetGenericArguments();
+        /// <summary>
+        /// Navigates through a generic type hierarchy following the specified path of generic argument indices.
+        /// </summary>
+        /// <param name="type">The starting type.</param>
+        /// <param name="path">The path of indices to follow through generic arguments.</param>
+        /// <returns>The type at the specified path, or null if navigation fails.</returns>
+        private static Type NavigatePath(Type type, int[] path)
+        {
+            if (type == null || path == null || path.Length == 0)
+                return null;
 
-                        for (int i = 0; i < constraintArgs.Length && i < extractedArgs.Length; i++)
-                        {
-                            if (TryFindParameterInConstraint(constraintArgs[i], extractedArgs[i], targetParameter, out var found))
-                            {
-                                inferredType = found;
-                                return true;
-                            }
-                        }
-                    }
-                }
-                catch
-                {
-                    // If extraction fails, continue
-                }
+            Type current = type;
+            foreach (int index in path)
+            {
+                if (!current.IsGenericType)
+                    return null;
+
+                var args = current.GetGenericArguments();
+                if (index < 0 || index >= args.Length)
+                    return null;
+
+                current = args[index];
             }
 
-            // Handle constraint arrays and concrete type arrays
-            if (constraint.IsArray && concreteType.IsArray)
-            {
-                var constraintRank = constraint.GetArrayRank();
-                var concreteRank = concreteType.GetArrayRank();
-
-                if (constraintRank == concreteRank)
-                {
-                    var constraintElement = constraint.GetElementType();
-                    var concreteElement = concreteType.GetElementType();
-
-                    if (constraintElement != null && concreteElement != null)
-                    {
-                        return TryFindParameterInConstraint(constraintElement, concreteElement, targetParameter, out inferredType);
-                    }
-                }
-            }
-
-            return false;
+            return current;
         }
 
         private bool IsSameGenericParameter(Type param1, Type param2)

@@ -13,36 +13,74 @@ namespace EasyToolKit.Core.Reflection
             if (genericTypeDefinition == null)
                 throw new ArgumentNullException(nameof(genericTypeDefinition));
 
-            // Handle array types by processing their element types
+            // Handle array types
             if (openGenericType.IsArray)
             {
-                if (!genericTypeDefinition.IsArray)
+                // If the target is also an array, process element types recursively
+                if (genericTypeDefinition.IsArray)
                 {
-                    throw new ArgumentException($"The target type '{genericTypeDefinition}' must both be arrays.",
-                        nameof(genericTypeDefinition));
+                    // Validate array ranks match
+                    var openRank = openGenericType.GetArrayRank();
+                    var targetRank = genericTypeDefinition.GetArrayRank();
+
+                    if (openRank != targetRank)
+                    {
+                        throw new ArgumentException(
+                            $"Array ranks do not match. Open generic array rank: {openRank}, Target array rank: {targetRank}");
+                    }
+
+                    // Get array element types
+                    var openElementType = openGenericType.GetElementType();
+                    var targetElementType = genericTypeDefinition.GetElementType();
+
+                    if (openElementType == null || targetElementType == null)
+                    {
+                        throw new ArgumentException("Failed to get element type of array.");
+                    }
+
+                    // Recursively process element types
+                    return openElementType.GetGenericArgumentsRelativeTo(targetElementType);
                 }
 
-                // Validate array ranks match
-                var openRank = openGenericType.GetArrayRank();
-                var targetRank = genericTypeDefinition.GetArrayRank();
-
-                if (openRank != targetRank)
+                // If the target is a non-array generic definition (e.g., IList<T>),
+                // get generic arguments from the implemented generic interface
+                if (genericTypeDefinition.IsGenericTypeDefinition)
                 {
-                    throw new ArgumentException(
-                        $"Array ranks do not match. Open generic array rank: {openRank}, Target array rank: {targetRank}");
+                    var elementType = openGenericType.GetElementType();
+                    if (elementType == null)
+                    {
+                        throw new ArgumentException("Failed to get element type of array.");
+                    }
+
+                    // Special case: if the element type is a generic parameter (e.g., T in T[]),
+                    // return the generic parameter directly
+                    if (elementType.IsGenericParameter)
+                    {
+                        // Find the corresponding type argument in the generic definition
+                        var genericParams = genericTypeDefinition.GetGenericArguments();
+                        if (genericParams.Length == 1)
+                        {
+                            return new[] { elementType };
+                        }
+                    }
+
+                    // For concrete arrays (e.g., int[], string[]), find the implemented
+                    // generic interface and extract its type arguments
+                    foreach (var iface in openGenericType.GetInterfaces())
+                    {
+                        if (iface.IsGenericType && iface.GetGenericTypeDefinition() == genericTypeDefinition)
+                        {
+                            return iface.GetGenericArguments();
+                        }
+                    }
+
+                    throw new InvalidOperationException(
+                        $"Array type '{openGenericType.FullName}' does not implement generic type definition '{genericTypeDefinition.FullName}'");
                 }
 
-                // Get array element types
-                var openElementType = openGenericType.GetElementType();
-                var targetElementType = genericTypeDefinition.GetElementType();
-
-                if (openElementType == null || targetElementType == null)
-                {
-                    throw new ArgumentException("Failed to get element type of array.");
-                }
-
-                // Recursively process element types
-                return openElementType.GetGenericArgumentsRelativeTo(targetElementType);
+                throw new ArgumentException(
+                    $"When the open type is an array, the target type must be either an array or a generic type definition.",
+                    nameof(genericTypeDefinition));
             }
 
             // Handle generic parameters
