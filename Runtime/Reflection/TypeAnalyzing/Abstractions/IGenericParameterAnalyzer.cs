@@ -58,10 +58,6 @@ namespace EasyToolKit.Core.Reflection
         /// <c>true</c> if <paramref name="targetType"/> satisfies all special constraints and type constraints;
         /// otherwise, <c>false</c>.
         /// </returns>
-        /// <remarks>
-        /// This method checks both special constraints (e.g., class, struct, default constructor)
-        /// and type constraints (base class and interface constraints).
-        /// </remarks>
         bool SatisfiesConstraints(Type targetType);
 
         /// <summary>
@@ -82,10 +78,22 @@ namespace EasyToolKit.Core.Reflection
         /// <returns>
         /// <c>true</c> if the type was successfully inferred; otherwise, <c>false</c>.
         /// </returns>
-        /// <remarks>
-        /// This method searches through all constraints of the dependent parameter to find references
-        /// to the current parameter, then extracts the corresponding type argument from the dependent parameter type.
-        /// </remarks>
         bool TryInferTypeFrom(Type dependentParameter, Type dependentParameterType, out Type inferredType);
+
+        /// <summary>
+        /// Finds the position path of this generic parameter within the target type's generic argument hierarchy.
+        /// </summary>
+        /// <param name="targetType">The type to search for this generic parameter.</param>
+        /// <returns>
+        /// An array of indices representing the path to this generic parameter, or <c>null</c> if not found.
+        /// Each index represents the position at each nesting level.
+        /// <para>For example, if this parameter is T and targetType is <see cref="Dictionary{TKey, TValue}">Dictionary&lt;int, List&lt;T&gt;&gt;</see>,
+        /// returns [1, 0] meaning T is at position 0 of the type at position 1 (List&lt;T&gt;).</para>
+        /// </returns>
+        /// <remarks>
+        /// This method traverses the generic type hierarchy to find where this parameter is used.
+        /// The returned path can be used to extract the actual type argument from a constructed generic type.
+        /// </remarks>
+        int[] FindPositionPathIn(Type targetType);
     }
 }
