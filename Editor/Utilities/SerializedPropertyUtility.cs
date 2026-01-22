@@ -44,7 +44,7 @@ namespace EasyToolKit.Core.Editor
             { typeof(Bounds),           (Action<SerializedProperty, Bounds>)          ((p, v) => p.boundsValue = v) },
             { typeof(Quaternion),       (Action<SerializedProperty, Quaternion>)      ((p, v) => p.quaternionValue = v) },
         };
-        
+
         public static string GetProperTypeName(this SerializedProperty property)
         {
             if (property.type.StartsWith("PPtr<"))
@@ -86,9 +86,10 @@ namespace EasyToolKit.Core.Editor
 
                         string typeName = property.GetProperTypeName();
 
-                        var possibles = AssemblyUtility.GetTypes(AssemblyCategory.UnityEngine)
-                                                         .Where(n => n.Name == typeName && typeof(UnityEngine.Object).IsAssignableFrom(n))
-                                                         .ToList();
+                        var possibles = AppDomain.CurrentDomain.GetAssemblies()
+                            .SelectMany(a => a.GetTypes())
+                            .Where(n => n.Name == typeName && typeof(UnityEngine.Object).IsAssignableFrom(n))
+                            .ToList();
 
                         if (possibles.Count == 1)
                         {
@@ -136,7 +137,7 @@ namespace EasyToolKit.Core.Editor
                     return null;
             }
         }
-        
+
         public static Func<SerializedProperty, T> GetValueGetter<T>()
         {
             if (typeof(UnityEngine.Object).IsAssignableFrom(typeof(T)))
@@ -166,7 +167,7 @@ namespace EasyToolKit.Core.Editor
 
             return property => property.boxedValue;
         }
-        
+
         public static Action<SerializedProperty, T> GetValueSetter<T>()
         {
             if (typeof(UnityEngine.Object).IsAssignableFrom(typeof(T)))

@@ -2,11 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using EasyToolKit.Core.Reflection;
-using EasyToolKit.OdinSerializer;
+using EasyToolKit.Serialization;
 using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
-using SerializationUtility = EasyToolKit.OdinSerializer.SerializationUtility;
 
 namespace EasyToolKit.Core.Editor
 {
@@ -311,12 +310,9 @@ namespace EasyToolKit.Core.Editor
                     return this.Object;
                 }
 
-                using (var stream = new MemoryStream())
-                {
-                    SerializationUtility.SerializeValue(this.Object, stream, DataFormat.Binary, out var unityReferences);
-                    stream.Position = 0;
-                    return SerializationUtility.DeserializeValue<object>(stream, DataFormat.Binary, unityReferences);
-                }
+                var unityReferences = new List<UnityEngine.Object>();
+                var data = EasySerializer.SerializeToBinary(Object, ref unityReferences);
+                return EasySerializer.DeserializeFromBinary(Object.GetType(), data, unityReferences);
             }
 
             return this.Object;
