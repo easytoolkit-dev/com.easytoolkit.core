@@ -4,17 +4,33 @@ using System.Linq;
 
 namespace EasyToolKit.Core.Reflection.Implementations
 {
-    public sealed class GenericConstraintsMatchRule : TypeMatchRuleBase
+    public sealed class GenericParameterConstraintsMatchRule : TypeMatchRuleBase
     {
         /// <inheritdoc/>
         public override bool CanMatch(TypeMatchCandidate candidate, Type[] targets)
         {
+            return TryInferTypeArguments(candidate, targets, out _);
+        }
+
+        /// <inheritdoc/>
+        public override Type Match(TypeMatchCandidate candidate, Type[] targets)
+        {
+            TryInferTypeArguments(candidate, targets, out var typeArguments);
+            return candidate.SourceType.GetGenericTypeDefinition().MakeGenericType(typeArguments);
+        }
+
+        private bool TryInferTypeArguments(TypeMatchCandidate candidate, Type[] targets, out Type[] typeArguments)
+        {
+            typeArguments = null;
             var targetIndexByConstraint = new Dictionary<Type, int>();
 
             {
                 var targetIndex = 0;
                 for (int i = 0; i < candidate.Constraints.Length; i++)
                 {
+                    if (!candidate.Constraints[i].IsGenericParameter)
+                        continue;
+
                     if (!candidate.Constraints[i].SatisfiesGenericParameterConstraints(targets[targetIndex]))
                     {
                         return false;
@@ -25,7 +41,7 @@ namespace EasyToolKit.Core.Reflection.Implementations
                 }
             }
 
-            var typeArguments = candidate.SourceType.GetGenericArguments();
+            typeArguments = candidate.SourceType.GetGenericArguments();
             for (var i = 0; i < typeArguments.Length; i++)
             {
                 if (typeArguments[i].IsGenericParameter &&
@@ -47,6 +63,7 @@ namespace EasyToolKit.Core.Reflection.Implementations
                             return false;
                         }
 
+                        typeArguments = inferredTypes;
                         return true;
                     }
                     return false;
@@ -58,40 +75,6 @@ namespace EasyToolKit.Core.Reflection.Implementations
             {
                 return false;
             }
-        }
-
-        /// <inheritdoc/>
-        public override Type Match(TypeMatchCandidate candidate, Type[] targets)
-        {
-            var targetIndexByConstraint = new Dictionary<Type, int>();
-
-            {
-                var targetIndex = 0;
-                for (int i = 0; i < candidate.Constraints.Length; i++)
-                {
-                    targetIndexByConstraint.Add(candidate.Constraints[i], targetIndex);
-                    targetIndex++;
-                }
-            }
-
-            var typeArguments = candidate.SourceType.GetGenericArguments();
-            for (var i = 0; i < typeArguments.Length; i++)
-            {
-                if (typeArguments[i].IsGenericParameter &&
-                    targetIndexByConstraint.TryGetValue(typeArguments[i], out var targetIndex))
-                {
-                    typeArguments[i] = targets[targetIndex];
-                }
-            }
-
-            if (typeArguments.Any(type => type.IsGenericParameter))
-            {
-                candidate.SourceType.GetGenericTypeDefinition()
-                    .TryInferTypeArguments(typeArguments, out var inferredTypes);
-                typeArguments = inferredTypes;
-            }
-
-            return candidate.SourceType.GetGenericTypeDefinition().MakeGenericType(typeArguments);
         }
     }
 }
