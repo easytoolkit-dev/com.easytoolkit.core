@@ -13,22 +13,24 @@ namespace EasyToolKit.Core.Reflection
     /// </remarks>
     public interface ITypeMatcher
     {
-        /// <summary>
-        /// Adds type match indices to the current collection.
-        /// </summary>
-        /// <param name="matchCandidates">The type match indices to add.</param>
-        /// <remarks>
-        /// This method appends the specified indices to the existing collection.
-        /// The cache is automatically cleared after this operation.
-        /// </remarks>
-        void AddTypeMatchCabdudates(IEnumerable<TypeMatchCandidate> matchCandidates);
+        IReadOnlyList<TypeMatchCandidate> TypeMatchCandidates { get; }
 
         /// <summary>
-        /// Replaces the current type match indices with the specified collection.
+        /// Adds type match candidates to the current collection.
         /// </summary>
-        /// <param name="matchCandidates">The new type match indices to use.</param>
+        /// <param name="matchCandidates">The type match candidates to add.</param>
         /// <remarks>
-        /// This method replaces all existing indices with the specified collection.
+        /// This method appends the specified candidates to the existing collection.
+        /// The cache is automatically cleared after this operation.
+        /// </remarks>
+        void AddTypeMatchCandidates(IEnumerable<TypeMatchCandidate> matchCandidates);
+
+        /// <summary>
+        /// Replaces the current type match candidates with the specified collection.
+        /// </summary>
+        /// <param name="matchCandidates">The new type match candidates to use.</param>
+        /// <remarks>
+        /// This method replaces all existing candidates with the specified collection.
         /// The cache is automatically cleared after this operation.
         /// </remarks>
         void SetTypeMatchCandidates(IEnumerable<TypeMatchCandidate> matchCandidates);
@@ -59,7 +61,7 @@ namespace EasyToolKit.Core.Reflection
         /// <param name="targetTypes">The target types to match against.</param>
         /// <returns>An array of type match results, ordered by priority (highest first).</returns>
         /// <remarks>
-        /// This method evaluates all registered match indices against the specified
+        /// This method evaluates all registered match candidates against the specified
         /// target types using the registered match rules. Results are cached for
         /// performance, so subsequent calls with the same target types will return
         /// cached results.
