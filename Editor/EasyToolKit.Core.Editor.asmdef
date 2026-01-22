@@ -2,7 +2,7 @@
     "name": "EasyToolKit.Core.Editor",
     "references": [
         "EasyToolKit.Core",
-        "EasyToolKit.OdinSerializer"
+        "EasyToolKit.Serialization"
     ],
     "includePlatforms": [
         "Editor"
