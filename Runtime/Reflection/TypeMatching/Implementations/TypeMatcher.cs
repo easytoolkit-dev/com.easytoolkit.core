@@ -16,7 +16,7 @@ namespace EasyToolKit.Core.Reflection.Implementations
         /// </summary>
         private readonly List<ITypeMatchRule> _matchRules = new List<ITypeMatchRule>();
 
-        private List<TypeMatchCandidate> _matchCandidates;
+        private List<TypeMatchCandidate> _typeMatchCandidates;
 
         private readonly Dictionary<string, TypeMatchResult[]> _matchResultsCache =
             new Dictionary<string, TypeMatchResult[]>();
@@ -24,15 +24,17 @@ namespace EasyToolKit.Core.Reflection.Implementations
         private readonly Dictionary<string, TypeMatchResult[]> _mergedResultsCache =
             new Dictionary<string, TypeMatchResult[]>();
 
-        public void AddTypeMatchCabdudates(IEnumerable<TypeMatchCandidate> matchCandidates)
+        public IReadOnlyList<TypeMatchCandidate> TypeMatchCandidates => _typeMatchCandidates;
+
+        public void AddTypeMatchCandidates(IEnumerable<TypeMatchCandidate> matchCandidates)
         {
-            _matchCandidates.AddRange(matchCandidates);
+            _typeMatchCandidates.AddRange(matchCandidates);
             ClearCache();
         }
 
         public void SetTypeMatchCandidates(IEnumerable<TypeMatchCandidate> matchCandidates)
         {
-            _matchCandidates = matchCandidates.ToList();
+            _typeMatchCandidates = matchCandidates.ToList();
             ClearCache();
         }
 
@@ -85,7 +87,7 @@ namespace EasyToolKit.Core.Reflection.Implementations
 
             var results = new List<TypeMatchResult>();
 
-            foreach (var index in _matchCandidates)
+            foreach (var index in _typeMatchCandidates)
             {
                 if (index.Constraints.Length != targetTypes.Length)
                     continue;
@@ -103,7 +105,7 @@ namespace EasyToolKit.Core.Reflection.Implementations
             final = results
                 .OrderByDescending(result => result.Candidate.Priority)
                 .ToArray();
-            _matchResultsCache[key] = final;
+            // _matchResultsCache[key] = final;
             return final;
         }
 
@@ -142,7 +144,7 @@ namespace EasyToolKit.Core.Reflection.Implementations
                 .OrderByDescending(result => result.Candidate.Priority)
                 .Distinct()
                 .ToArray();
-            _mergedResultsCache[key] = final;
+            // _mergedResultsCache[key] = final;
             return final;
         }
 

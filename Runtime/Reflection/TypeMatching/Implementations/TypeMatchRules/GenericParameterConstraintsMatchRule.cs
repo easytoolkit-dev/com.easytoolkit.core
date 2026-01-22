@@ -9,6 +9,11 @@ namespace EasyToolKit.Core.Reflection.Implementations
         /// <inheritdoc/>
         public override bool CanMatch(TypeMatchCandidate candidate, Type[] targets)
         {
+            if (targets.Length != candidate.Constraints.Length)
+            {
+                return false;
+            }
+
             return TryInferTypeArguments(candidate, targets, out _);
         }
 
@@ -22,16 +27,14 @@ namespace EasyToolKit.Core.Reflection.Implementations
         private bool TryInferTypeArguments(TypeMatchCandidate candidate, Type[] targets, out Type[] typeArguments)
         {
             var substitutedTypeByParameter = new Dictionary<Type, Type>();
-            int targetIndex = 0;
             for (int i = 0; i < candidate.Constraints.Length; i++)
             {
-                var dict = GetSubstitutedTypeByParameter(candidate.Constraints[i], targets[targetIndex]);
+                var dict = GetSubstitutedTypeByParameter(candidate.Constraints[i], targets[i]);
                 if (dict == null)
                 {
                     continue;
                 }
 
-                targetIndex++;
                 foreach (var kvp in dict)
                 {
                     substitutedTypeByParameter.Add(kvp.Key, kvp.Value);
