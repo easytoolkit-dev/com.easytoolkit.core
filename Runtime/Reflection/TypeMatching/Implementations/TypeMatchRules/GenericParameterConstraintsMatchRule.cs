@@ -21,33 +21,29 @@ namespace EasyToolKit.Core.Reflection.Implementations
 
         private bool TryInferTypeArguments(TypeMatchCandidate candidate, Type[] targets, out Type[] typeArguments)
         {
-            typeArguments = null;
-            var targetIndexByConstraint = new Dictionary<Type, int>();
-
+            var substitutedTypeByParameter = new Dictionary<Type, Type>();
+            int targetIndex = 0;
+            for (int i = 0; i < candidate.Constraints.Length; i++)
             {
-                var targetIndex = 0;
-                for (int i = 0; i < candidate.Constraints.Length; i++)
+                var dict = GetSubstitutedTypeByParameter(candidate.Constraints[i], targets[targetIndex]);
+                if (dict == null)
                 {
-                    if (!candidate.Constraints[i].IsGenericParameter)
-                        continue;
+                    continue;
+                }
 
-                    if (!candidate.Constraints[i].SatisfiesGenericParameterConstraints(targets[targetIndex]))
-                    {
-                        return false;
-                    }
-
-                    targetIndexByConstraint.Add(candidate.Constraints[i], targetIndex);
-                    targetIndex++;
+                targetIndex++;
+                foreach (var kvp in dict)
+                {
+                    substitutedTypeByParameter.Add(kvp.Key, kvp.Value);
                 }
             }
 
             typeArguments = candidate.SourceType.GetGenericArguments();
             for (var i = 0; i < typeArguments.Length; i++)
             {
-                if (typeArguments[i].IsGenericParameter &&
-                    targetIndexByConstraint.TryGetValue(typeArguments[i], out var targetIndex))
+                if (substitutedTypeByParameter.TryGetValue(typeArguments[i], out var substitutedType))
                 {
-                    typeArguments[i] = targets[targetIndex];
+                    typeArguments[i] = substitutedType;
                 }
             }
 
@@ -75,6 +71,50 @@ namespace EasyToolKit.Core.Reflection.Implementations
             {
                 return false;
             }
+        }
+
+        private Dictionary<Type, Type> GetSubstitutedTypeByParameter(Type constraint, Type targetType)
+        {
+            var result = new Dictionary<Type, Type>();
+            if (constraint.IsGenericParameter)
+            {
+                if (!constraint.SatisfiesGenericParameterConstraints(targetType))
+                {
+                    return null;
+                }
+                result.Add(constraint, targetType);
+                return result;
+            }
+
+            if (constraint.ContainsGenericParameters)
+            {
+                try
+                {
+                    var completedArguments = constraint.GetCompletedGenericArguments(targetType, true);
+                    if (completedArguments.Length == 0)
+                    {
+                        return null;
+                    }
+
+                    var originalArguments = constraint.GetGenericArguments();
+                    var completedArgumentsIndex = 0;
+                    foreach (var originalArgument in originalArguments)
+                    {
+                        if (originalArgument.IsGenericParameter)
+                        {
+                            result.Add(originalArgument, completedArguments[completedArgumentsIndex]);
+                            completedArgumentsIndex++;
+                        }
+                    }
+
+                    return result;
+                }
+                catch (Exception e)
+                {
+                    return null;
+                }
+            }
+            return null;
         }
     }
 }

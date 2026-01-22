@@ -20,7 +20,6 @@ namespace EasyToolKit.Core.Reflection.Implementations
         {
             yield return new ExactMatchRule();
             yield return new GenericParameterConstraintsMatchRule();
-            yield return new FirstGenericTypeConstraintMatchRule();
         }
     }
 }
