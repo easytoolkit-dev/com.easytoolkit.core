@@ -54,28 +54,6 @@ namespace EasyToolKit.Core.Reflection
         IReadOnlyList<GenericParameterInfo> SubstitutedParameters { get; }
 
         /// <summary>
-        /// Attempts to infer remaining generic type arguments based on substituted parameters and dependencies.
-        /// </summary>
-        /// <param name="inferredTypes">
-        /// When this method returns, contains the type arguments with any inferred types filled in.
-        /// Generic parameters that cannot be inferred retain their original types.
-        /// For fully constructed types, this contains all concrete types.
-        /// </param>
-        /// <returns>
-        /// <c>true</c> if at least one type argument was successfully inferred; otherwise, <c>false</c>.
-        /// Returns <c>false</c> for fully constructed types (no inference needed).
-        /// </returns>
-        /// <remarks>
-        /// This method uses the current type's substituted parameters to infer remaining generic parameters
-        /// based on parameter dependencies. For example, in a type like <c>DependencyContainer&lt;List&lt;int&gt;, T&gt;</c>,
-        /// if T1 is substituted with <c>List&lt;int&gt;</c> and T1 depends on T2 (e.g., <c>T1 : List&lt;T2&gt;</c>),
-        /// this method can infer that T2 should be <c>int</c>.
-        /// For fully constructed types where all parameters are already concrete, this method returns <c>false</c>
-        /// and provides the current type arguments in the output parameter.
-        /// </remarks>
-        bool TryInferTypeArguments(out Type[] inferredTypes);
-
-        /// <summary>
         /// Determines whether the analyzed type implements the given generic type definition,
         /// including interface implementations and inheritance hierarchy.
         /// </summary>

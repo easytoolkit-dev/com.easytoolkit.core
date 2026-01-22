@@ -103,7 +103,7 @@ namespace EasyToolKit.Core.Reflection.Implementations
             final = results
                 .OrderByDescending(result => result.Candidate.Priority)
                 .ToArray();
-            // _matchResultsCache[key] = final;
+            _matchResultsCache[key] = final;
             return final;
         }
 
@@ -132,18 +132,18 @@ namespace EasyToolKit.Core.Reflection.Implementations
             }
 
             var key = TypeMatchCaches.ComputeKey(resultsList);
-            if (_mergedResultsCache.TryGetValue(key, out var ret))
+            if (_mergedResultsCache.TryGetValue(key, out var final))
             {
-                return ret;
+                return final;
             }
 
-            ret = resultsList
+            final = resultsList
                 .SelectMany(x => x)
                 .OrderByDescending(result => result.Candidate.Priority)
                 .Distinct()
                 .ToArray();
-            // _mergedResultsCache[key] = ret;
-            return ret;
+            _mergedResultsCache[key] = final;
+            return final;
         }
 
         private void ClearCache()

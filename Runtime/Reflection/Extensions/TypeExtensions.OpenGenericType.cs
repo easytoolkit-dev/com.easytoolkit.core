@@ -29,36 +29,6 @@ namespace EasyToolKit.Core.Reflection
                 .GetGenericArgumentsRelativeTo(genericTypeDefinition);
         }
 
-        /// <summary>
-        /// Attempts to infer remaining generic type arguments based on substituted parameters and dependencies.
-        /// </summary>
-        /// <param name="openGenericType">A partially constructed generic type or generic type definition.</param>
-        /// <param name="inferredTypes">
-        /// When this method returns, contains the type arguments with any inferred types filled in.
-        /// Generic parameters that cannot be inferred retain their original types.
-        /// For fully constructed types, this contains all concrete types.
-        /// </param>
-        /// <returns>
-        /// <c>true</c> if at least one type argument was successfully inferred; otherwise, <c>false</c>.
-        /// Returns <c>false</c> for fully constructed types (no inference needed).
-        /// </returns>
-        /// <remarks>
-        /// This method uses the current type's substituted parameters to infer remaining generic parameters
-        /// based on parameter dependencies. For example, in a type like <c>DependencyContainer&lt;List&lt;int&gt;, T&gt;</c>,
-        /// if T1 is substituted with <c>List&lt;int&gt;</c> and T1 depends on T2 (e.g., <c>T1 : List&lt;T2&gt;</c>),
-        /// this method can infer that T2 should be <c>int</c>.
-        /// For fully constructed types where all parameters are already concrete, this method returns <c>false</c>
-        /// and provides the current type arguments in the output parameter.
-        /// </remarks>
-        public static bool TryInferTypeArguments(this Type openGenericType, out Type[] inferredTypes)
-        {
-            if (openGenericType == null)
-                throw new ArgumentNullException(nameof(openGenericType));
-
-            return TypeAnalyzerFactory.GetOpenGenericTypeAnalyzer(openGenericType)
-                .TryInferTypeArguments(out inferredTypes);
-        }
-
         public static int GetGenericParameterCount(this Type openGenericType)
         {
             if (openGenericType == null)
@@ -147,6 +117,11 @@ namespace EasyToolKit.Core.Reflection
             if (!openGenericType.IsGenericType)
                 throw new ArgumentException($"Type '{openGenericType}' must be a generic type.",
                     nameof(openGenericType));
+
+            if (openGenericType.IsGenericTypeDefinition)
+            {
+                return openGenericType.MakeGenericType(providedTypeArguments);
+            }
 
             var typeArguments = openGenericType.GetMergedGenericArguments(providedTypeArguments);
             var genericTypeDefinition = openGenericType.GetGenericTypeDefinition();
@@ -252,8 +227,8 @@ namespace EasyToolKit.Core.Reflection
                         result[i] = providedTypeArguments[providedIndex++];
                         if (!existingArgs[i].SatisfiesGenericParameterConstraints(result[i]))
                         {
-                            //TODO error info
-                            throw new ArgumentException();
+                            throw new ArgumentException(
+                                $"Type '{result[i]}' does not satisfy the constraints of generic parameter '{existingArgs[i]}'.");
                         }
                         continue;
                     }

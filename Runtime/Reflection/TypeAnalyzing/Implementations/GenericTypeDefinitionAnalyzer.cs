@@ -105,6 +105,90 @@ namespace EasyToolKit.Core.Reflection.Implementations
             return true;
         }
 
+        /// <inheritdoc />
+        public bool TryInferTypeArguments(Type[] inputTypeArguments, out Type[] inferredTypes)
+        {
+            if (inputTypeArguments == null)
+                throw new ArgumentNullException(nameof(inputTypeArguments));
+
+            if (inputTypeArguments.Length != _analyzersByPosition.Count)
+                throw new ArgumentException(
+                    $"Expected {_analyzersByPosition.Count} type arguments, but got {inputTypeArguments.Length}.",
+                    nameof(inputTypeArguments));
+
+            // Get the generic parameters
+            var genericParameters = Type.GetGenericArguments();
+
+            // Start with a copy of the input type arguments
+            inferredTypes = (Type[])inputTypeArguments.Clone();
+
+            // Check if all types are already provided (no nulls to infer)
+            if (!inputTypeArguments.Any(t => t == null || t.IsGenericParameter))
+            {
+                return false;
+            }
+
+            // If all input types are null (nothing to infer from), return false
+            if (inputTypeArguments.All(t => t == null || t.IsGenericParameter))
+            {
+                return false;
+            }
+
+            bool anyInferred = false;
+            bool changedInPass;
+
+            // Build a map of parameter names to type arguments for dependency resolution
+            var typeArgumentsByName = genericParameters
+                .Zip(inferredTypes, (param, arg) => (param.Name, arg))
+                .ToDictionary(x => x.Name, x => x.arg, StringComparer.Ordinal);
+
+            // Multiple passes to support chain inference (e.g., T1 -> T2 -> T3)
+            do
+            {
+                changedInPass = false;
+
+                // Try to infer types for parameters that are still null
+                for (int i = 0; i < inferredTypes.Length; i++)
+                {
+                    // Skip if already provided (not null)
+                    if (inferredTypes[i] != null && !inferredTypes[i].IsGenericParameter)
+                    {
+                        continue;
+                    }
+
+                    var currentAnalyzer = _analyzersByPosition[i];
+
+                    // Try to infer from parameters that reference this one
+                    foreach (var referencedByType in currentAnalyzer.ReferencedBy)
+                    {
+                        // Find the analyzer and type of the referenced-by parameter
+                        var referencedByAnalyzer = _analyzersByName[referencedByType.Name];
+                        int referencedByIndex = referencedByAnalyzer.Position;
+                        var referencedByTypeValue = inferredTypes[referencedByIndex];
+
+                        // Skip if referenced-by parameter is also not provided (null)
+                        if (referencedByTypeValue == null)
+                        {
+                            continue;
+                        }
+
+                        // Try to infer using the referenced-by parameter's type
+                        if (currentAnalyzer.TryInferTypeFrom(referencedByType, referencedByTypeValue, out var inferredType))
+                        {
+                            inferredTypes[i] = inferredType;
+                            typeArgumentsByName[genericParameters[i].Name] = inferredType;
+                            anyInferred = true;
+                            changedInPass = true;
+                            break; // Successfully inferred, move to next parameter
+                        }
+                    }
+                }
+            }
+            while (changedInPass); // Continue until no more types can be inferred in a pass
+
+            return anyInferred;
+        }
+
         private Type SubstituteGenericParameters(Type type, Dictionary<string, Type> typeArgumentsByName)
         {
             if (type == null)

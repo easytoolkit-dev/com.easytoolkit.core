@@ -174,8 +174,8 @@ namespace EasyToolKit.Core.Reflection.Implementations
                 result.Add(new GenericParameterInfo(
                     parameterType,
                     substitutedType,
-                    analyzer.DependsOn,
-                    analyzer.DependedOnBy
+                    analyzer.References,
+                    analyzer.ReferencedBy
                 ));
             }
 
@@ -218,8 +218,8 @@ namespace EasyToolKit.Core.Reflection.Implementations
                     result.Add(new GenericParameterInfo(
                         parameterType,
                         null, // Not substituted
-                        analyzer.DependsOn,
-                        analyzer.DependedOnBy
+                        analyzer.References,
+                        analyzer.ReferencedBy
                     ));
                 }
             }
@@ -263,8 +263,8 @@ namespace EasyToolKit.Core.Reflection.Implementations
                     result.Add(new GenericParameterInfo(
                         parameterType,
                         currentArgument,
-                        analyzer.DependsOn,
-                        analyzer.DependedOnBy
+                        analyzer.References,
+                        analyzer.ReferencedBy
                     ));
                 }
                 // Check if this is a generic parameter from a different type (nested substitution)
@@ -275,105 +275,13 @@ namespace EasyToolKit.Core.Reflection.Implementations
                     result.Add(new GenericParameterInfo(
                         parameterType,
                         currentArgument,
-                        analyzer.DependsOn,
-                        analyzer.DependedOnBy
+                        analyzer.References,
+                        analyzer.ReferencedBy
                     ));
                 }
             }
 
             return result;
-        }
-
-        /// <inheritdoc />
-        public bool TryInferTypeArguments(out Type[] inferredTypes)
-        {
-            // For types that inherit from generic types, find the actual generic type in the hierarchy
-            Type effectiveType = OpenGenericType;
-            if (!OpenGenericType.IsGenericType)
-            {
-                effectiveType = FindFirstGenericTypeInHierarchy(OpenGenericType);
-                if (effectiveType == null)
-                {
-                    inferredTypes = Array.Empty<Type>();
-                    return false;
-                }
-            }
-
-            // Get the type definition to retrieve all generic parameter positions
-            var typeDefinition = effectiveType.IsGenericTypeDefinition
-                ? effectiveType
-                : effectiveType.GetGenericTypeDefinition();
-
-            var genericParameters = typeDefinition.GetGenericArguments();
-            var currentTypeArguments = effectiveType.GetGenericArguments();
-
-            // Build a map of parameter analyzers by position and name
-            var analyzersByPosition = new Dictionary<int, IGenericParameterAnalyzer>(genericParameters.Length);
-            var analyzersByName = new Dictionary<string, IGenericParameterAnalyzer>(genericParameters.Length, StringComparer.Ordinal);
-
-            foreach (var genericParameter in genericParameters)
-            {
-                var analyzer = TypeAnalyzerFactory.GetGenericParameterAnalyzer(genericParameter);
-                analyzersByPosition[analyzer.Position] = analyzer;
-                analyzersByName[analyzer.Name] = analyzer;
-            }
-
-            // Start with a copy of the current type arguments
-            inferredTypes = (Type[])currentTypeArguments.Clone();
-
-            // If all types are already concrete (no generic parameters), return false
-            if (!currentTypeArguments.Any(t => t.IsGenericParameter))
-            {
-                return false;
-            }
-
-            bool anyInferred = false;
-            bool changedInPass;
-
-            // Multiple passes to support chain inference (e.g., T1 -> T2 -> T3)
-            do
-            {
-                changedInPass = false;
-
-                // Try to infer types for parameters that are still generic parameters
-                for (int i = 0; i < inferredTypes.Length; i++)
-                {
-                    // Skip if already a concrete type (not a generic parameter)
-                    if (!inferredTypes[i].IsGenericParameter)
-                    {
-                        continue;
-                    }
-
-                    var currentAnalyzer = analyzersByPosition[i];
-
-                    // Try to infer from parameters that this one depends on
-                    foreach (var dependsOnType in currentAnalyzer.DependsOn)
-                    {
-                        // Find the analyzer and type of the depended-on parameter
-                        var dependedOnAnalyzer = analyzersByName[dependsOnType.Name];
-                        int dependedOnIndex = dependedOnAnalyzer.Position;
-                        var dependedOnType = inferredTypes[dependedOnIndex];
-
-                        // Skip if depended-on parameter is also not inferred (still generic parameter)
-                        if (dependedOnType == null || dependedOnType.IsGenericParameter)
-                        {
-                            continue;
-                        }
-
-                        // Try to infer using the depended-on parameter's type
-                        if (currentAnalyzer.TryInferTypeFrom(dependsOnType, dependedOnType, out var inferredType))
-                        {
-                            inferredTypes[i] = inferredType;
-                            anyInferred = true;
-                            changedInPass = true;
-                            break; // Successfully inferred, move to next parameter
-                        }
-                    }
-                }
-            }
-            while (changedInPass); // Continue until no more types can be inferred in a pass
-
-            return anyInferred;
         }
 
         /// <inheritdoc />

@@ -35,16 +35,16 @@ namespace EasyToolKit.Core.Reflection
         IReadOnlyList<Type> TypeConstraints { get; }
 
         /// <summary>
-        /// Gets the generic parameters that this parameter depends on.
-        /// For example, if T1 has constraint List&lt;T2&gt;, then T1 depends on T2.
+        /// Gets the generic parameters that this parameter references.
+        /// For example, if T1 has constraint List&lt;T2&gt;, then T1 references T2.
         /// </summary>
-        IReadOnlyList<Type> DependsOn { get; }
+        IReadOnlyList<Type> References { get; }
 
         /// <summary>
-        /// Gets the generic parameters that depend on this parameter.
-        /// For example, if T1 has constraint List&lt;T2&gt;, then T2 is depended on by T1.
+        /// Gets the generic parameters that are referenced by this parameter.
+        /// For example, if T1 has constraint List&lt;T2&gt;, then T2 is referenced by T1.
         /// </summary>
-        IReadOnlyList<Type> DependedOnBy { get; }
+        IReadOnlyList<Type> ReferencedBy { get; }
 
         /// <summary>
         /// Gets the complete parameter information, including dependencies as <see cref="GenericParameterInfo"/> objects.
@@ -67,7 +67,7 @@ namespace EasyToolKit.Core.Reflection
         /// this method can infer that T2 is int.
         /// </summary>
         /// <param name="dependentParameter">
-        /// The generic parameter that depends on this parameter (must be from <see cref="DependedOnBy"/>).
+        /// The generic parameter that references this parameter (must be from <see cref="ReferencedBy"/>).
         /// </param>
         /// <param name="dependentParameterType">
         /// The known concrete type of the dependent parameter.
