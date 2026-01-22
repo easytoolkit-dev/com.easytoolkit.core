@@ -11,8 +11,8 @@ namespace EasyToolKit.Core.Reflection.Implementations
     /// </summary>
     public class GenericParameterAnalyzer : IGenericParameterAnalyzer
     {
-        private readonly Lazy<IReadOnlyList<Type>> _lazyDependsOn;
-        private readonly Lazy<IReadOnlyList<Type>> _lazyDependedOnBy;
+        private readonly Lazy<IReadOnlyList<Type>> _lazyReferences;
+        private readonly Lazy<IReadOnlyList<Type>> _lazyReferencedBy;
         private readonly Lazy<GenericParameterInfo> _lazyParameterInfo;
 
         /// <inheritdoc />
@@ -31,10 +31,10 @@ namespace EasyToolKit.Core.Reflection.Implementations
         public IReadOnlyList<Type> TypeConstraints { get; }
 
         /// <inheritdoc />
-        public IReadOnlyList<Type> DependsOn => _lazyDependsOn.Value;
+        public IReadOnlyList<Type> References => _lazyReferences.Value;
 
         /// <inheritdoc />
-        public IReadOnlyList<Type> DependedOnBy => _lazyDependedOnBy.Value;
+        public IReadOnlyList<Type> ReferencedBy => _lazyReferencedBy.Value;
 
         /// <inheritdoc />
         public GenericParameterInfo ParameterInfo => _lazyParameterInfo.Value;
@@ -65,28 +65,28 @@ namespace EasyToolKit.Core.Reflection.Implementations
             SpecialConstraints = genericParameterType.GenericParameterAttributes;
             TypeConstraints = genericParameterType.GetGenericParameterConstraints().ToList();
 
-            _lazyDependsOn = new Lazy<IReadOnlyList<Type>>(ResolveDependsOn);
-            _lazyDependedOnBy = new Lazy<IReadOnlyList<Type>>(ResolveDependedOnBy);
+            _lazyReferences = new Lazy<IReadOnlyList<Type>>(ResolveReferences);
+            _lazyReferencedBy = new Lazy<IReadOnlyList<Type>>(ResolveReferencedBy);
             _lazyParameterInfo = new Lazy<GenericParameterInfo>(BuildParameterInfo);
         }
 
-        private IReadOnlyList<Type> ResolveDependsOn()
+        private IReadOnlyList<Type> ResolveReferences()
         {
             var allGenericParameters = ParameterType.DeclaringType.GetGenericArguments();
-            var dependencies = new List<Type>();
+            var references = new List<Type>();
 
             foreach (var constraint in TypeConstraints)
             {
-                FindGenericParametersInType(constraint, allGenericParameters, dependencies);
+                FindGenericParametersInType(constraint, allGenericParameters, references);
             }
 
-            return dependencies;
+            return references;
         }
 
-        private IReadOnlyList<Type> ResolveDependedOnBy()
+        private IReadOnlyList<Type> ResolveReferencedBy()
         {
             var allGenericParameters = ParameterType.DeclaringType.GetGenericArguments();
-            var dependents = new List<Type>();
+            var referencedBy = new List<Type>();
 
             foreach (var parameter in allGenericParameters)
             {
@@ -98,15 +98,15 @@ namespace EasyToolKit.Core.Reflection.Implementations
                     continue;
                 }
 
-                // Get the analyzer for this parameter and check its dependencies
+                // Get the analyzer for this parameter and check its references
                 var analyzer = TypeAnalyzerFactory.GetGenericParameterAnalyzer(parameter);
-                if (analyzer.DependsOn.Contains(ParameterType))
+                if (analyzer.References.Contains(ParameterType))
                 {
-                    dependents.Add(parameter);
+                    referencedBy.Add(parameter);
                 }
             }
 
-            return dependents;
+            return referencedBy;
         }
 
         private void FindGenericParametersInType(Type type, Type[] allGenericParameters, List<Type> foundTypes)
@@ -150,12 +150,12 @@ namespace EasyToolKit.Core.Reflection.Implementations
 
         private GenericParameterInfo BuildParameterInfo()
         {
-            // Get analyzers for dependencies to build GenericParameterInfo objects
+            // Get analyzers for references to build GenericParameterInfo objects
             return new GenericParameterInfo(
                 ParameterType,
                 null, // No substituted type in this context
-                DependsOn,
-                DependedOnBy
+                References,
+                ReferencedBy
             );
         }
 
@@ -184,8 +184,8 @@ namespace EasyToolKit.Core.Reflection.Implementations
             if (dependentParameter == null || dependentParameterType == null)
                 return false;
 
-            // Check if dependentParameter is in DependedOnBy list
-            if (!DependedOnBy.Contains(dependentParameter))
+            // Check if dependentParameter is in ReferencedBy list
+            if (!ReferencedBy.Contains(dependentParameter))
                 return false;
 
             // Get the analyzer for the dependent parameter
