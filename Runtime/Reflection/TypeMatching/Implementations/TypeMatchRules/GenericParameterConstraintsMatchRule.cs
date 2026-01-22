@@ -99,7 +99,15 @@ namespace EasyToolKit.Core.Reflection.Implementations
                         return null;
                     }
 
-                    var originalArguments = constraint.GetGenericArguments();
+                    Type[] originalArguments;
+                    if (constraint.IsArray)
+                    {
+                        originalArguments = new Type[] { constraint.GetElementType() };
+                    }
+                    else
+                    {
+                        originalArguments = constraint.GetGenericArguments();
+                    }
                     var completedArgumentsIndex = 0;
                     foreach (var originalArgument in originalArguments)
                     {
