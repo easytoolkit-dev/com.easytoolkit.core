@@ -2,7 +2,7 @@ using System;
 
 namespace EasyToolKit.Core.Reflection.Implementations
 {
-    public sealed class GenericTypeResolutionRule : TypeMatchRuleBase
+    public sealed class FirstGenericTypeConstraintMatchRule : TypeMatchRuleBase
     {
         /// <inheritdoc/>
         public override bool CanMatch(TypeMatchCandidate candidate, Type[] targets)

@@ -19,8 +19,8 @@ namespace EasyToolKit.Core.Reflection.Implementations
         public IEnumerable<ITypeMatchRule> GetRules()
         {
             yield return new ExactMatchRule();
-            yield return new GenericConstraintsMatchRule();
-            yield return new GenericTypeResolutionRule();
+            yield return new GenericParameterConstraintsMatchRule();
+            yield return new FirstGenericTypeConstraintMatchRule();
         }
     }
 }

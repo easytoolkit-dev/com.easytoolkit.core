@@ -68,7 +68,7 @@ namespace EasyToolKit.Core.Reflection.Implementations
             if (!isValidType && type.IsArray)
             {
                 var elementType = type.GetElementType();
-                isValidType = elementType != null && elementType.IsGenericType;
+                isValidType = elementType != null && (elementType.IsGenericType || elementType.IsGenericTypeParameter);
             }
 
             // For types that inherit from generic types, check base types and interfaces
