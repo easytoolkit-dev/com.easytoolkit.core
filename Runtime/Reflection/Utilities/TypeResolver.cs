@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using JetBrains.Annotations;
 
 namespace EasyToolKit.Core.Reflection
 {
@@ -9,18 +9,15 @@ namespace EasyToolKit.Core.Reflection
     public static class TypeResolver
     {
         /// <summary>
-        /// Attempts to resolve a Type from the specified type name.
+        /// Attempts to find a Type from the specified type name.
         /// </summary>
         /// <param name="typeName">
         /// The assembly-qualified name of the type to get.
         /// If the type is in the currently executing assembly or in Mscorlib.dll,
         /// it is sufficient to supply the type name qualified by its namespace.
         /// </param>
-        /// <returns>The resolved Type object.</returns>
-        /// <exception cref="TypeLoadException">
-        /// Thrown when the type cannot be found in any loaded assembly.
-        /// </exception>
-        public static Type ResolveType(string typeName)
+        /// <returns>The found Type object.</returns>
+        [CanBeNull] public static Type FindType(string typeName)
         {
             ValidateTypeName(typeName);
 
@@ -38,49 +35,7 @@ namespace EasyToolKit.Core.Reflection
                 return type;
             }
 
-            throw new TypeLoadException(
-                $"Could not load type '{typeName}'. " +
-                "The type was not found in any loaded assembly. " +
-                "Please verify the assembly-qualified name and ensure " +
-                "the containing assembly is referenced.");
-        }
-
-        /// <summary>
-        /// Attempts to resolve a Type from the specified type name without throwing an exception.
-        /// </summary>
-        /// <param name="typeName">The name of the type to resolve.</param>
-        /// <param name="type">
-        /// When this method returns, contains the resolved Type object if successful;
-        /// otherwise, null.
-        /// </param>
-        /// <returns>
-        /// true if the type was successfully resolved; otherwise, false.
-        /// </returns>
-        public static bool TryResolveType(string typeName, out Type type)
-        {
-            type = null;
-
-            if (string.IsNullOrWhiteSpace(typeName))
-            {
-                return false;
-            }
-
-            try
-            {
-                type = Type.GetType(typeName, throwOnError: false);
-                if (type != null)
-                {
-                    return true;
-                }
-
-                type = SearchAllAssemblies(typeName);
-                return type != null;
-            }
-            catch (Exception)
-            {
-                // Suppress all exceptions for the Try pattern
-                return false;
-            }
+            return null;
         }
 
         /// <summary>
@@ -117,40 +72,27 @@ namespace EasyToolKit.Core.Reflection
                 }
             }
 
-            // Second pass: match by full name (namespace + type name)
+            // Second pass: match by full name (namespace + type name) or simple type name
+            // Combined into a single pass to avoid duplicate GetTypes() calls
             foreach (var assembly in assemblies)
             {
                 try
                 {
-                    var types = assembly.GetTypes()
-                        .Where(t => t.FullName != null &&
-                                    t.FullName.Equals(typeName, StringComparison.Ordinal))
-                        .ToArray();
-
-                    if (types.Length == 1)
+                    var types = assembly.GetTypes();
+                    foreach (var type in types)
                     {
-                        return types[0];
-                    }
-                }
-                catch (Exception)
-                {
-                    // Some assemblies may not be accessible
-                    continue;
-                }
-            }
+                        // Check full name first (more specific)
+                        if (type.FullName != null &&
+                            string.Equals(type.FullName, typeName, StringComparison.Ordinal))
+                        {
+                            return type;
+                        }
 
-            // Third pass: match by simple type name (without namespace)
-            foreach (var assembly in assemblies)
-            {
-                try
-                {
-                    var types = assembly.GetTypes()
-                        .Where(t => t.Name.Equals(typeName, StringComparison.Ordinal))
-                        .ToArray();
-
-                    if (types.Length == 1)
-                    {
-                        return types[0];
+                        // Fall back to simple name (less specific)
+                        if (string.Equals(type.Name, typeName, StringComparison.Ordinal))
+                        {
+                            return type;
+                        }
                     }
                 }
                 catch (Exception)

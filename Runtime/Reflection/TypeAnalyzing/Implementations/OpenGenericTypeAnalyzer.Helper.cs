@@ -222,6 +222,48 @@ namespace EasyToolKit.Core.Reflection.Implementations
                     throw new ArgumentNullException(nameof(openGenericType));
                 if (targetType == null)
                     throw new ArgumentNullException(nameof(targetType));
+                // Handle the case where openGenericType is a generic interface/base type of arrays (e.g., IList<T>)
+                // and targetType is a concrete array type (e.g., int[])
+                // Note: Use IsGenericType instead of IsGenericTypeDefinition to handle cases like IList<T2>
+                // where T2 is a generic parameter from another type
+                if (!openGenericType.IsArray && targetType.IsArray && openGenericType.IsGenericType)
+                {
+                    // Find the generic interface that the array implements matching the open generic type
+                    foreach (var iface in targetType.GetInterfaces())
+                    {
+                        if (iface.IsGenericType && iface.GetGenericTypeDefinition() == openGenericType.GetGenericTypeDefinition())
+                        {
+                            // Found the matching generic interface, extract its type arguments
+                            var genericArguments = iface.GetGenericArguments();
+                            var existingTypeArguments = openGenericType.GetGenericArguments();
+                            var missingTypeArguments = new List<Type>();
+
+                            for (var i = 0; i < existingTypeArguments.Length; i++)
+                            {
+                                var existingTypeArgument = existingTypeArguments[i];
+                                if (existingTypeArgument.IsGenericParameter)
+                                {
+                                    missingTypeArguments.Add(genericArguments[i]);
+                                }
+                                else
+                                {
+                                    if (existingTypeArgument != genericArguments[i])
+                                    {
+                                        throw new ArgumentException(
+                                            $"Type arguments do not match. Open generic type: {openGenericType}, Target type: {targetType}");
+                                    }
+                                }
+                            }
+
+                            return missingTypeArguments.ToArray();
+                        }
+                    }
+
+                    throw new ArgumentException(
+                        $"The array type '{targetType}' does not implement generic type '{openGenericType}'.",
+                        nameof(targetType));
+                }
+
                 // Handle array types by processing their element types recursively
                 if (openGenericType.IsArray)
                 {
@@ -289,32 +331,34 @@ namespace EasyToolKit.Core.Reflection.Implementations
                     }
                 }
 
-                var genericTypeDefinition = openGenericType.GetGenericTypeDefinition();
-
-                var typeArguments = allowTypeInheritance
-                    ? GetGenericArgumentsRelativeTo(targetType, genericTypeDefinition)
-                    : targetType.GetGenericArguments();
-                var existingTypeArguments = openGenericType.GetGenericArguments();
-                var missingTypeArguments = new List<Type>();
-
-                for (var i = 0; i < existingTypeArguments.Length; i++)
                 {
-                    var existingTypeArgument = existingTypeArguments[i];
-                    if (existingTypeArgument.IsGenericParameter)
+                    var genericTypeDefinition = openGenericType.GetGenericTypeDefinition();
+
+                    var typeArguments = allowTypeInheritance
+                        ? GetGenericArgumentsRelativeTo(targetType, genericTypeDefinition)
+                        : targetType.GetGenericArguments();
+                    var existingTypeArguments = openGenericType.GetGenericArguments();
+                    var missingTypeArguments = new List<Type>();
+
+                    for (var i = 0; i < existingTypeArguments.Length; i++)
                     {
-                        missingTypeArguments.Add(typeArguments[i]);
-                    }
-                    else
-                    {
-                        if (existingTypeArgument != typeArguments[i])
+                        var existingTypeArgument = existingTypeArguments[i];
+                        if (existingTypeArgument.IsGenericParameter)
                         {
-                            throw new ArgumentException(
-                                $"Type arguments do not match. Open generic type: {openGenericType}, Target type: {targetType}");
+                            missingTypeArguments.Add(typeArguments[i]);
+                        }
+                        else
+                        {
+                            if (existingTypeArgument != typeArguments[i])
+                            {
+                                throw new ArgumentException(
+                                    $"Type arguments do not match. Open generic type: {openGenericType}, Target type: {targetType}");
+                            }
                         }
                     }
-                }
 
-                return missingTypeArguments.ToArray();
+                    return missingTypeArguments.ToArray();
+                }
             }
         }
     }

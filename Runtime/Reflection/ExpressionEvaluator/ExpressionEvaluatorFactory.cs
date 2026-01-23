@@ -1,4 +1,5 @@
 using System;
+using EasyToolKit.Core.Textual;
 using JetBrains.Annotations;
 
 namespace EasyToolKit.Core.Reflection
@@ -6,91 +7,24 @@ namespace EasyToolKit.Core.Reflection
     /// <summary>
     /// Provides factory methods for creating expression evaluators.
     /// </summary>
-    /// <remarks>
-    /// <para>
-    /// This static class serves as the main entry point for creating expression evaluators.
-    /// It provides simplified creation methods while hiding implementation details.
-    /// </para>
-    /// <para>
-    /// <b>Usage Examples:</b>
-    /// </para>
-    /// <example>
-    /// <code>
-    /// // Example 1: Literal expression (static string)
-    /// var evaluator1 = ExpressionEvaluatorFactory.Literal("Hello World");
-    /// string result1 = evaluator1.Evaluate&lt;string&gt;(null); // Returns "Hello World"
-    ///
-    /// // Example 2: Simple property access
-    /// var evaluator2 = ExpressionEvaluatorFactory
-    ///     .Evaluate("Name", typeof(Player))
-    ///     .Build();
-    /// string name = evaluator2.Evaluate&lt;string&gt;(player); // Returns player.Name
-    ///
-    /// // Example 3: Nested expression with expression flag
-    /// var evaluator3 = ExpressionEvaluatorFactory
-    ///     .Evaluate(labelText, targetType)
-    ///     .WithExpressionFlag()
-    ///     .Build();
-    ///
-    /// // Usage in attribute:
-    /// // [Label("Static Label")]    // Returns "Static Label"
-    /// // [Label("@DynamicLabel")]   // Evaluates 'DynamicLabel' property
-    ///
-    /// // Example 4: Method call
-    /// var evaluator4 = ExpressionEvaluatorFactory
-    ///     .Evaluate("Inventory.GetCount('sword')", typeof(Player))
-    ///     .Build();
-    /// int swordCount = evaluator4.Evaluate&lt;int&gt;(player);
-    ///
-    /// // Example 5: Static member access
-    /// var evaluator5 = ExpressionEvaluatorFactory
-    ///     .Evaluate("-t:GameConfig -p:MaxLevel", null)
-    ///     .Build();
-    /// int maxLevel = evaluator5.Evaluate&lt;int&gt;(null);
-    /// </code>
-    /// </example>
-    /// </remarks>
     public static class ExpressionEvaluatorFactory
     {
         /// <summary>
-        /// Creates an evaluator for a literal (non-interpolated) string value.
-        /// </summary>
-        /// <param name="value">The literal string value.</param>
-        /// <returns>An evaluator that returns the specified value.</returns>
-        /// <remarks>
-        /// <para>
-        /// The literal evaluator returns the value as-is without any expression parsing
-        /// or evaluation. This is useful for static text that should not be interpreted.
-        /// </para>
-        /// <para>
-        /// Null values are converted to string.Empty.
-        /// </para>
-        /// </remarks>
-        /// <example>
-        /// <code>
-        /// var evaluator = ExpressionEvaluatorFactory.Literal("Hello World");
-        /// string result = evaluator.Evaluate&lt;string&gt;(null); // Returns "Hello World"
-        /// </code>
-        /// </example>
-        [PublicAPI]
-        public static IExpressionEvaluator Literal([CanBeNull] string value)
-        {
-            return new Implementations.LiteralExpressionEvaluator(value);
-        }
-
-        /// <summary>
-        /// Creates a builder for evaluating an expression path.
+        /// Creates an expression evaluator with the specified configuration.
         /// </summary>
         /// <param name="expressionPath">The expression path to evaluate.</param>
         /// <param name="sourceType">The type containing the member to evaluate.</param>
-        /// <returns>A configured evaluator builder.</returns>
-        /// <exception cref="System.ArgumentNullException">
-        /// Thrown when <paramref name="expressionPath"/> is null.
-        /// </exception>
+        /// <param name="requireExpressionFlag">
+        /// Whether the expression must start with '@' to trigger evaluation.
+        /// When true, expressions without '@' are treated as literal strings.
+        /// </param>
+        /// <returns>The configured expression evaluator instance.</returns>
         /// <remarks>
         /// <para>
-        /// This method returns a builder that can be configured with options such
-        /// as expression flag requirement before building the final evaluator.
+        /// This method creates an expression evaluator based on the provided configuration.
+        /// When <paramref name="requireExpressionFlag"/> is true, the expression must
+        /// start with '@' to be evaluated as a dynamic expression; otherwise it's treated
+        /// as a literal string value.
         /// </para>
         /// <para>
         /// The expression path syntax supports:
@@ -102,20 +36,65 @@ namespace EasyToolKit.Core.Reflection
         /// </list>
         /// </para>
         /// </remarks>
+        /// <exception cref="ArgumentException">
+        /// Thrown when <paramref name="expressionPath"/> is null or whitespace while
+        /// <paramref name="requireExpressionFlag"/> is true. Provide a valid expression path
+        /// or a literal string value.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when the expression path is invalid and cannot be parsed.
+        /// This may occur when the path references non-existent members or has incorrect syntax.
+        /// </exception>
         /// <example>
         /// <code>
-        /// var evaluator = ExpressionEvaluatorFactory
-        ///     .Evaluate("Player.Name", typeof(Player))
-        ///     .Build();
+        /// // Example 1: Always evaluate (no flag)
+        /// var evaluator1 = ExpressionEvaluatorFactory.CreateEvaluator(
+        ///     "Name", typeof(Player), requireExpressionFlag: false);
+        /// string name = evaluator1.Evaluate&lt;string&gt;(player);
         ///
-        /// // Type-safe evaluation using extension method
-        /// string name = evaluator.Evaluate&lt;string&gt;(player);
+        /// // Example 2: With expression flag
+        /// var evaluator2 = ExpressionEvaluatorFactory.CreateEvaluator(
+        ///     "@Player.Name", typeof(Player), requireExpressionFlag: true);
+        /// // Returns player.Name
+        ///
+        /// var evaluator3 = ExpressionEvaluatorFactory.CreateEvaluator(
+        ///     "Static Text", typeof(Player), requireExpressionFlag: true);
+        /// // Returns "Static Text" (no '@' prefix, treated as literal)
         /// </code>
         /// </example>
         [PublicAPI]
-        public static IExpressionEvaluatorBuilder Evaluate(string expressionPath, Type sourceType)
+        public static IExpressionEvaluator CreateEvaluator(string expressionPath, Type sourceType, bool requireExpressionFlag = false)
         {
-            return new Implementations.ExpressionEvaluatorBuilder(expressionPath, sourceType);
+            // Handle null or whitespace expressions
+            if (expressionPath.IsNullOrWhiteSpace())
+            {
+                if (requireExpressionFlag)
+                {
+                    throw new ArgumentException(
+                        "Expression path cannot be null or whitespace when expression flag is required. " +
+                        "Provide a valid expression path starting with '@' for dynamic evaluation, " +
+                        "or set requireExpressionFlag to false to treat null/whitespace as a literal value.",
+                        nameof(expressionPath));
+                }
+                return new Implementations.LiteralExpressionEvaluator(expressionPath);
+            }
+
+            // Handle expression flag
+            if (requireExpressionFlag)
+            {
+                if (expressionPath.StartsWith("@"))
+                {
+                    // Remove '@' prefix and create dynamic evaluator
+                    var path = expressionPath[1..];
+                    return new Implementations.DynamicExpressionEvaluator(path, sourceType);
+                }
+
+                // Return literal value (no '@' prefix)
+                return new Implementations.LiteralExpressionEvaluator(expressionPath);
+            }
+
+            // No expression flag - always evaluate
+            return new Implementations.DynamicExpressionEvaluator(expressionPath, sourceType);
         }
     }
 }
