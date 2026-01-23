@@ -26,12 +26,18 @@ namespace EasyToolKit.Core.Reflection.Implementations
 
         private bool TryInferTypeArguments(TypeMatchCandidate candidate, Type[] targets, out Type[] typeArguments)
         {
+            typeArguments = null;
             var substitutedTypeByParameter = new Dictionary<Type, Type>();
             for (int i = 0; i < candidate.Constraints.Length; i++)
             {
                 var dict = GetSubstitutedTypeByParameter(candidate.Constraints[i], targets[i]);
                 if (dict == null)
                 {
+                    if (!candidate.Constraints[i].IsAssignableFrom(targets[i]))
+                    {
+                        return false;
+                    }
+
                     continue;
                 }
 
