@@ -10,13 +10,21 @@ namespace EasyToolKit.Core.Reflection
     /// </summary>
     public enum PathStepType
     {
-        /// <summary>A field, property, or method member access.</summary>
+        /// <summary>
+        /// A field, property, or method member access.
+        /// </summary>
         Member,
-        /// <summary>An element access in a non-generic IList collection.</summary>
+        /// <summary>
+        /// An element access in a non-generic IList collection.
+        /// </summary>
         WeakListElement,
-        /// <summary>An element access in a generic IList&lt;T&gt; collection.</summary>
+        /// <summary>
+        /// An element access in a generic IList&lt;T&gt; collection.
+        /// </summary>
         StrongListElement,
-        /// <summary>An element access in an array.</summary>
+        /// <summary>
+        /// An element access in an array.
+        /// </summary>
         ArrayElement
     }
 

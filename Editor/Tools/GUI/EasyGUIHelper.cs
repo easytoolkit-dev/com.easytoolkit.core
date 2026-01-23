@@ -329,7 +329,6 @@ namespace EasyToolKit.Core.Editor
             s_repaintRequested = true;
         }
 
-        /// <summary>Clears the repaint request.</summary>
         public static void ClearRepaintRequest()
         {
             s_repaintRequested = false;

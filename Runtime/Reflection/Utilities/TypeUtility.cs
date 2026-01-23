@@ -1,13 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace EasyToolKit.Core.Reflection
 {
-    /// <summary>
-    /// Provides static APIs for resolving Type objects from type names.
-    /// </summary>
-    public static class TypeResolver
+    public static class TypeUtility
     {
+        private static readonly Dictionary<string, Type> TypeByNameCache = new();
+        private static readonly object CacheLock = new();
+
         /// <summary>
         /// Attempts to find a Type from the specified type name.
         /// </summary>
@@ -21,10 +22,23 @@ namespace EasyToolKit.Core.Reflection
         {
             ValidateTypeName(typeName);
 
+            // Check cache first
+            lock (CacheLock)
+            {
+                if (TypeByNameCache.TryGetValue(typeName, out var cachedType))
+                {
+                    return cachedType;
+                }
+            }
+
             // First, try Type.GetType which handles most common scenarios
             Type type = Type.GetType(typeName, throwOnError: false);
             if (type != null)
             {
+                lock (CacheLock)
+                {
+                    TypeByNameCache[typeName] = type;
+                }
                 return type;
             }
 
@@ -32,9 +46,18 @@ namespace EasyToolKit.Core.Reflection
             type = SearchAllAssemblies(typeName);
             if (type != null)
             {
+                lock (CacheLock)
+                {
+                    TypeByNameCache[typeName] = type;
+                }
                 return type;
             }
 
+            // Cache negative result to avoid repeated searches
+            lock (CacheLock)
+            {
+                TypeByNameCache[typeName] = null;
+            }
             return null;
         }
 

@@ -152,7 +152,7 @@ namespace EasyToolKit.Core.Reflection.Implementations
             // Try to extract -t:TypeName argument
             if (TryGetArgument(expressionPath, "-t:", out var rootTypeText))
             {
-                rootType = TypeResolver.FindType(rootTypeText);
+                rootType = TypeUtility.FindType(rootTypeText);
                 if (rootType == null)
                 {
                     error = $"Failed to bind type '{rootTypeText}': Invalid type name.";
