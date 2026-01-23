@@ -52,7 +52,7 @@ namespace EasyToolKit.Core.Reflection
         /// </remarks>
         private static Type SearchAllAssemblies(string typeName)
         {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            var assemblies = AssemblyUtility.GetAllAssemblies();
 
             // First pass: exact match with assembly-qualified name
             foreach (var assembly in assemblies)

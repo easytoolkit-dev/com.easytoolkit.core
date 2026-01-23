@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Reflection;
+using EasyToolKit.Core.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -86,8 +87,7 @@ namespace EasyToolKit.Core.Editor
 
                         string typeName = property.GetProperTypeName();
 
-                        var possibles = AppDomain.CurrentDomain.GetAssemblies()
-                            .SelectMany(a => a.GetTypes())
+                        var possibles = AssemblyUtility.GetTypesExcept(AssemblyCategory.System)
                             .Where(n => n.Name == typeName && typeof(UnityEngine.Object).IsAssignableFrom(n))
                             .ToList();
 
