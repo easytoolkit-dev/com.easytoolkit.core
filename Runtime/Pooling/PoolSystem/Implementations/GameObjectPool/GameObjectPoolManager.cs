@@ -96,7 +96,7 @@ namespace EasyToolKit.Core.Pooling.Implementations
             }
         }
 
-        internal IGameObjectPool CreatePoolFromBuilder(string poolName, GameObject original, IGameObjectPoolDefinition definition)
+        internal IGameObjectPool CreatePoolFromBuilder(string poolName, GameObject original, IGameObjectPoolConfiguration configuration)
         {
             if (_pools.ContainsKey(poolName))
             {
@@ -108,7 +108,7 @@ namespace EasyToolKit.Core.Pooling.Implementations
             var poolRoot = new GameObject(poolName);
             poolRoot.transform.SetParent(_rootTransform, false);
 
-            var pool = new GameObjectPool(poolName, original, definition, poolRoot.transform);
+            var pool = new GameObjectPool(poolName, original, configuration, poolRoot.transform);
             _pools.Add(poolName, pool);
 
             return pool;

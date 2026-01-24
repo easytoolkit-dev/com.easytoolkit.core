@@ -3,7 +3,7 @@ using System;
 namespace EasyToolKit.Core.Pooling.Implementations
 {
     /// <summary>
-    /// Configuration implementation for creating object pool definitions.
+    /// Configuration implementation for object pools.
     /// Provides mutable builder properties and validation for object pools.
     /// </summary>
     /// <typeparam name="T">The type of objects managed by the pool.</typeparam>
@@ -19,16 +19,18 @@ namespace EasyToolKit.Core.Pooling.Implementations
         public bool CallPoolItemCallbacks { get; set; } = true;
 
         /// <inheritdoc />
-        public Func<T> Factory { get; set; }
+        public Func<T> Allocator { get; set; }
+
+        /// <inheritdoc />
+        public bool UseFastCache { get; set; } = true;
 
         /// <summary>
-        /// Processes the configuration and validates all properties before creating the definition.
+        /// Validates the current configuration.
         /// </summary>
-        /// <param name="definition">The definition to process.</param>
         /// <exception cref="InvalidOperationException">
         /// Thrown when validation fails (e.g., InitialCapacity is negative or exceeds MaxCapacity).
         /// </exception>
-        protected void ProcessDefinition(ObjectPoolDefinition<T> definition)
+        public void Validate()
         {
             if (InitialCapacity < 0)
             {
@@ -41,19 +43,6 @@ namespace EasyToolKit.Core.Pooling.Implementations
                 throw new InvalidOperationException(
                     $"InitialCapacity ({InitialCapacity}) cannot exceed MaxCapacity ({MaxCapacity})");
             }
-
-            definition.InitialCapacity = InitialCapacity;
-            definition.MaxCapacity = MaxCapacity;
-            definition.CallPoolItemCallbacks = CallPoolItemCallbacks;
-            definition.Factory = Factory ?? (() => new T());
-        }
-
-        /// <inheritdoc />
-        public IObjectPoolDefinition<T> CreateDefinition()
-        {
-            var definition = new ObjectPoolDefinition<T>();
-            ProcessDefinition(definition);
-            return definition;
         }
     }
 }

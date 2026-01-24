@@ -37,15 +37,15 @@ namespace EasyToolKit.Core.Pooling.Implementations
         /// <inheritdoc />
         public IObjectPool<T> Create()
         {
-            var definition = new ObjectPoolDefinition<T>
+            var configuration = new ObjectPoolConfiguration<T>
             {
                 InitialCapacity = InitialCapacity,
                 MaxCapacity = MaxCapacity,
                 CallPoolItemCallbacks = CallPoolItemCallbacks,
-                Factory = Factory ?? (() => new T())
+                Allocator = Factory ?? (() => new T())
             };
 
-            return ((ObjectPoolManager)_manager).CreatePoolFromBuilder(_poolName, definition);
+            return ((ObjectPoolManager)_manager).CreatePoolFromBuilder(_poolName, configuration);
         }
     }
 }

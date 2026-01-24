@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace EasyToolKit.Core.Pooling.Implementations
@@ -16,12 +17,18 @@ namespace EasyToolKit.Core.Pooling.Implementations
         {
             Target = target;
             OwningPool = owningPool;
+            PoolItems = target.GetComponents<IPoolItem>();
         }
 
         /// <summary>
         /// Gets the target GameObject instance.
         /// </summary>
         public GameObject Target { get; }
+
+        /// <summary>
+        /// Gets the cached array of &lt;see cref="IPoolItem"/&gt; components on the target GameObject.
+        /// </summary>
+        public IPoolItem[] PoolItems { get; }
 
         /// <summary>
         /// Gets the pool that owns this instance.
