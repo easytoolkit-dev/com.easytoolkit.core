@@ -45,7 +45,7 @@ namespace EasyToolKit.Core.Pooling.Implementations
         /// <inheritdoc />
         public IGameObjectPool Create()
         {
-            var definition = new GameObjectPoolDefinition
+            var configuration = new GameObjectPoolConfiguration
             {
                 InitialCapacity = InitialCapacity,
                 MaxCapacity = MaxCapacity,
@@ -55,7 +55,7 @@ namespace EasyToolKit.Core.Pooling.Implementations
                 TickInterval = TickInterval
             };
 
-            return ((GameObjectPoolManager)_manager).CreatePoolFromBuilder(_poolName, _original, definition);
+            return ((GameObjectPoolManager)_manager).CreatePoolFromBuilder(_poolName, _original, configuration);
         }
     }
 }

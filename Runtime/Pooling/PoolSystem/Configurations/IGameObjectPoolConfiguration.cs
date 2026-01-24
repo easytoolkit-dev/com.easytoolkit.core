@@ -1,7 +1,7 @@
 namespace EasyToolKit.Core.Pooling
 {
     /// <summary>
-    /// Configuration interface for creating GameObject pool definitions.
+    /// Configuration interface for GameObject pools.
     /// Provides mutable builder properties for GameObject pool configuration.
     /// </summary>
     public interface IGameObjectPoolConfiguration : IPoolConfiguration
@@ -24,11 +24,5 @@ namespace EasyToolKit.Core.Pooling
         /// Gets or sets the interval between tick updates (in seconds).
         /// </summary>
         float TickInterval { get; set; }
-
-        /// <summary>
-        /// Creates a new <see cref="IGameObjectPoolDefinition"/> instance based on the current configuration.
-        /// </summary>
-        /// <returns>A new GameObject pool definition instance.</returns>
-        IGameObjectPoolDefinition CreateDefinition();
     }
 }

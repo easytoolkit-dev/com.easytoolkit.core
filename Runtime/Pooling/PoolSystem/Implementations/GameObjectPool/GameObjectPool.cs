@@ -28,36 +28,38 @@ namespace EasyToolKit.Core.Pooling.Implementations
         /// </summary>
         /// <param name="name">The name of the pool.</param>
         /// <param name="original">The original prefab for instantiation.</param>
-        /// <param name="definition">The definition for the pool.</param>
+        /// <param name="configuration">The configuration for the pool.</param>
         /// <param name="rootTransform">The root Transform for pooled objects.</param>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when <paramref name="name"/>, <paramref name="original"/>, or <paramref name="definition"/> is null.
+        /// Thrown when <paramref name="name"/>, <paramref name="original"/>, or <paramref name="configuration"/> is null.
         /// </exception>
-        public GameObjectPool(string name, GameObject original, IGameObjectPoolDefinition definition, Transform rootTransform)
+        public GameObjectPool(string name, GameObject original, IGameObjectPoolConfiguration configuration, Transform rootTransform)
             : base(name)
         {
             _original = original ?? throw new ArgumentNullException(nameof(original));
-            if (definition == null)
+            if (configuration == null)
             {
-                throw new ArgumentNullException(nameof(definition));
+                throw new ArgumentNullException(nameof(configuration));
             }
 
+            configuration.Validate();
+
             _rootTransform = rootTransform;
-            _callPoolItemCallbacks = definition.CallPoolItemCallbacks;
-            _defaultActiveLifetime = definition.DefaultActiveLifetime;
-            _defaultIdleLifetime = definition.DefaultIdleLifetime;
-            _tickInterval = definition.TickInterval;
+            _callPoolItemCallbacks = configuration.CallPoolItemCallbacks;
+            _defaultActiveLifetime = configuration.DefaultActiveLifetime;
+            _defaultIdleLifetime = configuration.DefaultIdleLifetime;
+            _tickInterval = configuration.TickInterval;
 
             // Preallocate instances if specified
-            if (definition.InitialCapacity > 0)
+            if (configuration.InitialCapacity > 0)
             {
-                PreallocateInstances(definition.InitialCapacity);
+                PreallocateInstances(configuration.InitialCapacity);
             }
 
             // Set capacity if specified
-            if (definition.MaxCapacity >= 0)
+            if (configuration.MaxCapacity >= 0)
             {
-                Capacity = definition.MaxCapacity;
+                Capacity = configuration.MaxCapacity;
             }
         }
 
@@ -101,8 +103,7 @@ namespace EasyToolKit.Core.Pooling.Implementations
 
             if (_callPoolItemCallbacks)
             {
-                var poolItems = pooledInfo.Target.GetComponents<IPoolItem>();
-                foreach (var item in poolItems)
+                foreach (var item in pooledInfo.PoolItems)
                 {
                     item.Rent();
                 }
@@ -129,8 +130,7 @@ namespace EasyToolKit.Core.Pooling.Implementations
 
             if (_callPoolItemCallbacks)
             {
-                var poolItems = instance.GetComponents<IPoolItem>();
-                foreach (var item in poolItems)
+                foreach (var item in pooledInfo.PoolItems)
                 {
                     item.Release();
                 }

@@ -1,7 +1,9 @@
+using System;
+
 namespace EasyToolKit.Core.Pooling
 {
     /// <summary>
-    /// Base configuration interface for creating pool definitions.
+    /// Base configuration interface for pools.
     /// Provides mutable builder properties for pool configuration.
     /// </summary>
     public interface IPoolConfiguration
@@ -22,5 +24,13 @@ namespace EasyToolKit.Core.Pooling
         /// Gets or sets whether to call <see cref="IPoolItem"/> callbacks on pooled objects.
         /// </summary>
         bool CallPoolItemCallbacks { get; set; }
+
+        /// <summary>
+        /// Validates the current configuration.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when validation fails.
+        /// </exception>
+        void Validate();
     }
 }

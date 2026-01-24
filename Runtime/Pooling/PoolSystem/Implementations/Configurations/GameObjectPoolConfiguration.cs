@@ -3,7 +3,7 @@ using System;
 namespace EasyToolKit.Core.Pooling.Implementations
 {
     /// <summary>
-    /// Configuration implementation for creating GameObject pool definitions.
+    /// Configuration implementation for GameObject pools.
     /// Provides mutable builder properties and validation for GameObject pools.
     /// </summary>
     public class GameObjectPoolConfiguration : IGameObjectPoolConfiguration
@@ -27,13 +27,12 @@ namespace EasyToolKit.Core.Pooling.Implementations
         public float TickInterval { get; set; } = 0.5f;
 
         /// <summary>
-        /// Processes the configuration and validates all properties before creating the definition.
+        /// Validates the current configuration.
         /// </summary>
-        /// <param name="definition">The definition to process.</param>
         /// <exception cref="InvalidOperationException">
         /// Thrown when validation fails.
         /// </exception>
-        protected void ProcessDefinition(GameObjectPoolDefinition definition)
+        public void Validate()
         {
             if (InitialCapacity < 0)
             {
@@ -52,21 +51,6 @@ namespace EasyToolKit.Core.Pooling.Implementations
                 throw new InvalidOperationException(
                     $"TickInterval must be positive. Current value: {TickInterval}");
             }
-
-            definition.InitialCapacity = InitialCapacity;
-            definition.MaxCapacity = MaxCapacity;
-            definition.CallPoolItemCallbacks = CallPoolItemCallbacks;
-            definition.DefaultActiveLifetime = DefaultActiveLifetime;
-            definition.DefaultIdleLifetime = DefaultIdleLifetime;
-            definition.TickInterval = TickInterval;
-        }
-
-        /// <inheritdoc />
-        public IGameObjectPoolDefinition CreateDefinition()
-        {
-            var definition = new GameObjectPoolDefinition();
-            ProcessDefinition(definition);
-            return definition;
         }
     }
 }

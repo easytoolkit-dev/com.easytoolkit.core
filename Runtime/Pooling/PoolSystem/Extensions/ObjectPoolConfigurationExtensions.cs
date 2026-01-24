@@ -9,19 +9,19 @@ namespace EasyToolKit.Core.Pooling
     public static class ObjectPoolConfigurationExtensions
     {
         /// <summary>
-        /// Sets the factory function for creating new instances.
+        /// Sets the allocator function for creating new instances.
         /// </summary>
         /// <typeparam name="T">The type of objects managed by the pool.</typeparam>
         /// <typeparam name="TConfiguration">The object pool configuration type.</typeparam>
         /// <param name="configuration">The configuration instance.</param>
-        /// <param name="factory">The factory function to use.</param>
+        /// <param name="allocator">The allocator function to use.</param>
         /// <returns>The configuration instance for method chaining.</returns>
-        public static TConfiguration WithFactory<T, TConfiguration>(
-            this TConfiguration configuration, Func<T> factory)
+        public static TConfiguration WithAllocator<T, TConfiguration>(
+            this TConfiguration configuration, Func<T> allocator)
             where TConfiguration : IObjectPoolConfiguration<T>
             where T : class, new()
         {
-            configuration.Factory = factory;
+            configuration.Allocator = allocator;
             return configuration;
         }
 
@@ -37,7 +37,25 @@ namespace EasyToolKit.Core.Pooling
             where TConfiguration : IObjectPoolConfiguration<T>
             where T : class, new()
         {
-            configuration.Factory = null;
+            configuration.Allocator = null;
+            return configuration;
+        }
+
+        /// <summary>
+        /// Configures the pool to use FastCache as a hot cache layer for frequently accessed objects.
+        /// When enabled, the first 4 instances are stored in FastCache for zero-allocation access.
+        /// </summary>
+        /// <typeparam name="T">The type of objects managed by the pool.</typeparam>
+        /// <typeparam name="TConfiguration">The object pool configuration type.</typeparam>
+        /// <param name="configuration">The configuration instance.</param>
+        /// <param name="enabled">Whether to enable FastCache. Default is <c>true</c>.</param>
+        /// <returns>The configuration instance for method chaining.</returns>
+        public static TConfiguration WithFastCache<T, TConfiguration>(
+            this TConfiguration configuration, bool enabled = true)
+            where TConfiguration : IObjectPoolConfiguration<T>
+            where T : class, new()
+        {
+            configuration.UseFastCache = enabled;
             return configuration;
         }
     }

@@ -55,7 +55,7 @@ namespace EasyToolKit.Core.Pooling.Implementations
             return false;
         }
 
-        internal IObjectPool<T> CreatePoolFromBuilder<T>(string poolName, IObjectPoolDefinition<T> definition)
+        internal IObjectPool<T> CreatePoolFromBuilder<T>(string poolName, IObjectPoolConfiguration<T> configuration)
             where T : class, new()
         {
             if (_pools.ContainsKey(poolName))
@@ -64,7 +64,7 @@ namespace EasyToolKit.Core.Pooling.Implementations
                     $"Object pool with name '{poolName}' already exists.");
             }
 
-            var pool = new ObjectPool<T>(poolName, definition);
+            var pool = new ObjectPool<T>(poolName, configuration);
             _pools[poolName] = pool;
             return pool;
         }
