@@ -15,7 +15,7 @@
             {
                 if (!PoolManagerFactory.DefaultObjectPoolManager.TryGetPool(typeof(T).FullName, out Pool))
                 {
-                    Pool = PoolManagerFactory.DefaultObjectPoolManager.BuildPool<T>(typeof(T).FullName).Create();
+                    Pool = PoolManagerFactory.DefaultObjectPoolManager.CreatePool<T>(typeof(T).FullName);
                 }
             }
         }
