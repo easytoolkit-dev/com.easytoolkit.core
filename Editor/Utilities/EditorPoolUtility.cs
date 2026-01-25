@@ -22,7 +22,7 @@ namespace EasyToolKit.Core.Editor
             {
                 if (!ObjectPoolManager.TryGetPool(typeof(T).FullName, out Pool))
                 {
-                    Pool = ObjectPoolManager.BuildPool<T>(typeof(T).FullName).Create();
+                    Pool = ObjectPoolManager.CreatePool<T>(typeof(T).FullName);
                 }
             }
         }
