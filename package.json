@@ -16,6 +16,5 @@
     "url": "https://github.com/easytoolkit-dev/com.easytoolkit.core"
   },
   "dependencies": {
-    "com.easytoolkit.odinserializer": "1.0.0"
   }
 }
