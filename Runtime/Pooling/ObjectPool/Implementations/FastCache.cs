@@ -42,6 +42,8 @@ namespace EasyToolKit.Core.Pooling.Implementations
             }
         }
 
+        public int ActiveCount => 4 - IdleCount;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="FastCache{T}"/> structure.
         /// All slots are pre-allocated and marked as idle.

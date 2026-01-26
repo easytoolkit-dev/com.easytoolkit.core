@@ -54,7 +54,7 @@ namespace EasyToolKit.Core.Pooling.Implementations
         }
 
         /// <inheritdoc />
-        public override int ActiveCount => _activeInstances.Count;
+        public override int ActiveCount => _activeInstances.Count + (_fastCache?.ActiveCount ?? 0);
 
         /// <inheritdoc />
         public override int IdleCount => _idleInstances.Count + (_fastCache?.IdleCount ?? 0);
@@ -80,7 +80,6 @@ namespace EasyToolKit.Core.Pooling.Implementations
             // Try FastCache first (L0 cache)
             if (_fastCache != null && _fastCache.TryGet(out var instance))
             {
-                _activeInstances.Add(instance);
                 return instance;
             }
 
