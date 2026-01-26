@@ -7,7 +7,41 @@ namespace EasyToolKit.Core.Reflection
     public static class TypeUtility
     {
         private static readonly Dictionary<string, Type> TypeByNameCache = new();
+        private static readonly Dictionary<Type, string> TypeNameByTypeCache = new();
         private static readonly object CacheLock = new();
+
+        /// <summary>
+        /// Gets the type name for the specified type with caching.
+        /// </summary>
+        /// <param name="type">The type to get the name for.</param>
+        /// <returns>
+        /// The assembly-qualified name, full name, or simple name of the type.
+        /// </returns>
+        public static string GetTypeName([NotNull] Type type)
+        {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            // Check cache first
+            lock (CacheLock)
+            {
+                if (TypeNameByTypeCache.TryGetValue(type, out var cachedTypeName))
+                {
+                    return cachedTypeName;
+                }
+            }
+
+            // Generate the type name
+            string typeName = type.AssemblyQualifiedName ?? type.FullName ?? type.Name;
+
+            // Cache the result
+            lock (CacheLock)
+            {
+                TypeNameByTypeCache[type] = typeName;
+            }
+
+            return typeName;
+        }
 
         /// <summary>
         /// Attempts to find a Type from the specified type name.
