@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolkit.Core.Patterns.StateMachines
+namespace EasyToolkit.Core.Patterns
 {
     /// <summary>
     /// Abstract base class for a state node.
