@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace EasyToolkit.Core.Patterns.StateMachines
+namespace EasyToolkit.Core.Patterns
 {
     /// <summary>
     /// A generic State Machine implementation where states are identified by an Tuple enum.
