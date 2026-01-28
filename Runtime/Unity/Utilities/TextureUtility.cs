@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Unity
+namespace EasyToolkit.Core.Unity
 {
     public static class TextureUtility
     {

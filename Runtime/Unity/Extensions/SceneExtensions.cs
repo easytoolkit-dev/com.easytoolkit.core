@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace EasyToolKit.Core.Unity
+namespace EasyToolkit.Core.Unity
 {
     public static class SceneExtensions
     {

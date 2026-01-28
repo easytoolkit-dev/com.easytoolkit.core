@@ -1,7 +1,7 @@
 using System.Reflection;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Patterns
+namespace EasyToolkit.Core.Patterns
 {
     /// <summary>
     /// ScriptableObject singleton base class with configurable loading modes.

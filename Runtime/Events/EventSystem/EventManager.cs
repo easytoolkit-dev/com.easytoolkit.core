@@ -1,7 +1,7 @@
 ﻿using System;
-using EasyToolKit.Core.Patterns;
+using EasyToolkit.Core.Patterns;
 
-namespace EasyToolKit.Core.Events
+namespace EasyToolkit.Core.Events
 {
     /// <summary>
     /// Global singleton facade for the event bus system.

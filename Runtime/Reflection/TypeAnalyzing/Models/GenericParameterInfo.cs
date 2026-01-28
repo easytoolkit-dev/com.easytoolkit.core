@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 
-namespace EasyToolKit.Core.Reflection
+namespace EasyToolkit.Core.Reflection
 {
     /// <summary>
     /// Represents comprehensive information about a generic type parameter, including its constraints and dependencies.

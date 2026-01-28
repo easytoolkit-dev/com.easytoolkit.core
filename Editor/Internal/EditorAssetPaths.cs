@@ -1,8 +1,8 @@
 using System.IO;
-using EasyToolKit.Core.IO;
+using EasyToolkit.Core.IO;
 using UnityEditor;
 
-namespace EasyToolKit.Core.Editor.Internal
+namespace EasyToolkit.Core.Editor.Internal
 {
     public static class EditorAssetPaths
     {
@@ -19,7 +19,7 @@ namespace EasyToolKit.Core.Editor.Internal
                 Path.GetTempPath(),
                 PlayerSettings.companyName,
                 PlayerSettings.productName,
-                "EasyToolKit");
+                "EasyToolkit");
         }
     }
 }

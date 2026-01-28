@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace EasyToolKit.Core.Reflection.Implementations
+namespace EasyToolkit.Core.Reflection.Implementations
 {
     public partial class OpenGenericTypeAnalyzer
     {

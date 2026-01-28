@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Pooling.Implementations
+namespace EasyToolkit.Core.Pooling.Implementations
 {
     /// <summary>
     /// Provides metadata about a pooled GameObject instance.

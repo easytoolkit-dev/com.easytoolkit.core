@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Patterns.Implementations
+namespace EasyToolkit.Core.Patterns.Implementations
 {
     /// <summary>
     /// Exception thrown when a service cannot be resolved.

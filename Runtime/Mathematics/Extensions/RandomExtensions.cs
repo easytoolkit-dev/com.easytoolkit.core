@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Mathematics
+namespace EasyToolkit.Core.Mathematics
 {
     /// <summary>
     /// Provides extension methods for random value generation operations.

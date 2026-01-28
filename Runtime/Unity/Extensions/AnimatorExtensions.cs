@@ -1,7 +1,7 @@
 using System.Linq;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Unity
+namespace EasyToolkit.Core.Unity
 {
     /// <summary>
     /// Provides extension methods for Unity's Animator component

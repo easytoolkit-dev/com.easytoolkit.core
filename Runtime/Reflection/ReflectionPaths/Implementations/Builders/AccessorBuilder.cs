@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace EasyToolKit.Core.Reflection
+namespace EasyToolkit.Core.Reflection
 {
     /// <summary>
     /// Builder for creating member accessors that get or set values through member paths.

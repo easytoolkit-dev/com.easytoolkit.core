@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Editor
+namespace EasyToolkit.Core.Editor
 {
 
     /// <summary>

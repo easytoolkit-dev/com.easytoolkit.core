@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace EasyToolKit.Core.Events
+namespace EasyToolkit.Core.Events
 {
     /// <summary>
     /// A value wrapper that raises events when the value changes.

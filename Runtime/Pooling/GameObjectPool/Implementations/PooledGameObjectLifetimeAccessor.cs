@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Pooling.Implementations
+namespace EasyToolkit.Core.Pooling.Implementations
 {
     /// <summary>
     /// Implementation of <see cref="IPooledGameObjectLifetimeAccessor"/> that provides

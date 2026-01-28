@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 
-namespace EasyToolKit.Core.Reflection.Implementations
+namespace EasyToolkit.Core.Reflection.Implementations
 {
     /// <summary>
     /// Provides analysis capabilities for open generic types, including partially constructed generic types

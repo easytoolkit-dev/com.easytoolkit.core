@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Patterns
+namespace EasyToolkit.Core.Patterns
 {
     /// <summary>
     /// Configuration flags for MonoBehaviour singleton behavior.

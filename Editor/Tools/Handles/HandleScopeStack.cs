@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Editor
+namespace EasyToolkit.Core.Editor
 {
     public class HandleScopeStack<T> : Stack<T>
     {

@@ -1,4 +1,4 @@
-namespace EasyToolKit.Core.Patterns
+namespace EasyToolkit.Core.Patterns
 {
     /// <summary>
     /// Defines how a Unity singleton was initialized.

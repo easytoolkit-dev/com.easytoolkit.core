@@ -1,8 +1,8 @@
 ﻿
-using EasyToolKit.Core.Unity;
+using EasyToolkit.Core.Unity;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Events
+namespace EasyToolkit.Core.Events
 {
     /// <summary>
     /// Provides extension methods for configuring automatic event unregistration behavior.

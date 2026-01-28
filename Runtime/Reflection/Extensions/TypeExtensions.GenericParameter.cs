@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 
-namespace EasyToolKit.Core.Reflection
+namespace EasyToolkit.Core.Reflection
 {
     public static partial class TypeExtensions
     {

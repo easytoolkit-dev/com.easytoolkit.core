@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace EasyToolKit.Core.Editor
+namespace EasyToolkit.Core.Editor
 {
     /// <summary>
     /// A utility class for properly counting frames and helps determine when a frame has started in an editor window.

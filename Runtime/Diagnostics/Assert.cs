@@ -3,10 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using EasyToolKit.Core.Collections;
-using EasyToolKit.Core.Textual;
+using EasyToolkit.Core.Collections;
+using EasyToolkit.Core.Textual;
 
-namespace EasyToolKit.Core.Diagnostics
+namespace EasyToolkit.Core.Diagnostics
 {
     public class AssertException : Exception
     {

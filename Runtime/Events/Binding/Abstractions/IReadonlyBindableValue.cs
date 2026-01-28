@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Events
+namespace EasyToolkit.Core.Events
 {
     /// <summary>
     /// Defines a read-only bindable value that can notify subscribers about value changes.

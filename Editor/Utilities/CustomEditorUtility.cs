@@ -2,12 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using EasyToolKit.Core.Unity;
+using EasyToolkit.Core.Unity;
 using UnityEditor;
 using UnityEngine;
 
 //TODO CustomEditorUtility待优化
-namespace EasyToolKit.Core.Editor
+namespace EasyToolkit.Core.Editor
 {
     public static class CustomEditorUtility
     {

@@ -5,7 +5,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Reflection
+namespace EasyToolkit.Core.Reflection
 {
     public static partial class TypeExtensions
     {

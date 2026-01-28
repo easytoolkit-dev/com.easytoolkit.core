@@ -1,6 +1,6 @@
 ﻿// ReSharper disable InconsistentNaming
 
-namespace EasyToolKit.Core.ThirdParty.xxHash
+namespace EasyToolkit.Core.ThirdParty.xxHash
 {
     using System.Runtime.CompilerServices;
 

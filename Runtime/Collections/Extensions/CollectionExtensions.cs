@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EasyToolKit.Core.Collections
+namespace EasyToolkit.Core.Collections
 {
     /// <summary>
     /// Provides extension methods for <see cref="IEnumerable{T}"/> sequences with common operations

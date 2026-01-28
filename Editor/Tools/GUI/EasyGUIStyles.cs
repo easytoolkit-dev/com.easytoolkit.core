@@ -2,7 +2,7 @@ using System.Xml.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Editor
+namespace EasyToolkit.Core.Editor
 {
     public static class EasyGUIStyles
     {

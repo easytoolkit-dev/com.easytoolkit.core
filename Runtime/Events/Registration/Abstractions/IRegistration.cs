@@ -1,5 +1,5 @@
 ﻿
-namespace EasyToolKit.Core.Events
+namespace EasyToolkit.Core.Events
 {
     /// <summary>
     /// Represents an event registration that can be unsubscribed.

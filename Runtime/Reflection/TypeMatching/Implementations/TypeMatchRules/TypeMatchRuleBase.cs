@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EasyToolKit.Core.Reflection.Implementations
+namespace EasyToolkit.Core.Reflection.Implementations
 {
     public abstract class TypeMatchRuleBase : ITypeMatchRule
     {

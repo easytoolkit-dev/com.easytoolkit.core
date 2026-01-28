@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 
-namespace EasyToolKit.Core.Patterns
+namespace EasyToolkit.Core.Patterns
 {
     /// <summary>
     /// Thread-safe singleton base class for standard C# classes.

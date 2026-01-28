@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EasyToolKit.Core.Collections;
+using EasyToolkit.Core.Collections;
 using UnityEditor;
 
-namespace EasyToolKit.Core.Editor
+namespace EasyToolkit.Core.Editor
 {
     public static class MonoScriptExtensions
     {

@@ -1,8 +1,8 @@
 // using System;
 // using System.Text;
-// using EasyToolKit.OdinSerializer;
+// using EasyToolkit.OdinSerializer;
 //
-// namespace EasyToolKit.Core.Editor
+// namespace EasyToolkit.Core.Editor
 // {
 //     public static class SerializationDataExtensions
 //     {

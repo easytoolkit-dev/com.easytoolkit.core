@@ -1,4 +1,4 @@
-namespace EasyToolKit.Core.Pooling
+namespace EasyToolkit.Core.Pooling
 {
     /// <summary>
     /// Provides access to lifetime properties of a pooled GameObject.

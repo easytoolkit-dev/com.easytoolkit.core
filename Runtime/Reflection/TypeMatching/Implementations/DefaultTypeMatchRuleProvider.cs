@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace EasyToolKit.Core.Reflection.Implementations
+namespace EasyToolkit.Core.Reflection.Implementations
 {
     /// <summary>
     /// Provides the default type matching rules.

@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EasyToolKit.Core;
+using EasyToolkit.Core;
 
-namespace EasyToolKit.Core.Reflection.Implementations
+namespace EasyToolkit.Core.Reflection.Implementations
 {
     /// <summary>
     /// Provides a flexible type matching system that can match types against target types using configurable rules.

@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Globalization;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Convention.TypeConverters
+namespace EasyToolkit.Core.Convention.TypeConverters
 {
     /// <summary>
     /// Provides type conversion for Rect values to and from string representations.

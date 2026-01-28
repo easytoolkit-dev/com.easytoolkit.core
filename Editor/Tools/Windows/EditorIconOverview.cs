@@ -6,12 +6,12 @@ using System.Linq;
 using System.IO;
 using JetBrains.Annotations;
 
-namespace EasyToolKit.Core.Editor
+namespace EasyToolkit.Core.Editor
 {
     //git@github.com:nukadelic/UnityEditorIcons.git
     internal class EditorIconOverview : EditorWindow
     {
-        [MenuItem("Tools/EasyToolKit/Editor Icon Overview", priority = -1001)]
+        [MenuItem("Tools/EasyToolkit/Editor Icon Overview", priority = -1001)]
         [UsedImplicitly]
         public static void ShowWindow()
         {

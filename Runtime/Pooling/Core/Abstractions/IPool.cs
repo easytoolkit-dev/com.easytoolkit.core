@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Pooling
+namespace EasyToolkit.Core.Pooling
 {
     /// <summary>
     /// Defines a generic object pool with type-safe operations.

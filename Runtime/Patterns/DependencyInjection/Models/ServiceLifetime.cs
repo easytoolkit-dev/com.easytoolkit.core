@@ -1,4 +1,4 @@
-namespace EasyToolKit.Core.Patterns
+namespace EasyToolkit.Core.Patterns
 {
     /// <summary>
     /// Specifies the lifetime of a service in the container.

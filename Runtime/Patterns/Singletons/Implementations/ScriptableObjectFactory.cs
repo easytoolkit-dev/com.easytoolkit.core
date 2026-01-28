@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-namespace EasyToolKit.Core.Patterns.Implementations
+namespace EasyToolkit.Core.Patterns.Implementations
 {
     /// <summary>
     /// Factory for creating and loading ScriptableObject singleton instances.

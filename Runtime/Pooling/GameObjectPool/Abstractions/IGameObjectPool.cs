@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Pooling
+namespace EasyToolkit.Core.Pooling
 {
     /// <summary>
     /// Defines a specialized object pool for Unity GameObject instances.

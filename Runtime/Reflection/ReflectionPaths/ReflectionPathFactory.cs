@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Reflection
+namespace EasyToolkit.Core.Reflection
 {
     /// <summary>
     /// Factory for creating reflection-based accessors and invokers with a weak-typed API.

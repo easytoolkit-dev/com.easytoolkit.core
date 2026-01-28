@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Mathematics
+namespace EasyToolkit.Core.Mathematics
 {
     /// <summary>
     /// Represents a priority value for ordering operations with floating-point comparison support.

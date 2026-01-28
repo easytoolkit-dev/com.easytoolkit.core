@@ -1,7 +1,7 @@
 ﻿using System;
-using EasyToolKit.Core.ThirdParty.xxHash;
+using EasyToolkit.Core.ThirdParty.xxHash;
 
-namespace EasyToolKit.Core.Mathematics
+namespace EasyToolkit.Core.Mathematics
 {
     /// <summary>
     /// Provides deterministic random number generation utilities using hash-based algorithms.

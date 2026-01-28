@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 
-namespace EasyToolKit.Core.Reflection
+namespace EasyToolkit.Core.Reflection
 {
     /// <summary>
     /// Extension methods for type matcher operations.

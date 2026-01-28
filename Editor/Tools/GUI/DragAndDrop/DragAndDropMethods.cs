@@ -1,4 +1,4 @@
-namespace EasyToolKit.Core.Editor
+namespace EasyToolkit.Core.Editor
 {
     public enum DragAndDropMethods
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Pooling
+namespace EasyToolkit.Core.Pooling
 {
     /// <summary>
     /// Extension methods for pool interfaces.

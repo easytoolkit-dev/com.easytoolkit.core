@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Pooling.Implementations
+namespace EasyToolkit.Core.Pooling.Implementations
 {
     /// <summary>
     /// A fast cache structure using predefined static fields for rapid object retrieval and storage.

@@ -1,9 +1,9 @@
 using System;
-using EasyToolKit.Core.Reflection;
+using EasyToolkit.Core.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Editor
+namespace EasyToolkit.Core.Editor
 {
     /// <summary>
     /// This class is due to undergo refactoring.

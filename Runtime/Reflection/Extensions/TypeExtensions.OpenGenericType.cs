@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EasyToolKit.Core.Reflection
+namespace EasyToolkit.Core.Reflection
 {
     public static partial class TypeExtensions
     {

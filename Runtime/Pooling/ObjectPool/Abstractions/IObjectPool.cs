@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Pooling
+namespace EasyToolkit.Core.Pooling
 {
     /// <summary>
     /// Defines a pool for managing C# object instances with type safety.

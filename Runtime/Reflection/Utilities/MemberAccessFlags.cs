@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace EasyToolKit.Core.Reflection
+namespace EasyToolkit.Core.Reflection
 {
     public static class MemberAccessFlags
     {

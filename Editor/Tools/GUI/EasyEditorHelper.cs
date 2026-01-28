@@ -1,10 +1,10 @@
 using System;
 using System.Reflection;
-using EasyToolKit.Core.Reflection;
+using EasyToolkit.Core.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Editor
+namespace EasyToolkit.Core.Editor
 {
     public static class EasyEditorHelper
     {

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace EasyToolKit.Core.Mathematics
+namespace EasyToolkit.Core.Mathematics
 {
     /// <summary>
     /// Extension methods for Unity vector types (Vector2, Vector3, Vector2Int, Vector3Int).

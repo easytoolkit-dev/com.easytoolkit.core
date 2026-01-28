@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Events
+namespace EasyToolkit.Core.Events
 {
     /// <summary>
     /// Defines a subscription to an event with lifecycle management capabilities.

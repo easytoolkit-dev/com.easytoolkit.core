@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Reflection
+namespace EasyToolkit.Core.Reflection
 {
     /// <summary>
     /// Delegate for invoking constructors with variable parameters.

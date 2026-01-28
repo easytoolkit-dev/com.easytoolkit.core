@@ -1,4 +1,4 @@
-namespace EasyToolKit.Core.Events
+namespace EasyToolkit.Core.Events
 {
     /// <summary>
     /// Defines a handler for processing events of a specific type.

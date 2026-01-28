@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Reflection
+namespace EasyToolkit.Core.Reflection
 {
     /// <summary>
     /// Defines a value evaluator that computes values from expression paths.

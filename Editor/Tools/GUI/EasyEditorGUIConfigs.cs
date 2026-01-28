@@ -3,7 +3,7 @@ using System;
 using JetBrains.Annotations;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Editor
+namespace EasyToolkit.Core.Editor
 {
     public delegate void CoveredTitleBarGUIHandler(Rect headerRect);
 

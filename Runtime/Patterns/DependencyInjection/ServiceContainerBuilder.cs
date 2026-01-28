@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using EasyToolKit.Core.Patterns.Implementations;
+using EasyToolkit.Core.Patterns.Implementations;
 
-namespace EasyToolKit.Core.Patterns
+namespace EasyToolkit.Core.Patterns
 {
     /// <summary>
     /// Builder for creating service containers.

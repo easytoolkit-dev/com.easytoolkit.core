@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace EasyToolKit.Core.Events
+namespace EasyToolkit.Core.Events
 {
     /// <summary>
     /// Triggers automatic event unregistration when the GameObject is destroyed.

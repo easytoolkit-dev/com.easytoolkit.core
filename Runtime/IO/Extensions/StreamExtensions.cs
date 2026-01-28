@@ -1,7 +1,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace EasyToolKit.Core.IO
+namespace EasyToolkit.Core.IO
 {
     public static class StreamExtensions
     {

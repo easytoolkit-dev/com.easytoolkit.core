@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using EasyToolKit.Core.Reflection;
+using EasyToolkit.Core.Reflection;
 
-namespace EasyToolKit.Core.Editor
+namespace EasyToolkit.Core.Editor
 {
     public interface IGUIContextCache<TKey, TValue>
     {

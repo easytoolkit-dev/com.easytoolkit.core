@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EasyToolKit.Core.Collections;
-using EasyToolKit.Core.Textual;
-using EasyToolKit.Core.Mathematics;
+using EasyToolkit.Core.Collections;
+using EasyToolkit.Core.Textual;
+using EasyToolkit.Core.Mathematics;
 using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Editor
+namespace EasyToolkit.Core.Editor
 {
     public class EasyEditorGUI
     {

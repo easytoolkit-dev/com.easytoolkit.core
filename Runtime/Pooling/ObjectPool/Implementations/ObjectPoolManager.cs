@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using EasyToolKit.Core.Pooling;
+using EasyToolkit.Core.Pooling;
 
-namespace EasyToolKit.Core.Pooling.Implementations
+namespace EasyToolkit.Core.Pooling.Implementations
 {
     /// <summary>
     /// Default implementation of <see cref="IObjectPoolManager"/>.

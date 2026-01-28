@@ -1,7 +1,7 @@
 using System;
-using EasyToolKit.Core.Pooling;
+using EasyToolkit.Core.Pooling;
 
-namespace EasyToolKit.Core.Events
+namespace EasyToolkit.Core.Events
 {
     /// <summary>
     /// Specifies the type of list change operation.

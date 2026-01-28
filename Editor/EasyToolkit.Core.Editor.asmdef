@@ -1,8 +1,8 @@
 {
-    "name": "EasyToolKit.Core.Editor",
+    "name": "EasyToolkit.Core.Editor",
     "references": [
-        "EasyToolKit.Core",
-        "EasyToolKit.Serialization"
+        "EasyToolkit.Core",
+        "EasyToolkit.Serialization"
     ],
     "includePlatforms": [
         "Editor"

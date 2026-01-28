@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using EasyToolKit.Core.Reflection;
-using EasyToolKit.Serialization;
+using EasyToolkit.Core.Reflection;
+using EasyToolkit.Serialization;
 using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Editor
+namespace EasyToolkit.Core.Editor
 {
 
     /// <summary>
