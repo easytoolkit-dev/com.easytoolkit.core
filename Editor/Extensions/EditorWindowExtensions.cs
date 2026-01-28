@@ -1,7 +1,7 @@
-using EasyToolKit.Core.Mathematics;
+using EasyToolkit.Core.Mathematics;
 using UnityEditor;
 
-namespace EasyToolKit.Core.Editor
+namespace EasyToolkit.Core.Editor
 {
     public static class EditorWindowExtensions
     {

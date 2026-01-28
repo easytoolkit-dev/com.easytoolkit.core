@@ -1,4 +1,4 @@
-namespace EasyToolKit.Core.Pooling
+namespace EasyToolkit.Core.Pooling
 {
     /// <summary>
     /// Defines a mechanism for updating GameObject pools at regular intervals.

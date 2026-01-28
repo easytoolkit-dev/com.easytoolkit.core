@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using EasyToolKit.Core.Textual;
+using EasyToolkit.Core.Textual;
 using UnityEditor;
 
-namespace EasyToolKit.Core.Editor
+namespace EasyToolkit.Core.Editor
 {
     public static class EditorResourcesUtility
     {

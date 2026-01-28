@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Reflection
+namespace EasyToolkit.Core.Reflection
 {
     /// <summary>
     /// Delegate for setting values to instance members.

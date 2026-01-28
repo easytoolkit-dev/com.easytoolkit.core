@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace EasyToolKit.Core.Patterns.Implementations
+namespace EasyToolkit.Core.Patterns.Implementations
 {
     /// <summary>
     /// Implementation of a dependency injection container.

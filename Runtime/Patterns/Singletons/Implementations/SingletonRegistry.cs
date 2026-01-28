@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EasyToolKit.Core.Patterns.Implementations
+namespace EasyToolkit.Core.Patterns.Implementations
 {
     /// <summary>
     /// Central registry for tracking all singleton instances.

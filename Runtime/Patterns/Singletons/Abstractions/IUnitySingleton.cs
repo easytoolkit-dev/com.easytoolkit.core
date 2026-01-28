@@ -1,4 +1,4 @@
-namespace EasyToolKit.Core.Patterns
+namespace EasyToolkit.Core.Patterns
 {
     /// <summary>
     /// Defines the Unity-specific singleton contract with initialization mode tracking.

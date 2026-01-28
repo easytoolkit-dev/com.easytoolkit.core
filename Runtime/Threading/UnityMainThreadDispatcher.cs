@@ -1,8 +1,8 @@
 using System;
 using System.Threading;
-using EasyToolKit.Core.Patterns;
+using EasyToolkit.Core.Patterns;
 
-namespace EasyToolKit.Core.Threading
+namespace EasyToolkit.Core.Threading
 {
     [MonoSingletonConfiguration(MonoSingletonFlags.DontDestroyOnLoad)]
     public class UnityMainThreadDispatcher : MonoSingleton<UnityMainThreadDispatcher>

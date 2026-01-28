@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Reflection
+namespace EasyToolkit.Core.Reflection
 {
     /// <summary>
     /// Builder interface for creating method invokers that call methods with optional parameters.

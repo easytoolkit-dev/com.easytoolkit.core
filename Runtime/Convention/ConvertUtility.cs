@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace EasyToolKit.Core.Convention
+namespace EasyToolkit.Core.Convention
 {
     /// <summary>
     /// Provides type conversion utilities for converting between strings and various types.

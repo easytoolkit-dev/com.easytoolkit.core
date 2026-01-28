@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EasyToolKit.Core.Reflection
+namespace EasyToolkit.Core.Reflection
 {
     /// <summary>
     /// Extension methods for building strongly-typed member accessors.

@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
-using EasyToolKit.Core.Pooling;
+using EasyToolkit.Core.Pooling;
 
-namespace EasyToolKit.Core.Editor
+namespace EasyToolkit.Core.Editor
 {
     public static class EditorPoolUtility
     {

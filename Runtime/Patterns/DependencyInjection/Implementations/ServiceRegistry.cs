@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace EasyToolKit.Core.Patterns.Implementations
+namespace EasyToolkit.Core.Patterns.Implementations
 {
     /// <summary>
     /// Manages service registrations and resolutions.

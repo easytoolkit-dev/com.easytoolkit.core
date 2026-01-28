@@ -1,8 +1,8 @@
 using System;
-using EasyToolKit.Core.Unity;
+using EasyToolkit.Core.Unity;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Editor
+namespace EasyToolkit.Core.Editor
 {
     public class EditorIcon
     {

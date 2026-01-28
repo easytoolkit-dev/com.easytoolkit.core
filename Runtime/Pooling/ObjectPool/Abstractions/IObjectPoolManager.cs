@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Pooling
+namespace EasyToolkit.Core.Pooling
 {
     /// <summary>
     /// Manages a collection of C# object pools.

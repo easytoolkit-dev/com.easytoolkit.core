@@ -1,7 +1,7 @@
-using EasyToolKit.Core.Threading;
+using EasyToolkit.Core.Threading;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Patterns
+namespace EasyToolkit.Core.Patterns
 {
     /// <summary>
     /// MonoBehaviour singleton base class for Unity components.

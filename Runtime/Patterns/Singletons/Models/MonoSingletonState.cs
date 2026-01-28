@@ -1,4 +1,4 @@
-namespace EasyToolKit.Core.Patterns
+namespace EasyToolkit.Core.Patterns
 {
     /// <summary>
     /// Represents the current state of a MonoBehaviour singleton.

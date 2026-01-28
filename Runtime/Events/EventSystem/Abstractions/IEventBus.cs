@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Events
+namespace EasyToolkit.Core.Events
 {
     /// <summary>
     /// Defines a synchronous event bus for publishing and subscribing to events.

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace EasyToolKit.Core.Mathematics
+namespace EasyToolkit.Core.Mathematics
 {
     /// <summary>
     /// Provides extension methods for Gradient operations.

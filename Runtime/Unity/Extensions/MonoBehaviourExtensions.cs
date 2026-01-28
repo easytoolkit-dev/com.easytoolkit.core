@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Unity
+namespace EasyToolkit.Core.Unity
 {
     public static class MonoBehaviourExtensions
     {

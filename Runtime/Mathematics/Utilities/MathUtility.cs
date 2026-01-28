@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace EasyToolKit.Core.Mathematics
+namespace EasyToolkit.Core.Mathematics
 {
     /// <summary>
     /// Provides extended mathematical utility functions for value mapping and transformation.

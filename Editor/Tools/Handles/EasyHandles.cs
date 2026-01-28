@@ -1,9 +1,9 @@
 using System;
-using EasyToolKit.Core.Mathematics;
+using EasyToolkit.Core.Mathematics;
 using UnityEditor;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Editor
+namespace EasyToolkit.Core.Editor
 {
     public enum TriangleOrientations
     {

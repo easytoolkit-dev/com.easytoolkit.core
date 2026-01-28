@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Pooling
+namespace EasyToolkit.Core.Pooling
 {
     /// <summary>
     /// Configuration for object pools.

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace EasyToolKit.Core.Unity
+namespace EasyToolkit.Core.Unity
 {
     /// <summary>
     /// Provides extension methods for AudioSource to enhance audio playback functionality

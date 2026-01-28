@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using EasyToolKit.Core.Mathematics;
+using EasyToolkit.Core.Mathematics;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Unity
+namespace EasyToolkit.Core.Unity
 {
     [Serializable]
     public class TransformRecorder

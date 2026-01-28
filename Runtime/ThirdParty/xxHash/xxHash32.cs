@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EasyToolKit.Core.ThirdParty.xxHash
+namespace EasyToolkit.Core.ThirdParty.xxHash
 {
     public static partial class xxHash32
     {

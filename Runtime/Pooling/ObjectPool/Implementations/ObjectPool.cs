@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using EasyToolKit.Core.Pooling;
+using EasyToolkit.Core.Pooling;
 using JetBrains.Annotations;
 
-namespace EasyToolKit.Core.Pooling.Implementations
+namespace EasyToolkit.Core.Pooling.Implementations
 {
     /// <summary>
     /// Implementation of a generic object pool for C# objects.

@@ -1,4 +1,4 @@
-namespace EasyToolKit.Core.Pooling
+namespace EasyToolkit.Core.Pooling
 {
     /// <summary>
     /// Interface for pooled objects that need to be notified of rent and release events.

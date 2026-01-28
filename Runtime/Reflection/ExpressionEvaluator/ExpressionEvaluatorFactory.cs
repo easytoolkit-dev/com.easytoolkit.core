@@ -1,8 +1,8 @@
 using System;
-using EasyToolKit.Core.Textual;
+using EasyToolkit.Core.Textual;
 using JetBrains.Annotations;
 
-namespace EasyToolKit.Core.Reflection
+namespace EasyToolkit.Core.Reflection
 {
     /// <summary>
     /// Provides factory methods for creating expression evaluators.

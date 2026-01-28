@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace EasyToolKit.Core.Collections
+namespace EasyToolkit.Core.Collections
 {
     /// <summary>
     /// Provides extension methods for list and collection operations including conversion and resizing.

@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEditor;
 
 //TODO UnityEditorEventUtility待优化
-namespace EasyToolKit.Core.Editor
+namespace EasyToolkit.Core.Editor
 {
     /// <summary>
     /// This class contains utility methods for subscribing to various UnityEditor events reliably and safely across all Odin-supported versions of Unity.

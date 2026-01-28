@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EasyToolKit.Core.Events
+namespace EasyToolkit.Core.Events
 {
     /// <summary>
     /// Default implementation of event registration that manages unsubscription logic.

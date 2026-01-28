@@ -1,4 +1,4 @@
-namespace EasyToolKit.Core.Editor
+namespace EasyToolkit.Core.Editor
 {
     /// <summary>
     /// This class is due to undergo refactoring.

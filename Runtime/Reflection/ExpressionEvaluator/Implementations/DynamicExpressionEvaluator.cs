@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using EasyToolKit.Core.Textual;
+using EasyToolkit.Core.Textual;
 using JetBrains.Annotations;
 
-namespace EasyToolKit.Core.Reflection.Implementations
+namespace EasyToolkit.Core.Reflection.Implementations
 {
     /// <summary>
     /// Evaluates dynamic expression paths using runtime reflection.

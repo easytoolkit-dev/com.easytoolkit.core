@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Patterns
+namespace EasyToolkit.Core.Patterns
 {
     /// <summary>
     /// Extension methods for <see cref="IServiceProvider"/> providing generic typed APIs.

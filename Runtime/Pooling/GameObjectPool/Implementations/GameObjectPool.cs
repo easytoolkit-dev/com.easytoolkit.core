@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using EasyToolKit.Core.Pooling;
+using EasyToolkit.Core.Pooling;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Pooling.Implementations
+namespace EasyToolkit.Core.Pooling.Implementations
 {
     /// <summary>
     /// Implementation of a specialized object pool for Unity GameObject instances.

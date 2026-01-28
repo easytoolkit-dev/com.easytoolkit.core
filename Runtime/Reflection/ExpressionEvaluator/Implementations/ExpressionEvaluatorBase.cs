@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Reflection.Implementations
+namespace EasyToolkit.Core.Reflection.Implementations
 {
     /// <summary>
     /// Provides a base implementation for expression evaluators.

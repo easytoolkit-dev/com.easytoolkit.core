@@ -1,9 +1,9 @@
 using System;
-using EasyToolKit.Core.Textual;
+using EasyToolkit.Core.Textual;
 using UnityEngine.SceneManagement;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Unity
+namespace EasyToolkit.Core.Unity
 {
     public static class GameObjectUtility
     {

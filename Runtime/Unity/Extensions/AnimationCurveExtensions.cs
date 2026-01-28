@@ -1,7 +1,7 @@
-using EasyToolKit.Core.Mathematics;
+using EasyToolkit.Core.Mathematics;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Unity
+namespace EasyToolkit.Core.Unity
 {
     /// <summary>
     /// Provides extension methods for Unity's AnimationCurve class

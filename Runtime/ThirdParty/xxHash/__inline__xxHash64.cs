@@ -6,7 +6,7 @@
 
 using System.Runtime.CompilerServices;
 
-namespace EasyToolKit.Core.ThirdParty.xxHash
+namespace EasyToolkit.Core.ThirdParty.xxHash
 {
     public partial class xxHash64
     {

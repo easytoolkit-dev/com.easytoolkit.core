@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Unity
+namespace EasyToolkit.Core.Unity
 {
     /// <summary>
     /// Provides extension methods for Unity's GameObject to simplify common component operations

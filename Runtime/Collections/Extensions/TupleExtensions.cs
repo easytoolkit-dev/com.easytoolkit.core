@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Collections
+namespace EasyToolkit.Core.Collections
 {
     public static class TupleExtensions
     {

@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
 
-namespace EasyToolKit.Core.Reflection
+namespace EasyToolkit.Core.Reflection
 {
     public static class ReflectionExtensions
     {

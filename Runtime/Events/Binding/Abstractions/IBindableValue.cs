@@ -1,4 +1,4 @@
-namespace EasyToolKit.Core.Events
+namespace EasyToolkit.Core.Events
 {
     /// <summary>
     /// Defines a bindable value that can notify subscribers about value changes and supports value modification.

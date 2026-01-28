@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Collections
+namespace EasyToolkit.Core.Collections
 {
     /// <summary>
     /// Provides extension methods for array operations such as element removal and manipulation.

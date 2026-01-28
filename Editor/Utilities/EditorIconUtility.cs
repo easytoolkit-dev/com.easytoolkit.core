@@ -1,12 +1,12 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace EasyToolKit.Core.Editor
+namespace EasyToolkit.Core.Editor
 {
     public class EditorIconUtility
     {
         private static readonly string iconShader = @"
-Shader ""Hidden/EasyToolKit/Core/Editor/GUIIcon""
+Shader ""Hidden/EasyToolkit/Core/Editor/GUIIcon""
 {
 	Properties
 	{

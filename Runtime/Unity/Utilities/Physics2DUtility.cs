@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using System.Linq;
-using EasyToolKit.Core.Mathematics;
+using EasyToolkit.Core.Mathematics;
 
-namespace EasyToolKit.Core.Unity
+namespace EasyToolkit.Core.Unity
 {
     public class RaycastHit2DEqualityComparer : IEqualityComparer<RaycastHit2D>
     {

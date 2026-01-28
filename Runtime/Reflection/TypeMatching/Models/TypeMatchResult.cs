@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 
-namespace EasyToolKit.Core.Reflection
+namespace EasyToolkit.Core.Reflection
 {
     /// <summary>
     /// Represents the result of a type matching operation.

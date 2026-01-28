@@ -1,6 +1,6 @@
 using System;
 
-namespace EasyToolKit.Core.Patterns
+namespace EasyToolkit.Core.Patterns
 {
     /// <summary>
     /// Defines the lifecycle contract for singleton instances.

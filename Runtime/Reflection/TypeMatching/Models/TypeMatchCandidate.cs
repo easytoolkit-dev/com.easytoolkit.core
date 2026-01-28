@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 
-namespace EasyToolKit.Core.Reflection
+namespace EasyToolkit.Core.Reflection
 {
     [DebuggerDisplay("{SourceType}")]
     public class TypeMatchCandidate
