@@ -8,16 +8,16 @@ namespace EasyToolkit.Core.Patterns
     /// A generic State Machine implementation where states are identified by an Tuple enum.
     /// </summary>
     /// <typeparam name="T">The enum type identifying the state.</typeparam>
-    public class StateMachine<T> where T : Enum
+    public class StateMachine<T> where T : struct, Enum
     {
         private readonly Dictionary<T, IState<T>> _stateByKey = new Dictionary<T, IState<T>>();
 
         /// <summary>
         /// Delegate for handling state changes.
         /// </summary>
-        /// <param name="previousState">The key of the state being exited.</param>
+        /// <param name="previousState">The key of the state being exited. Null when starting the state machine.</param>
         /// <param name="newState">The key of the state being entered.</param>
-        public delegate void StateChangeHandler(T previousState, T newState);
+        public delegate void StateChangeHandler(T? previousState, T newState);
 
         /// <summary>
         /// Event triggered when the state changes.
@@ -32,7 +32,7 @@ namespace EasyToolkit.Core.Patterns
         /// <summary>
         /// Gets the key of the current active state.
         /// </summary>
-        public T CurrentStateKey { get; private set; }
+        public T? CurrentStateKey { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StateMachine{T}"/> class.
@@ -54,6 +54,28 @@ namespace EasyToolkit.Core.Patterns
                 throw new ArgumentException($"State {key} already exists in StateMachine. Cannot add duplicate states.", nameof(key));
             }
             _stateByKey.Add(key, state);
+        }
+
+        /// <summary>
+        /// Creates a new chainable state and adds it to the state machine.
+        /// Use this method for fluent state configuration.
+        /// </summary>
+        /// <param name="key">The enum key for the state.</param>
+        /// <returns>A <see cref="ChainableState{T}"/> instance for method chaining.</returns>
+        /// <exception cref="ArgumentException">Thrown when a state with the same key already exists.</exception>
+        /// <example>
+        /// <code>
+        /// stateMachine.CreateState(GameState.Idle)
+        ///     .OnEnter(() => Debug.Log("Entering Idle"))
+        ///     .OnExit(() => Debug.Log("Exiting Idle"))
+        ///     .OnUpdate(() => Debug.Log("Updating Idle"));
+        /// </code>
+        /// </example>
+        public ChainableState<T> CreateState(T key)
+        {
+            var state = new ChainableState<T>();
+            AddState(key, state);
+            return state;
         }
 
         /// <summary>
@@ -102,7 +124,7 @@ namespace EasyToolkit.Core.Patterns
                 CurrentStateKey = key;
                 CurrentState.OnEnter();
 
-                StateChanged?.Invoke(default, key);
+                StateChanged?.Invoke(null, key);
             }
             else
             {
@@ -130,7 +152,7 @@ namespace EasyToolkit.Core.Patterns
                 CurrentStateKey = key;
                 CurrentState.OnEnter();
 
-                StateChanged?.Invoke(previousKey, CurrentStateKey);
+                StateChanged?.Invoke(previousKey, CurrentStateKey.Value);
             }
             else
             {
