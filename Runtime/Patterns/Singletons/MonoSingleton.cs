@@ -1,3 +1,4 @@
+using System;
 using EasyToolkit.Core.Threading;
 using UnityEngine;
 
@@ -39,6 +40,12 @@ namespace EasyToolkit.Core.Patterns
         {
             get
             {
+                if (!Application.isPlaying)
+                {
+                    throw new InvalidOperationException(
+                        $"Cannot access '{typeof(T).Name}' before application is playing.");
+                }
+
                 ValidateMainThreadAccess();
 
                 if (s_state == MonoSingletonState.Destroyed)
@@ -146,16 +153,13 @@ namespace EasyToolkit.Core.Patterns
         private static void ValidateMainThreadAccess()
         {
 #if UNITY_EDITOR
-            if (!UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
+            if (UnityMainThreadDispatcher.IsInitialized && UnityMainThreadDispatcher.Instance.MainThreadId != null)
             {
-                if (UnityMainThreadDispatcher.Instance.MainThreadId != null)
+                if (System.Threading.Thread.CurrentThread.ManagedThreadId != UnityMainThreadDispatcher.Instance.MainThreadId)
                 {
-                    if (System.Threading.Thread.CurrentThread.ManagedThreadId != UnityMainThreadDispatcher.Instance.MainThreadId)
-                    {
-                        Debug.LogWarning(
-                            $"[MonoSingleton] WrongThread: '{typeof(T).Name}' accessed from background thread. " +
-                            $"MonoSingleton must be accessed from Unity's main thread.");
-                    }
+                    Debug.LogWarning(
+                        $"[MonoSingleton] WrongThread: '{typeof(T).Name}' accessed from background thread. " +
+                        $"MonoSingleton must be accessed from Unity's main thread.");
                 }
             }
 #endif

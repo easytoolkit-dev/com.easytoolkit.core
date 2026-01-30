@@ -35,10 +35,19 @@ namespace EasyToolkit.Core.Patterns
         public T? CurrentStateKey { get; private set; }
 
         /// <summary>
+        /// Gets or sets whether the state machine allows state transitions to non-existent states.
+        /// When enabled, transitioning to a non-existent state will only trigger the StateChanged event
+        /// without calling state lifecycle methods or throwing an exception.
+        /// </summary>
+        public bool AllowMissingStates { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="StateMachine{T}"/> class.
         /// </summary>
-        public StateMachine()
+        /// <param name="allowMissingStates">Whether to allow transitions to non-existent states. Default is false.</param>
+        public StateMachine(bool allowMissingStates = false)
         {
+            AllowMissingStates = allowMissingStates;
         }
 
         /// <summary>
@@ -110,7 +119,7 @@ namespace EasyToolkit.Core.Patterns
         /// </summary>
         /// <param name="key">The enum key of the starting state.</param>
         /// <exception cref="InvalidOperationException">Thrown when the state machine has already been started.</exception>
-        /// <exception cref="KeyNotFoundException">Thrown when the state key does not exist.</exception>
+        /// <exception cref="KeyNotFoundException">Thrown when the state key does not exist and <see cref="AllowMissingStates"/> is false.</exception>
         public void StartState(T key)
         {
             if (CurrentState != null)
@@ -126,6 +135,13 @@ namespace EasyToolkit.Core.Patterns
 
                 StateChanged?.Invoke(null, key);
             }
+            else if (AllowMissingStates)
+            {
+                CurrentState = null;
+                CurrentStateKey = key;
+
+                StateChanged?.Invoke(null, key);
+            }
             else
             {
                 throw new KeyNotFoundException($"State {key} does not exist in StateMachine! Ensure the state is added before starting.");
@@ -136,7 +152,7 @@ namespace EasyToolkit.Core.Patterns
         /// Changes the current state to the state with the specified key.
         /// </summary>
         /// <param name="key">The enum key of the target state.</param>
-        /// <exception cref="KeyNotFoundException">Thrown when the target state key does not exist in the state machine.</exception>
+        /// <exception cref="KeyNotFoundException">Thrown when the target state key does not exist in the state machine and <see cref="AllowMissingStates"/> is false.</exception>
         public void ChangeState(T key)
         {
             if (_stateByKey.TryGetValue(key, out var newState))
@@ -151,6 +167,20 @@ namespace EasyToolkit.Core.Patterns
                 CurrentState = newState;
                 CurrentStateKey = key;
                 CurrentState.OnEnter();
+
+                StateChanged?.Invoke(previousKey, CurrentStateKey.Value);
+            }
+            else if (AllowMissingStates)
+            {
+                var previousKey = CurrentStateKey;
+
+                if (CurrentState != null)
+                {
+                    CurrentState.OnExit();
+                }
+
+                CurrentState = null;
+                CurrentStateKey = key;
 
                 StateChanged?.Invoke(previousKey, CurrentStateKey.Value);
             }
