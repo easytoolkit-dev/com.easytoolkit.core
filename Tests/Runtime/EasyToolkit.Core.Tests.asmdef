@@ -1,0 +1,21 @@
+{
+    "name": "EasyToolkit.Core.Tests",
+    "rootNamespace": "EasyToolkit.Core.Tests",
+    "references": [
+        "EasyToolkit.Core",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
