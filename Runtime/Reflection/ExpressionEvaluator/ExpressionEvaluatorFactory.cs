@@ -68,12 +68,10 @@ namespace EasyToolkit.Core.Reflection
             // Handle null or whitespace expressions
             if (expressionPath.IsNullOrWhiteSpace())
             {
-                if (requireExpressionFlag)
+                if (!requireExpressionFlag)
                 {
                     throw new ArgumentException(
-                        "Expression path cannot be null or whitespace when expression flag is required. " +
-                        "Provide a valid expression path starting with '@' for dynamic evaluation, " +
-                        "or set requireExpressionFlag to false to treat null/whitespace as a literal value.",
+                        "Expression path cannot be null or whitespace when expression flag is not required.",
                         nameof(expressionPath));
                 }
                 return new Implementations.LiteralExpressionEvaluator(expressionPath);
