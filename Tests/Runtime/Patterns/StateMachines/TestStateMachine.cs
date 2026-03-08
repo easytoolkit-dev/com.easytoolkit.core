@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using EasyToolkit.Core.Patterns.Implementations;
 using NUnit.Framework;
 
 namespace EasyToolkit.Core.Patterns.Tests
@@ -104,8 +105,8 @@ namespace EasyToolkit.Core.Patterns.Tests
 
             // Act
             stateMachine.CreateState(TestState.Idle)
-                .OnEnter((owner) => onEnterCalled = true)
-                .OnExit((owner) => onExitCalled = true);
+                .WithEnter((owner) => onEnterCalled = true)
+                .WithExit((owner) => onExitCalled = true);
 
             // Assert
             var state = stateMachine.FindState(TestState.Idle);
@@ -203,7 +204,7 @@ namespace EasyToolkit.Core.Patterns.Tests
             var stateMachine = new StateMachine<TestState>();
             bool onEnterCalled = false;
             IStateMachine<TestState> receivedOwner = null;
-            var state = new ChainableState<TestState>().OnEnter((owner) =>
+            var state = new ChainableState<TestState>().WithEnter((owner) =>
             {
                 onEnterCalled = true;
                 receivedOwner = owner;
@@ -295,12 +296,12 @@ namespace EasyToolkit.Core.Patterns.Tests
             IStateMachine<TestState> onExitOwner = null;
             IStateMachine<TestState> onEnterOwner = null;
 
-            var idleState = new ChainableState<TestState>().OnExit((owner) =>
+            var idleState = new ChainableState<TestState>().WithExit((owner) =>
             {
                 idleOnExitCalled = true;
                 onExitOwner = owner;
             });
-            var runningState = new ChainableState<TestState>().OnEnter((owner) =>
+            var runningState = new ChainableState<TestState>().WithEnter((owner) =>
             {
                 runningOnEnterCalled = true;
                 onEnterOwner = owner;
@@ -407,7 +408,7 @@ namespace EasyToolkit.Core.Patterns.Tests
             var stateMachine = new StateMachine<TestState>();
             bool onUpdateCalled = false;
             IStateMachine<TestState> receivedOwner = null;
-            var state = new ChainableState<TestState>().OnUpdate((owner) =>
+            var state = new ChainableState<TestState>().WithUpdate((owner) =>
             {
                 onUpdateCalled = true;
                 receivedOwner = owner;
@@ -447,8 +448,8 @@ namespace EasyToolkit.Core.Patterns.Tests
             bool idleOnUpdateCalled = false;
             bool runningOnUpdateCalled = false;
 
-            var idleState = new ChainableState<TestState>().OnUpdate((owner) => idleOnUpdateCalled = true);
-            var runningState = new ChainableState<TestState>().OnUpdate((owner) => runningOnUpdateCalled = true);
+            var idleState = new ChainableState<TestState>().WithUpdate((owner) => idleOnUpdateCalled = true);
+            var runningState = new ChainableState<TestState>().WithUpdate((owner) => runningOnUpdateCalled = true);
 
             stateMachine.AddState(TestState.Idle, idleState);
             stateMachine.AddState(TestState.Running, runningState);
@@ -476,7 +477,7 @@ namespace EasyToolkit.Core.Patterns.Tests
             var stateMachine = new StateMachine<TestState>();
             bool onFixedUpdateCalled = false;
             IStateMachine<TestState> receivedOwner = null;
-            var state = new ChainableState<TestState>().OnFixedUpdate((owner) =>
+            var state = new ChainableState<TestState>().WithFixedUpdate((owner) =>
             {
                 onFixedUpdateCalled = true;
                 receivedOwner = owner;
@@ -516,8 +517,8 @@ namespace EasyToolkit.Core.Patterns.Tests
             bool idleOnFixedUpdateCalled = false;
             bool runningOnFixedUpdateCalled = false;
 
-            var idleState = new ChainableState<TestState>().OnFixedUpdate((owner) => idleOnFixedUpdateCalled = true);
-            var runningState = new ChainableState<TestState>().OnFixedUpdate((owner) => runningOnFixedUpdateCalled = true);
+            var idleState = new ChainableState<TestState>().WithFixedUpdate((owner) => idleOnFixedUpdateCalled = true);
+            var runningState = new ChainableState<TestState>().WithFixedUpdate((owner) => runningOnFixedUpdateCalled = true);
 
             stateMachine.AddState(TestState.Idle, idleState);
             stateMachine.AddState(TestState.Running, runningState);
@@ -625,10 +626,10 @@ namespace EasyToolkit.Core.Patterns.Tests
             IStateMachine<TestState> onExitOwner = null;
 
             var state = new ChainableState<TestState>()
-                .OnEnter((owner) => onEnterOwner = owner)
-                .OnUpdate((owner) => onUpdateOwner = owner)
-                .OnFixedUpdate((owner) => onFixedUpdateOwner = owner)
-                .OnExit((owner) => onExitOwner = owner);
+                .WithEnter((owner) => onEnterOwner = owner)
+                .WithUpdate((owner) => onUpdateOwner = owner)
+                .WithFixedUpdate((owner) => onFixedUpdateOwner = owner)
+                .WithExit((owner) => onExitOwner = owner);
 
             stateMachine.AddState(TestState.Idle, state);
             stateMachine.AddState(TestState.Running, new ChainableState<TestState>());
@@ -657,7 +658,7 @@ namespace EasyToolkit.Core.Patterns.Tests
             stateMachine.CreateState(TestState.Running);
 
             bool ownerCanChangeState = false;
-            var idleState = new ChainableState<TestState>().OnUpdate((owner) =>
+            var idleState = new ChainableState<TestState>().WithUpdate((owner) =>
             {
                 // Verify we can use owner to change states
                 if (owner.CurrentStateKey == TestState.Idle)
