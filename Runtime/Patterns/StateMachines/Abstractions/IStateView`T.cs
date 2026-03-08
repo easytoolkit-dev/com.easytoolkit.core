@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace EasyToolkit.Core.Patterns
 {
@@ -20,15 +20,15 @@ namespace EasyToolkit.Core.Patterns
         T? CurrentStateKey { get; }
 
         /// <summary>
+        /// Event triggered when the state changes.
+        /// </summary>
+        event StateChangeHandler<T> StateChanged;
+
+        /// <summary>
         /// Finds a state by its key.
         /// </summary>
         /// <param name="key">The enum key to look for.</param>
         /// <returns>The state instance if found, otherwise null.</returns>
         IState<T> FindState(T key);
-
-        /// <summary>
-        /// Event triggered when the state changes.
-        /// </summary>
-        event StateChangeHandler<T> StateChanged;
     }
 }
