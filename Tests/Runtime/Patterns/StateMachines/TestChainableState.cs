@@ -29,14 +29,21 @@ namespace EasyToolkit.Core.Patterns.Tests
             // Arrange
             var state = new ChainableState<ChainableTestState>();
             bool callbackInvoked = false;
-            state.OnEnter(() => callbackInvoked = true);
+            IStateMachine<ChainableTestState> receivedOwner = null;
+            state.OnEnter((owner) =>
+            {
+                callbackInvoked = true;
+                receivedOwner = owner;
+            });
 
             // Act
+            var mockOwner = new StateMachine<ChainableTestState>();
             var iState = (IState<ChainableTestState>)state;
-            iState.OnEnter();
+            iState.OnEnter(mockOwner);
 
             // Assert
             Assert.IsTrue(callbackInvoked);
+            Assert.AreSame(mockOwner, receivedOwner);
         }
 
         /// <summary>
@@ -49,7 +56,7 @@ namespace EasyToolkit.Core.Patterns.Tests
             var state = new ChainableState<ChainableTestState>();
 
             // Act
-            var result = state.OnEnter(() => { });
+            var result = state.OnEnter((owner) => { });
 
             // Assert
             Assert.AreSame(state, result);
@@ -64,12 +71,12 @@ namespace EasyToolkit.Core.Patterns.Tests
             // Arrange
             var state = new ChainableState<ChainableTestState>();
             int callCount = 0;
-            state.OnEnter(() => callCount += 1);
-            state.OnEnter(() => callCount += 10);
+            state.OnEnter((owner) => callCount += 1);
+            state.OnEnter((owner) => callCount += 10);
 
             // Act
             var iState = (IState<ChainableTestState>)state;
-            iState.OnEnter();
+            iState.OnEnter(null);
 
             // Assert
             Assert.AreEqual(10, callCount);
@@ -87,7 +94,7 @@ namespace EasyToolkit.Core.Patterns.Tests
 
             // Act & Assert
             var iState = (IState<ChainableTestState>)state;
-            Assert.DoesNotThrow(() => iState.OnEnter());
+            Assert.DoesNotThrow(() => iState.OnEnter(null));
         }
 
         #endregion
@@ -103,14 +110,21 @@ namespace EasyToolkit.Core.Patterns.Tests
             // Arrange
             var state = new ChainableState<ChainableTestState>();
             bool callbackInvoked = false;
-            state.OnExit(() => callbackInvoked = true);
+            IStateMachine<ChainableTestState> receivedOwner = null;
+            state.OnExit((owner) =>
+            {
+                callbackInvoked = true;
+                receivedOwner = owner;
+            });
 
             // Act
+            var mockOwner = new StateMachine<ChainableTestState>();
             var iState = (IState<ChainableTestState>)state;
-            iState.OnExit();
+            iState.OnExit(mockOwner);
 
             // Assert
             Assert.IsTrue(callbackInvoked);
+            Assert.AreSame(mockOwner, receivedOwner);
         }
 
         /// <summary>
@@ -123,7 +137,7 @@ namespace EasyToolkit.Core.Patterns.Tests
             var state = new ChainableState<ChainableTestState>();
 
             // Act
-            var result = state.OnExit(() => { });
+            var result = state.OnExit((owner) => { });
 
             // Assert
             Assert.AreSame(state, result);
@@ -138,12 +152,12 @@ namespace EasyToolkit.Core.Patterns.Tests
             // Arrange
             var state = new ChainableState<ChainableTestState>();
             int callCount = 0;
-            state.OnExit(() => callCount += 1);
-            state.OnExit(() => callCount += 10);
+            state.OnExit((owner) => callCount += 1);
+            state.OnExit((owner) => callCount += 10);
 
             // Act
             var iState = (IState<ChainableTestState>)state;
-            iState.OnExit();
+            iState.OnExit(null);
 
             // Assert
             Assert.AreEqual(10, callCount);
@@ -161,7 +175,7 @@ namespace EasyToolkit.Core.Patterns.Tests
 
             // Act & Assert
             var iState = (IState<ChainableTestState>)state;
-            Assert.DoesNotThrow(() => iState.OnExit());
+            Assert.DoesNotThrow(() => iState.OnExit(null));
         }
 
         #endregion
@@ -177,14 +191,21 @@ namespace EasyToolkit.Core.Patterns.Tests
             // Arrange
             var state = new ChainableState<ChainableTestState>();
             bool callbackInvoked = false;
-            state.OnUpdate(() => callbackInvoked = true);
+            IStateMachine<ChainableTestState> receivedOwner = null;
+            state.OnUpdate((owner) =>
+            {
+                callbackInvoked = true;
+                receivedOwner = owner;
+            });
 
             // Act
+            var mockOwner = new StateMachine<ChainableTestState>();
             var iState = (IState<ChainableTestState>)state;
-            iState.OnUpdate();
+            iState.OnUpdate(mockOwner);
 
             // Assert
             Assert.IsTrue(callbackInvoked);
+            Assert.AreSame(mockOwner, receivedOwner);
         }
 
         /// <summary>
@@ -197,7 +218,7 @@ namespace EasyToolkit.Core.Patterns.Tests
             var state = new ChainableState<ChainableTestState>();
 
             // Act
-            var result = state.OnUpdate(() => { });
+            var result = state.OnUpdate((owner) => { });
 
             // Assert
             Assert.AreSame(state, result);
@@ -212,12 +233,12 @@ namespace EasyToolkit.Core.Patterns.Tests
             // Arrange
             var state = new ChainableState<ChainableTestState>();
             int callCount = 0;
-            state.OnUpdate(() => callCount += 1);
-            state.OnUpdate(() => callCount += 10);
+            state.OnUpdate((owner) => callCount += 1);
+            state.OnUpdate((owner) => callCount += 10);
 
             // Act
             var iState = (IState<ChainableTestState>)state;
-            iState.OnUpdate();
+            iState.OnUpdate(null);
 
             // Assert
             Assert.AreEqual(10, callCount);
@@ -235,7 +256,7 @@ namespace EasyToolkit.Core.Patterns.Tests
 
             // Act & Assert
             var iState = (IState<ChainableTestState>)state;
-            Assert.DoesNotThrow(() => iState.OnUpdate());
+            Assert.DoesNotThrow(() => iState.OnUpdate(null));
         }
 
         #endregion
@@ -251,14 +272,21 @@ namespace EasyToolkit.Core.Patterns.Tests
             // Arrange
             var state = new ChainableState<ChainableTestState>();
             bool callbackInvoked = false;
-            state.OnFixedUpdate(() => callbackInvoked = true);
+            IStateMachine<ChainableTestState> receivedOwner = null;
+            state.OnFixedUpdate((owner) =>
+            {
+                callbackInvoked = true;
+                receivedOwner = owner;
+            });
 
             // Act
+            var mockOwner = new StateMachine<ChainableTestState>();
             var iState = (IState<ChainableTestState>)state;
-            iState.OnFixedUpdate();
+            iState.OnFixedUpdate(mockOwner);
 
             // Assert
             Assert.IsTrue(callbackInvoked);
+            Assert.AreSame(mockOwner, receivedOwner);
         }
 
         /// <summary>
@@ -271,7 +299,7 @@ namespace EasyToolkit.Core.Patterns.Tests
             var state = new ChainableState<ChainableTestState>();
 
             // Act
-            var result = state.OnFixedUpdate(() => { });
+            var result = state.OnFixedUpdate((owner) => { });
 
             // Assert
             Assert.AreSame(state, result);
@@ -286,12 +314,12 @@ namespace EasyToolkit.Core.Patterns.Tests
             // Arrange
             var state = new ChainableState<ChainableTestState>();
             int callCount = 0;
-            state.OnFixedUpdate(() => callCount += 1);
-            state.OnFixedUpdate(() => callCount += 10);
+            state.OnFixedUpdate((owner) => callCount += 1);
+            state.OnFixedUpdate((owner) => callCount += 10);
 
             // Act
             var iState = (IState<ChainableTestState>)state;
-            iState.OnFixedUpdate();
+            iState.OnFixedUpdate(null);
 
             // Assert
             Assert.AreEqual(10, callCount);
@@ -309,7 +337,7 @@ namespace EasyToolkit.Core.Patterns.Tests
 
             // Act & Assert
             var iState = (IState<ChainableTestState>)state;
-            Assert.DoesNotThrow(() => iState.OnFixedUpdate());
+            Assert.DoesNotThrow(() => iState.OnFixedUpdate(null));
         }
 
         #endregion
@@ -330,23 +358,23 @@ namespace EasyToolkit.Core.Patterns.Tests
             bool onFixedUpdateCalled = false;
 
             // Act
-            state.OnEnter(() => onEnterCalled = true)
-                .OnExit(() => onExitCalled = true)
-                .OnUpdate(() => onUpdateCalled = true)
-                .OnFixedUpdate(() => onFixedUpdateCalled = true);
+            state.OnEnter((owner) => onEnterCalled = true)
+                .OnExit((owner) => onExitCalled = true)
+                .OnUpdate((owner) => onUpdateCalled = true)
+                .OnFixedUpdate((owner) => onFixedUpdateCalled = true);
 
             // Assert
             var iState = (IState<ChainableTestState>)state;
-            iState.OnEnter();
+            iState.OnEnter(null);
             Assert.IsTrue(onEnterCalled);
 
-            iState.OnUpdate();
+            iState.OnUpdate(null);
             Assert.IsTrue(onUpdateCalled);
 
-            iState.OnFixedUpdate();
+            iState.OnFixedUpdate(null);
             Assert.IsTrue(onFixedUpdateCalled);
 
-            iState.OnExit();
+            iState.OnExit(null);
             Assert.IsTrue(onExitCalled);
         }
 
@@ -360,10 +388,10 @@ namespace EasyToolkit.Core.Patterns.Tests
             var state = new ChainableState<ChainableTestState>();
 
             // Act
-            var result = state.OnEnter(() => { })
-                .OnExit(() => { })
-                .OnUpdate(() => { })
-                .OnFixedUpdate(() => { });
+            var result = state.OnEnter((owner) => { })
+                .OnExit((owner) => { })
+                .OnUpdate((owner) => { })
+                .OnFixedUpdate((owner) => { });
 
             // Assert
             Assert.AreSame(state, result);
@@ -386,10 +414,10 @@ namespace EasyToolkit.Core.Patterns.Tests
             // Act & Assert - Should not throw
             Assert.DoesNotThrow(() =>
             {
-                iState.OnEnter();
-                iState.OnUpdate();
-                iState.OnFixedUpdate();
-                iState.OnExit();
+                iState.OnEnter(null);
+                iState.OnUpdate(null);
+                iState.OnFixedUpdate(null);
+                iState.OnExit(null);
             });
         }
 
@@ -407,17 +435,17 @@ namespace EasyToolkit.Core.Patterns.Tests
             int onFixedUpdateOrder = 0;
             int onExitOrder = 0;
 
-            chainableState.OnEnter(() => onEnterOrder = ++callOrder)
-                .OnUpdate(() => onUpdateOrder = ++callOrder)
-                .OnFixedUpdate(() => onFixedUpdateOrder = ++callOrder)
-                .OnExit(() => onExitOrder = ++callOrder);
+            chainableState.OnEnter((owner) => onEnterOrder = ++callOrder)
+                .OnUpdate((owner) => onUpdateOrder = ++callOrder)
+                .OnFixedUpdate((owner) => onFixedUpdateOrder = ++callOrder)
+                .OnExit((owner) => onExitOrder = ++callOrder);
 
             // Act
             var iState = (IState<ChainableTestState>)chainableState;
-            iState.OnEnter();
-            iState.OnUpdate();
-            iState.OnFixedUpdate();
-            iState.OnExit();
+            iState.OnEnter(null);
+            iState.OnUpdate(null);
+            iState.OnFixedUpdate(null);
+            iState.OnExit(null);
 
             // Assert
             Assert.AreEqual(1, onEnterOrder);
@@ -442,12 +470,12 @@ namespace EasyToolkit.Core.Patterns.Tests
             bool onExitCalled = false;
 
             // Act
-            state.OnEnter(() => onEnterCalled = true);
+            state.OnEnter((owner) => onEnterCalled = true);
             var iState = (IState<ChainableTestState>)state;
-            iState.OnEnter();
+            iState.OnEnter(null);
 
-            state.OnExit(() => onExitCalled = true);
-            iState.OnExit();
+            state.OnExit((owner) => onExitCalled = true);
+            iState.OnExit(null);
 
             // Assert
             Assert.IsTrue(onEnterCalled);
@@ -465,14 +493,14 @@ namespace EasyToolkit.Core.Patterns.Tests
             bool onEnterCalled = false;
             bool onUpdateCalled = false;
 
-            state.OnEnter(() => onEnterCalled = true);
-            state.OnUpdate(() => onUpdateCalled = true);
+            state.OnEnter((owner) => onEnterCalled = true);
+            state.OnUpdate((owner) => onUpdateCalled = true);
 
             // Act
             state.OnEnter(null);
             var iState = (IState<ChainableTestState>)state;
-            iState.OnEnter();
-            iState.OnUpdate();
+            iState.OnEnter(null);
+            iState.OnUpdate(null);
 
             // Assert
             Assert.IsFalse(onEnterCalled);
@@ -492,13 +520,13 @@ namespace EasyToolkit.Core.Patterns.Tests
             // Arrange
             var state = new ChainableState<ChainableTestState>();
             int callCount = 0;
-            state.OnUpdate(() => callCount++);
+            state.OnUpdate((owner) => callCount++);
 
             // Act
             var iState = (IState<ChainableTestState>)state;
-            iState.OnUpdate();
-            iState.OnUpdate();
-            iState.OnUpdate();
+            iState.OnUpdate(null);
+            iState.OnUpdate(null);
+            iState.OnUpdate(null);
 
             // Assert
             Assert.AreEqual(3, callCount);
@@ -516,11 +544,44 @@ namespace EasyToolkit.Core.Patterns.Tests
         {
             // Arrange
             var state = new ChainableState<ChainableTestState>();
-            state.OnEnter(() => throw new InvalidOperationException("Test exception"));
+            state.OnEnter((owner) => throw new InvalidOperationException("Test exception"));
 
             // Act & Assert
             var iState = (IState<ChainableTestState>)state;
-            Assert.Throws<InvalidOperationException>(() => iState.OnEnter());
+            Assert.Throws<InvalidOperationException>(() => iState.OnEnter(null));
+        }
+
+        #endregion
+
+        #region Owner Parameter Tests
+
+        /// <summary>
+        /// Verifies that the owner parameter is correctly passed to callbacks.
+        /// </summary>
+        [Test]
+        public void OwnerParameter_CorrectlyPassed_ToAllCallbacks()
+        {
+            // Arrange
+            var state = new ChainableState<ChainableTestState>();
+            var stateMachine = new StateMachine<ChainableTestState>();
+            IStateMachine<ChainableTestState> onEnterOwner = null;
+            IStateMachine<ChainableTestState> onUpdateOwner = null;
+            IStateMachine<ChainableTestState> onExitOwner = null;
+
+            state.OnEnter((owner) => onEnterOwner = owner)
+                .OnUpdate((owner) => onUpdateOwner = owner)
+                .OnExit((owner) => onExitOwner = owner);
+
+            // Act
+            var iState = (IState<ChainableTestState>)state;
+            iState.OnEnter(stateMachine);
+            iState.OnUpdate(stateMachine);
+            iState.OnExit(stateMachine);
+
+            // Assert
+            Assert.AreSame(stateMachine, onEnterOwner);
+            Assert.AreSame(stateMachine, onUpdateOwner);
+            Assert.AreSame(stateMachine, onExitOwner);
         }
 
         #endregion

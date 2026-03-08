@@ -104,15 +104,15 @@ namespace EasyToolkit.Core.Patterns.Tests
 
             // Act
             stateMachine.CreateState(TestState.Idle)
-                .OnEnter(() => onEnterCalled = true)
-                .OnExit(() => onExitCalled = true);
+                .OnEnter((owner) => onEnterCalled = true)
+                .OnExit((owner) => onExitCalled = true);
 
             // Assert
             var state = stateMachine.FindState(TestState.Idle);
             Assert.IsNotNull(state);
-            state.OnEnter();
+            state.OnEnter(null);
             Assert.IsTrue(onEnterCalled);
-            state.OnExit();
+            state.OnExit(null);
             Assert.IsTrue(onExitCalled);
         }
 
@@ -202,7 +202,12 @@ namespace EasyToolkit.Core.Patterns.Tests
             // Arrange
             var stateMachine = new StateMachine<TestState>();
             bool onEnterCalled = false;
-            var state = new ChainableState<TestState>().OnEnter(() => onEnterCalled = true);
+            IStateMachine<TestState> receivedOwner = null;
+            var state = new ChainableState<TestState>().OnEnter((owner) =>
+            {
+                onEnterCalled = true;
+                receivedOwner = owner;
+            });
             stateMachine.AddState(TestState.Idle, state);
 
             // Act
@@ -212,6 +217,7 @@ namespace EasyToolkit.Core.Patterns.Tests
             Assert.AreSame(state, stateMachine.CurrentState);
             Assert.AreEqual(TestState.Idle, stateMachine.CurrentStateKey);
             Assert.IsTrue(onEnterCalled);
+            Assert.AreSame(stateMachine, receivedOwner);
         }
 
         /// <summary>
@@ -286,9 +292,19 @@ namespace EasyToolkit.Core.Patterns.Tests
             var stateMachine = new StateMachine<TestState>();
             bool idleOnExitCalled = false;
             bool runningOnEnterCalled = false;
+            IStateMachine<TestState> onExitOwner = null;
+            IStateMachine<TestState> onEnterOwner = null;
 
-            var idleState = new ChainableState<TestState>().OnExit(() => idleOnExitCalled = true);
-            var runningState = new ChainableState<TestState>().OnEnter(() => runningOnEnterCalled = true);
+            var idleState = new ChainableState<TestState>().OnExit((owner) =>
+            {
+                idleOnExitCalled = true;
+                onExitOwner = owner;
+            });
+            var runningState = new ChainableState<TestState>().OnEnter((owner) =>
+            {
+                runningOnEnterCalled = true;
+                onEnterOwner = owner;
+            });
 
             stateMachine.AddState(TestState.Idle, idleState);
             stateMachine.AddState(TestState.Running, runningState);
@@ -302,6 +318,8 @@ namespace EasyToolkit.Core.Patterns.Tests
             Assert.AreEqual(TestState.Running, stateMachine.CurrentStateKey);
             Assert.IsTrue(idleOnExitCalled);
             Assert.IsTrue(runningOnEnterCalled);
+            Assert.AreSame(stateMachine, onExitOwner);
+            Assert.AreSame(stateMachine, onEnterOwner);
         }
 
         /// <summary>
@@ -388,7 +406,12 @@ namespace EasyToolkit.Core.Patterns.Tests
             // Arrange
             var stateMachine = new StateMachine<TestState>();
             bool onUpdateCalled = false;
-            var state = new ChainableState<TestState>().OnUpdate(() => onUpdateCalled = true);
+            IStateMachine<TestState> receivedOwner = null;
+            var state = new ChainableState<TestState>().OnUpdate((owner) =>
+            {
+                onUpdateCalled = true;
+                receivedOwner = owner;
+            });
             stateMachine.AddState(TestState.Idle, state);
             stateMachine.StartState(TestState.Idle);
 
@@ -397,6 +420,7 @@ namespace EasyToolkit.Core.Patterns.Tests
 
             // Assert
             Assert.IsTrue(onUpdateCalled);
+            Assert.AreSame(stateMachine, receivedOwner);
         }
 
         /// <summary>
@@ -423,8 +447,8 @@ namespace EasyToolkit.Core.Patterns.Tests
             bool idleOnUpdateCalled = false;
             bool runningOnUpdateCalled = false;
 
-            var idleState = new ChainableState<TestState>().OnUpdate(() => idleOnUpdateCalled = true);
-            var runningState = new ChainableState<TestState>().OnUpdate(() => runningOnUpdateCalled = true);
+            var idleState = new ChainableState<TestState>().OnUpdate((owner) => idleOnUpdateCalled = true);
+            var runningState = new ChainableState<TestState>().OnUpdate((owner) => runningOnUpdateCalled = true);
 
             stateMachine.AddState(TestState.Idle, idleState);
             stateMachine.AddState(TestState.Running, runningState);
@@ -451,7 +475,12 @@ namespace EasyToolkit.Core.Patterns.Tests
             // Arrange
             var stateMachine = new StateMachine<TestState>();
             bool onFixedUpdateCalled = false;
-            var state = new ChainableState<TestState>().OnFixedUpdate(() => onFixedUpdateCalled = true);
+            IStateMachine<TestState> receivedOwner = null;
+            var state = new ChainableState<TestState>().OnFixedUpdate((owner) =>
+            {
+                onFixedUpdateCalled = true;
+                receivedOwner = owner;
+            });
             stateMachine.AddState(TestState.Idle, state);
             stateMachine.StartState(TestState.Idle);
 
@@ -460,6 +489,7 @@ namespace EasyToolkit.Core.Patterns.Tests
 
             // Assert
             Assert.IsTrue(onFixedUpdateCalled);
+            Assert.AreSame(stateMachine, receivedOwner);
         }
 
         /// <summary>
@@ -486,8 +516,8 @@ namespace EasyToolkit.Core.Patterns.Tests
             bool idleOnFixedUpdateCalled = false;
             bool runningOnFixedUpdateCalled = false;
 
-            var idleState = new ChainableState<TestState>().OnFixedUpdate(() => idleOnFixedUpdateCalled = true);
-            var runningState = new ChainableState<TestState>().OnFixedUpdate(() => runningOnFixedUpdateCalled = true);
+            var idleState = new ChainableState<TestState>().OnFixedUpdate((owner) => idleOnFixedUpdateCalled = true);
+            var runningState = new ChainableState<TestState>().OnFixedUpdate((owner) => runningOnFixedUpdateCalled = true);
 
             stateMachine.AddState(TestState.Idle, idleState);
             stateMachine.AddState(TestState.Running, runningState);
@@ -521,12 +551,19 @@ namespace EasyToolkit.Core.Patterns.Tests
 
             // Assert
             Assert.AreEqual(1, customState.OnEnterCallCount);
+            Assert.AreSame(stateMachine, customState.LastOnEnterOwner);
+
             stateMachine.Update();
             Assert.AreEqual(1, customState.OnUpdateCallCount);
+            Assert.AreSame(stateMachine, customState.LastOnUpdateOwner);
+
             stateMachine.FixedUpdate();
             Assert.AreEqual(1, customState.OnFixedUpdateCallCount);
+            Assert.AreSame(stateMachine, customState.LastOnFixedUpdateOwner);
+
             stateMachine.ChangeState(TestState.Idle);
             Assert.AreEqual(1, customState.OnExitCallCount);
+            Assert.AreSame(stateMachine, customState.LastOnExitOwner);
             Assert.AreEqual(2, customState.OnEnterCallCount);
         }
 
@@ -540,10 +577,105 @@ namespace EasyToolkit.Core.Patterns.Tests
             public int OnUpdateCallCount { get; private set; }
             public int OnFixedUpdateCallCount { get; private set; }
 
-            public void OnEnter() => OnEnterCallCount++;
-            public void OnExit() => OnExitCallCount++;
-            public void OnUpdate() => OnUpdateCallCount++;
-            public void OnFixedUpdate() => OnFixedUpdateCallCount++;
+            public IStateMachine<TestState> LastOnEnterOwner { get; private set; }
+            public IStateMachine<TestState> LastOnExitOwner { get; private set; }
+            public IStateMachine<TestState> LastOnUpdateOwner { get; private set; }
+            public IStateMachine<TestState> LastOnFixedUpdateOwner { get; private set; }
+
+            public void OnEnter(IStateMachine<TestState> owner)
+            {
+                OnEnterCallCount++;
+                LastOnEnterOwner = owner;
+            }
+
+            public void OnExit(IStateMachine<TestState> owner)
+            {
+                OnExitCallCount++;
+                LastOnExitOwner = owner;
+            }
+
+            public void OnUpdate(IStateMachine<TestState> owner)
+            {
+                OnUpdateCallCount++;
+                LastOnUpdateOwner = owner;
+            }
+
+            public void OnFixedUpdate(IStateMachine<TestState> owner)
+            {
+                OnFixedUpdateCallCount++;
+                LastOnFixedUpdateOwner = owner;
+            }
+        }
+
+        #endregion
+
+        #region Owner Parameter Tests
+
+        /// <summary>
+        /// Verifies that the state machine correctly passes itself as owner to state methods.
+        /// </summary>
+        [Test]
+        public void StateMachine_PassesItself_AsOwnerToStates()
+        {
+            // Arrange
+            var stateMachine = new StateMachine<TestState>();
+            IStateMachine<TestState> onEnterOwner = null;
+            IStateMachine<TestState> onUpdateOwner = null;
+            IStateMachine<TestState> onFixedUpdateOwner = null;
+            IStateMachine<TestState> onExitOwner = null;
+
+            var state = new ChainableState<TestState>()
+                .OnEnter((owner) => onEnterOwner = owner)
+                .OnUpdate((owner) => onUpdateOwner = owner)
+                .OnFixedUpdate((owner) => onFixedUpdateOwner = owner)
+                .OnExit((owner) => onExitOwner = owner);
+
+            stateMachine.AddState(TestState.Idle, state);
+            stateMachine.AddState(TestState.Running, new ChainableState<TestState>());
+
+            // Act
+            stateMachine.StartState(TestState.Idle);
+            stateMachine.Update();
+            stateMachine.FixedUpdate();
+            stateMachine.ChangeState(TestState.Running);
+
+            // Assert
+            Assert.AreSame(stateMachine, onEnterOwner);
+            Assert.AreSame(stateMachine, onUpdateOwner);
+            Assert.AreSame(stateMachine, onFixedUpdateOwner);
+            Assert.AreSame(stateMachine, onExitOwner);
+        }
+
+        /// <summary>
+        /// Verifies that states can use the owner parameter to change states.
+        /// </summary>
+        [Test]
+        public void State_CanChangeState_UsingOwnerParameter()
+        {
+            // Arrange
+            var stateMachine = new StateMachine<TestState>();
+            stateMachine.CreateState(TestState.Running);
+
+            bool ownerCanChangeState = false;
+            var idleState = new ChainableState<TestState>().OnUpdate((owner) =>
+            {
+                // Verify we can use owner to change states
+                if (owner.CurrentStateKey == TestState.Idle)
+                {
+                    ownerCanChangeState = true;
+                    owner.ChangeState(TestState.Running);
+                }
+            });
+
+            stateMachine.AddState(TestState.Idle, idleState);
+            stateMachine.StartState(TestState.Idle);
+
+            // Act
+            stateMachine.Update();
+
+            // Assert
+            Assert.IsTrue(ownerCanChangeState);
+            Assert.AreEqual(TestState.Running, stateMachine.CurrentStateKey);
         }
 
         #endregion
