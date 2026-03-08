@@ -6,26 +6,30 @@ namespace EasyToolkit.Core.Patterns
     /// Interface for a state in the State Machine.
     /// </summary>
     /// <typeparam name="T">The enum type identifying the state.</typeparam>
-    public interface IState<T> where T : Enum
+    public interface IState<T> where T : struct, Enum
     {
         /// <summary>
         /// Called when the state is entered.
         /// </summary>
-        void OnEnter();
+        /// <param name="owner">The state machine that owns this state.</param>
+        void OnEnter(IStateMachine<T> owner);
 
         /// <summary>
         /// Called when the state is exited.
         /// </summary>
-        void OnExit();
+        /// <param name="owner">The state machine that owns this state.</param>
+        void OnExit(IStateMachine<T> owner);
 
         /// <summary>
         /// Called every frame while the state is active.
         /// </summary>
-        void OnUpdate();
+        /// <param name="owner">The state machine that owns this state.</param>
+        void OnUpdate(IStateMachine<T> owner);
 
         /// <summary>
         /// Called every fixed framerate frame while the state is active.
         /// </summary>
-        void OnFixedUpdate();
+        /// <param name="owner">The state machine that owns this state.</param>
+        void OnFixedUpdate(IStateMachine<T> owner);
     }
 }

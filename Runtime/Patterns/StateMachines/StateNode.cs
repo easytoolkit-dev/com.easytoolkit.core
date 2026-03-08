@@ -7,18 +7,18 @@ namespace EasyToolkit.Core.Patterns
     /// Provides empty virtual implementations for IState methods.
     /// </summary>
     /// <typeparam name="T">The enum type identifying the state.</typeparam>
-    public abstract class StateNode<T> : IState<T> where T : Enum
+    public abstract class StateNode<T> : IState<T> where T : struct, Enum
     {
         /// <inheritdoc />
-        public virtual void OnEnter() { }
+        public virtual void OnEnter(IStateMachine<T> owner) { }
 
         /// <inheritdoc />
-        public virtual void OnExit() { }
+        public virtual void OnExit(IStateMachine<T> owner) { }
 
         /// <inheritdoc />
-        public virtual void OnUpdate() { }
+        public virtual void OnUpdate(IStateMachine<T> owner) { }
 
         /// <inheritdoc />
-        public virtual void OnFixedUpdate() { }
+        public virtual void OnFixedUpdate(IStateMachine<T> owner) { }
     }
 }
