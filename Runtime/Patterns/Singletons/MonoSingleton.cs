@@ -51,7 +51,7 @@ namespace EasyToolkit.Core.Patterns
                 if (s_state == MonoSingletonState.Destroyed)
                 {
                     throw new SingletonDestroyedException(
-                        $"[MonoSingleton] InstanceDestroyed: Cannot access '{typeof(T).Name}' after destruction. " +
+                        $"Cannot access '{typeof(T).Name}' after destruction. " +
                         $"Access occurred after Unity OnDestroy. Check 'IsInitialized' before accessing.",
                         typeof(T));
                 }
