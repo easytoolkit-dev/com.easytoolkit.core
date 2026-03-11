@@ -10,16 +10,16 @@ namespace EasyToolkit.Core.Pooling
     /// on the GameObject will be notified.</para>
     /// <para>This interface is optional; implement it only when you need to listen to pool events.</para>
     /// </remarks>
-    public interface IPoolItem
+    public interface IPoolObject
     {
         /// <summary>
         /// Called when the object is rented from the pool.
         /// </summary>
-        void Rent();
+        void OnRent();
 
         /// <summary>
         /// Called when the object is released back to the pool.
         /// </summary>
-        void Release();
+        void OnRelease();
     }
 }

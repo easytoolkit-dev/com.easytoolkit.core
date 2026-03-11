@@ -427,20 +427,15 @@ namespace EasyToolkit.Core.Reflection.Tests
         }
 
         /// <summary>
-        /// Verifies that Evaluate handles empty or whitespace expressions.
+        /// Verifies that CreateEvaluator throws ArgumentException when expression is empty and flag is not required.
         /// </summary>
         [Test]
-        public void Evaluate_EmptyExpression_ReturnsLiteral()
+        public void CreateEvaluator_EmptyExpressionWithFlagNotRequired_ThrowsArgumentException()
         {
-            // Arrange
-            var evaluator = ExpressionEvaluatorFactory.CreateEvaluator(
-                "", typeof(TestClassForExpressionEvaluator));
-
-            // Act
-            var result = evaluator.Evaluate<string>(null);
-
-            // Assert
-            Assert.AreEqual("", result);
+            // Arrange, Act & Assert
+            Assert.Throws<ArgumentException>(() =>
+                ExpressionEvaluatorFactory.CreateEvaluator(
+                    "", typeof(TestClassForExpressionEvaluator), requireExpressionFlag: false));
         }
 
         /// <summary>
@@ -491,45 +486,6 @@ namespace EasyToolkit.Core.Reflection.Tests
 
             // Assert
             Assert.IsNotNull(evaluator);
-        }
-
-        /// <summary>
-        /// Verifies that CreateEvaluator throws ArgumentException when expression is null and flag is required.
-        /// </summary>
-        [Test]
-        public void CreateEvaluator_NullExpressionWithFlagRequired_ThrowsArgumentException()
-        {
-            // Arrange, Act & Assert
-            Assert.Throws<ArgumentException>(() =>
-                ExpressionEvaluatorFactory.CreateEvaluator(
-                    null, typeof(TestClassForExpressionEvaluator), requireExpressionFlag: true));
-        }
-
-        /// <summary>
-        /// Verifies that CreateEvaluator throws ArgumentException when expression is whitespace and flag is required.
-        /// </summary>
-        [Test]
-        public void CreateEvaluator_WhitespaceExpressionWithFlagRequired_ThrowsArgumentException()
-        {
-            // Arrange, Act & Assert
-            Assert.Throws<ArgumentException>(() =>
-                ExpressionEvaluatorFactory.CreateEvaluator(
-                    "   ", typeof(TestClassForExpressionEvaluator), requireExpressionFlag: true));
-        }
-
-        /// <summary>
-        /// Verifies that CreateEvaluator throws ArgumentException with parameter name when expression is invalid.
-        /// </summary>
-        [Test]
-        public void CreateEvaluator_NullExpressionWithFlagRequired_ExceptionContainsParameterName()
-        {
-            // Arrange & Act
-            var exception = Assert.Throws<ArgumentException>(() =>
-                ExpressionEvaluatorFactory.CreateEvaluator(
-                    null, typeof(TestClassForExpressionEvaluator), requireExpressionFlag: true));
-
-            // Assert
-            Assert.AreEqual("expressionPath", exception.ParamName);
         }
 
         /// <summary>

@@ -106,7 +106,7 @@ namespace EasyToolkit.Core.Pooling.Implementations
             {
                 foreach (var item in pooledInfo.PoolItems)
                 {
-                    item.Rent();
+                    item.OnRent();
                 }
             }
 
@@ -133,7 +133,7 @@ namespace EasyToolkit.Core.Pooling.Implementations
             {
                 foreach (var item in pooledInfo.PoolItems)
                 {
-                    item.Release();
+                    item.OnRelease();
                 }
             }
 

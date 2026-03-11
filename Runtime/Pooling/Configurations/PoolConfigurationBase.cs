@@ -21,7 +21,7 @@ namespace EasyToolkit.Core.Pooling
         public int MaxCapacity { get; set; } = -1;
 
         /// <summary>
-        /// Gets or sets whether to call <see cref="IPoolItem"/> callbacks on pooled objects.
+        /// Gets or sets whether to call <see cref="IPoolObject"/> callbacks on pooled objects.
         /// </summary>
         public bool CallPoolItemCallbacks { get; set; } = true;
 

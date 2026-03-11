@@ -23,7 +23,7 @@ namespace EasyToolkit.Core.Events
     /// Provides data for the <see cref="IReadonlyBindableValue{T}.ValueChanged"/> event.
     /// </summary>
     /// <typeparam name="T">The type of the bindable value.</typeparam>
-    public sealed class BindableValueChangedEventArgs<T> : EventArgs, IPoolItem, IDisposable
+    public sealed class BindableValueChangedEventArgs<T> : EventArgs, IPoolObject, IDisposable
     {
         /// <summary>
         /// Gets the previous value.
@@ -71,11 +71,11 @@ namespace EasyToolkit.Core.Events
             PoolUtility.ReleaseObject(this);
         }
 
-        void IPoolItem.Rent()
+        void IPoolObject.OnRent()
         {
         }
 
-        void IPoolItem.Release()
+        void IPoolObject.OnRelease()
         {
             OldValue = default;
             NewValue = default;

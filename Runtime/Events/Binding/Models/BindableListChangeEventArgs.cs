@@ -49,7 +49,7 @@ namespace EasyToolkit.Core.Events
     /// Provides data for the <see cref="IReadOnlyBindableList{T}.ItemChanged"/> event.
     /// </summary>
     /// <typeparam name="T">The type of elements in the list.</typeparam>
-    public sealed class BindableListChangeEventArgs<T> : EventArgs, IPoolItem, IDisposable
+    public sealed class BindableListChangeEventArgs<T> : EventArgs, IPoolObject, IDisposable
     {
         /// <summary>
         /// Gets the type of change operation.
@@ -151,11 +151,11 @@ namespace EasyToolkit.Core.Events
             PoolUtility.ReleaseObject(this);
         }
 
-        void IPoolItem.Rent()
+        void IPoolObject.OnRent()
         {
         }
 
-        void IPoolItem.Release()
+        void IPoolObject.OnRelease()
         {
             ChangeType = default;
             Timing = default;

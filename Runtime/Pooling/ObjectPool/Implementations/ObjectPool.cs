@@ -140,9 +140,9 @@ namespace EasyToolkit.Core.Pooling.Implementations
         /// <inheritdoc />
         protected override void OnRent(T instance)
         {
-            if (_callPoolItemCallbacks && instance is IPoolItem poolItem)
+            if (_callPoolItemCallbacks && instance is IPoolObject poolObject)
             {
-                poolItem.Rent();
+                poolObject.OnRent();
             }
 
             _onRent?.Invoke(instance);
@@ -151,9 +151,9 @@ namespace EasyToolkit.Core.Pooling.Implementations
         /// <inheritdoc />
         protected override void OnRelease(T instance)
         {
-            if (_callPoolItemCallbacks && instance is IPoolItem poolItem)
+            if (_callPoolItemCallbacks && instance is IPoolObject poolObject)
             {
-                poolItem.Release();
+                poolObject.OnRelease();
             }
 
             _onRelease?.Invoke(instance);
