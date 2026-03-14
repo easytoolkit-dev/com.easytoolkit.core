@@ -243,7 +243,8 @@ namespace EasyToolkit.Core.Reflection.Tests
 
             // Act
             var setter = builder.BuildInstanceSetter(typeof(TestClassForAccessor));
-            setter(testInstance, 999);
+            var obj = (object)testInstance;
+            setter(ref obj, 999);
 
             // Assert
             Assert.AreEqual(999, testInstance.InstanceField);
@@ -261,7 +262,8 @@ namespace EasyToolkit.Core.Reflection.Tests
 
             // Act
             var setter = builder.BuildInstanceSetter(typeof(TestClassForAccessor));
-            setter(testInstance, "NewValue");
+            var obj = (object)testInstance;
+            setter(ref obj, "NewValue");
 
             // Assert
             Assert.AreEqual("NewValue", testInstance.InstanceProperty);
@@ -279,7 +281,8 @@ namespace EasyToolkit.Core.Reflection.Tests
 
             // Act
             var setter = builder.BuildInstanceSetter(typeof(TestClassForAccessor));
-            setter(testInstance, 5.55);
+            var obj = (object)testInstance;
+            setter(ref obj, 5.55);
 
             // Assert
             Assert.AreEqual(5.55, testInstance.Nested.NestedField);
@@ -297,7 +300,8 @@ namespace EasyToolkit.Core.Reflection.Tests
 
             // Act
             var setter = builder.BuildInstanceSetter(typeof(TestClassForAccessor));
-            setter(testInstance, "UpdatedNested");
+            var obj = (object)testInstance;
+            setter(ref obj, "UpdatedNested");
 
             // Assert
             Assert.AreEqual("UpdatedNested", testInstance.Nested.NestedProperty);

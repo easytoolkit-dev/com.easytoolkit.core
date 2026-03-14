@@ -274,7 +274,8 @@ namespace EasyToolkit.Core.Reflection.Tests
 
             // Act
             var invoker = builder.BuildInstanceFunc(typeof(TestInvokerClass));
-            var result = invoker(testInstance);
+            var obj = (object)testInstance;
+            var result = invoker(ref obj);
 
             // Assert
             Assert.AreEqual("InstanceResult", result);
@@ -310,7 +311,8 @@ namespace EasyToolkit.Core.Reflection.Tests
 
             // Act
             var invoker = builder.BuildInstanceFunc(typeof(TestInvokerClass), typeof(string), typeof(string));
-            var result = invoker(testInstance, "Hello", "World");
+            var obj = (object)testInstance;
+            var result = invoker(ref obj, "Hello", "World");
 
             // Assert
             Assert.AreEqual("Hello-World", result);
@@ -328,7 +330,8 @@ namespace EasyToolkit.Core.Reflection.Tests
 
             // Act
             var invoker = builder.BuildInstanceFunc(typeof(TestInvokerClass));
-            var result = invoker(testInstance);
+            var obj = (object)testInstance;
+            var result = invoker(ref obj);
 
             // Assert
             Assert.AreEqual(200, result);
@@ -346,7 +349,8 @@ namespace EasyToolkit.Core.Reflection.Tests
 
             // Act
             var invoker = builder.BuildInstanceFunc(typeof(TestInvokerClass), typeof(int));
-            var result = invoker(testInstance, 10);
+            var obj = (object)testInstance;
+            var result = invoker(ref obj, 10);
 
             // Assert
             Assert.AreEqual(30, result); // 10 * 3
@@ -364,7 +368,8 @@ namespace EasyToolkit.Core.Reflection.Tests
 
             // Act
             var invoker = builder.BuildInstanceFunc(typeof(TestInvokerClass), typeof(int), typeof(int));
-            var result = invoker(testInstance, 100, 40);
+            var obj = (object)testInstance;
+            var result = invoker(ref obj, 100, 40);
 
             // Assert
             Assert.AreEqual(60, result); // 100 - 40
@@ -431,7 +436,8 @@ namespace EasyToolkit.Core.Reflection.Tests
 
             // Act
             var invoker = builder.BuildInstanceFunc(typeof(TestInvokerClass));
-            var result = invoker(testInstance);
+            var obj = (object)testInstance;
+            var result = invoker(ref obj);
 
             // Assert
             Assert.AreEqual(3.14159, result);
@@ -452,7 +458,8 @@ namespace EasyToolkit.Core.Reflection.Tests
 
             // Act
             var invoker = builder.BuildInstanceFunc(typeof(TestInvokerClass), typeof(double), typeof(double));
-            var result = invoker(testInstance, 4.0, 3.0);
+            var obj = (object)testInstance;
+            var result = invoker(ref obj, 4.0, 3.0);
 
             // Assert
             Assert.AreEqual(12.0, result); // 4.0 * 3.0

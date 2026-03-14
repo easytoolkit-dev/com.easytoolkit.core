@@ -25,7 +25,7 @@ namespace EasyToolkit.Core.Reflection
             return delegate(ref TInstance instance, TValue value)
             {
                 object obj = instance;
-                untypedSetter(obj, value);
+                untypedSetter(ref obj, value);
                 instance = (TInstance)obj;
             };
         }

@@ -60,7 +60,7 @@ namespace EasyToolkit.Core.Reflection
 
             InstanceSetter setter = CreateInstanceSetter(lastStep);
 
-            return (target, value) =>
+            return delegate(ref object target, object value)
             {
                 object current = target;
 
@@ -71,7 +71,7 @@ namespace EasyToolkit.Core.Reflection
                 }
 
                 // Set the value on the last step
-                setter.Invoke(current, value);
+                setter.Invoke(ref current, value);
             };
         }
 
@@ -101,7 +101,7 @@ namespace EasyToolkit.Core.Reflection
                     }
 
                     // Set the value on the last step using the instance setter
-                    instanceSetter.Invoke(current, value);
+                    instanceSetter.Invoke(ref current, value);
                 };
             }
             else
