@@ -101,16 +101,46 @@ namespace EasyToolkit.Core.Reflection
             }
 
 #if ENABLE_COMPILER
-            var instanceParameter = Expression.Parameter(typeof(object), "instance");
+            var instanceParameter = Expression.Parameter(typeof(object).MakeByRefType(), "instance");
             var argsParameter = Expression.Parameter(typeof(object[]), "args");
-            var convertedInstance = Expression.Convert(instanceParameter, methodInfo.DeclaringType);
-            var parameterExpressions = BuildParameterExpressions(methodInfo, argsParameter);
-            var callExpression = Expression.Call(convertedInstance, methodInfo, parameterExpressions);
 
-            var lambda = Expression.Lambda<InstanceVoidInvoker>(callExpression, instanceParameter, argsParameter);
-            return lambda.Compile();
+            // For value types (structs), we need to unbox, call method, and rebox
+            if (methodInfo.DeclaringType.IsValueType)
+            {
+                // Create a local variable to hold the unboxed struct
+                var structVar = Expression.Variable(methodInfo.DeclaringType, "struct");
+
+                // Unbox the instance to the struct type
+                var unboxExpr = Expression.Unbox(instanceParameter, methodInfo.DeclaringType);
+
+                var parameterExpressions = BuildParameterExpressions(methodInfo, argsParameter);
+                var callExpression = Expression.Call(structVar, methodInfo, parameterExpressions);
+
+                // Build the body:
+                // 1. Unbox the instance to struct
+                // 2. Call the method on the struct
+                // 3. Box the modified struct back to the instance
+                var body = Expression.Block(
+                    new[] { structVar },
+                    Expression.Assign(structVar, unboxExpr),
+                    callExpression,
+                    Expression.Assign(instanceParameter, Expression.Convert(structVar, typeof(object)))
+                );
+
+                var lambda = Expression.Lambda<InstanceVoidInvoker>(body, instanceParameter, argsParameter);
+                return lambda.Compile();
+            }
+            else
+            {
+                var convertedInstance = Expression.Convert(instanceParameter, methodInfo.DeclaringType);
+                var parameterExpressions = BuildParameterExpressions(methodInfo, argsParameter);
+                var callExpression = Expression.Call(convertedInstance, methodInfo, parameterExpressions);
+
+                var lambda = Expression.Lambda<InstanceVoidInvoker>(callExpression, instanceParameter, argsParameter);
+                return lambda.Compile();
+            }
 #else
-            return (instance, args) => methodInfo.Invoke(instance, args);
+            return (ref object instance, object[] args) => methodInfo.Invoke(instance, args);
 #endif
         }
 
@@ -134,17 +164,51 @@ namespace EasyToolkit.Core.Reflection
             }
 
 #if ENABLE_COMPILER
-            var instanceParameter = Expression.Parameter(typeof(object), "instance");
+            var instanceParameter = Expression.Parameter(typeof(object).MakeByRefType(), "instance");
             var argsParameter = Expression.Parameter(typeof(object[]), "args");
-            var convertedInstance = Expression.Convert(instanceParameter, methodInfo.DeclaringType);
-            var parameterExpressions = BuildParameterExpressions(methodInfo, argsParameter);
-            var callExpression = Expression.Call(convertedInstance, methodInfo, parameterExpressions);
-            var bodyExpression = CreateReturnExpression(callExpression, methodInfo.ReturnType);
 
-            var lambda = Expression.Lambda<InstanceInvoker>(bodyExpression, instanceParameter, argsParameter);
-            return lambda.Compile();
+            // For value types (structs), we need to unbox, call method, and rebox
+            if (methodInfo.DeclaringType.IsValueType)
+            {
+                // Create a local variable to hold the unboxed struct
+                var structVar = Expression.Variable(methodInfo.DeclaringType, "struct");
+                var resultVar = Expression.Variable(typeof(object), "result");
+
+                // Unbox the instance to the struct type
+                var unboxExpr = Expression.Unbox(instanceParameter, methodInfo.DeclaringType);
+
+                var parameterExpressions = BuildParameterExpressions(methodInfo, argsParameter);
+                var callExpression = Expression.Call(structVar, methodInfo, parameterExpressions);
+                var returnExpression = CreateReturnExpression(callExpression, methodInfo.ReturnType);
+
+                // Build the body:
+                // 1. Unbox the instance to struct
+                // 2. Call the method and store the result
+                // 3. Box the modified struct back to the instance
+                // 4. Return the method result
+                var body = Expression.Block(
+                    new[] { structVar, resultVar },
+                    Expression.Assign(structVar, unboxExpr),
+                    Expression.Assign(resultVar, returnExpression),
+                    Expression.Assign(instanceParameter, Expression.Convert(structVar, typeof(object))),
+                    resultVar
+                );
+
+                var lambda = Expression.Lambda<InstanceInvoker>(body, instanceParameter, argsParameter);
+                return lambda.Compile();
+            }
+            else
+            {
+                var convertedInstance = Expression.Convert(instanceParameter, methodInfo.DeclaringType);
+                var parameterExpressions = BuildParameterExpressions(methodInfo, argsParameter);
+                var callExpression = Expression.Call(convertedInstance, methodInfo, parameterExpressions);
+                var bodyExpression = CreateReturnExpression(callExpression, methodInfo.ReturnType);
+
+                var lambda = Expression.Lambda<InstanceInvoker>(bodyExpression, instanceParameter, argsParameter);
+                return lambda.Compile();
+            }
 #else
-            return methodInfo.Invoke;
+            return (ref object instance, object[] args) => methodInfo.Invoke(instance, args);
 #endif
         }
 

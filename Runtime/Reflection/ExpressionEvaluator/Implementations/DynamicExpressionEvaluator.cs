@@ -334,7 +334,7 @@ namespace EasyToolkit.Core.Reflection.Implementations
             try
             {
                 var invoker = ReflectionPathFactory.BuildInvoker(methodName).BuildInstanceFunc(sourceType, parameterTypes);
-                return o => invoker(o, arguments);
+                return o => invoker(ref o, arguments);
             }
             catch (ArgumentException e)
             {

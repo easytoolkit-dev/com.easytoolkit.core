@@ -174,7 +174,7 @@ namespace EasyToolkit.Core.Reflection
                         else
                         {
                             var getter = ReflectionCompiler.CreateInstanceMethodInvoker(method);
-                            stepGetter = instance => getter(instance);
+                            stepGetter = instance => getter(ref instance);
                         }
                         break;
                     }
@@ -189,7 +189,7 @@ namespace EasyToolkit.Core.Reflection
                 case PathStepType.StrongListElement:
                 {
                     var getter = ReflectionCompiler.CreateInstanceMethodInvoker(StrongListGetItemMethod);
-                    stepGetter = instance => getter(instance, ElementIndex);
+                    stepGetter = instance => getter(ref instance, ElementIndex);
                     break;
                 }
                 default:

@@ -157,26 +157,58 @@ namespace EasyToolkit.Core.Reflection
 
 #if ENABLE_COMPILER
             // Create parameter expressions
-            var instanceParameter = Expression.Parameter(typeof(object), "instance");
+            var instanceParameter = Expression.Parameter(typeof(object).MakeByRefType(), "instance");
             var valueParameter = Expression.Parameter(typeof(object), "value");
 
-            // Convert the instance parameter to the declaring type
-            var convertedInstance = Expression.Convert(instanceParameter, fieldInfo.DeclaringType);
+            // For value types (structs), we need to unbox, modify, and rebox
+            if (fieldInfo.DeclaringType.IsValueType)
+            {
+                // Create a local variable to hold the unboxed struct
+                var structVar = Expression.Variable(fieldInfo.DeclaringType, "struct");
 
-            // Create an expression to access the instance field
-            var fieldExpression = Expression.Field(convertedInstance, fieldInfo);
+                // Unbox the instance to the struct type
+                var unboxExpr = Expression.Unbox(instanceParameter, fieldInfo.DeclaringType);
 
-            // Convert the value parameter to the field type
-            var convertedValue = Expression.Convert(valueParameter, fieldInfo.FieldType);
+                // Create an expression to access the field
+                var fieldExpression = Expression.Field(structVar, fieldInfo);
 
-            // Create assignment expression
-            var assignExpression = Expression.Assign(fieldExpression, convertedValue);
+                // Convert the value parameter to the field type
+                var convertedValue = Expression.Convert(valueParameter, fieldInfo.FieldType);
 
-            // Create and compile the lambda expression
-            var lambda = Expression.Lambda<InstanceSetter>(assignExpression, instanceParameter, valueParameter);
-            return lambda.Compile();
+                // Build the body:
+                // 1. Unbox the instance to struct
+                // 2. Assign the value to the field
+                // 3. Box the modified struct back to the instance
+                var body = Expression.Block(
+                    new[] { structVar },
+                    Expression.Assign(structVar, unboxExpr),
+                    Expression.Assign(fieldExpression, convertedValue),
+                    Expression.Assign(instanceParameter, Expression.Convert(structVar, typeof(object)))
+                );
+
+                var lambda = Expression.Lambda<InstanceSetter>(body, instanceParameter, valueParameter);
+                return lambda.Compile();
+            }
+            else
+            {
+                // For reference types, use the original logic
+                var convertedInstance = Expression.Convert(instanceParameter, fieldInfo.DeclaringType);
+
+                // Create an expression to access the instance field
+                var fieldExpression = Expression.Field(convertedInstance, fieldInfo);
+
+                // Convert the value parameter to the field type
+                var convertedValue = Expression.Convert(valueParameter, fieldInfo.FieldType);
+
+                // Create assignment expression
+                var assignExpression = Expression.Assign(fieldExpression, convertedValue);
+
+                // Create and compile the lambda expression
+                var lambda = Expression.Lambda<InstanceSetter>(assignExpression, instanceParameter, valueParameter);
+                return lambda.Compile();
+            }
 #else
-            return fieldInfo.SetValue;
+            return (ref object instance, object value) => fieldInfo.SetValue(instance, value);
 #endif
         }
     }

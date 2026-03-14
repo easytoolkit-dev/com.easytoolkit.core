@@ -59,6 +59,46 @@ namespace EasyToolkit.Core.Reflection.Tests
         }
     }
 
+    public struct TestStructWithProperty
+    {
+        public int Property { get; set; }
+
+        public TestStructWithProperty(int value)
+        {
+            Property = value;
+        }
+    }
+
+    public struct TestStructWithMethod
+    {
+        public int Field;
+
+        public TestStructWithMethod(int value)
+        {
+            Field = value;
+        }
+
+        public int Method()
+        {
+            return Field * 2;
+        }
+
+        public int MethodWithArgs(int x, int y)
+        {
+            return Field + x + y;
+        }
+
+        public void VoidMethod()
+        {
+            Field = 999;
+        }
+
+        public void VoidMethodWithArgs(int x, int y)
+        {
+            Field = x * y;
+        }
+    }
+
     public class TestClassForAccessor
     {
         public static int StaticField = 10;

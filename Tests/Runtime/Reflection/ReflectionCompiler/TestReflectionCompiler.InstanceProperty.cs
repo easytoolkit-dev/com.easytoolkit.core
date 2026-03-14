@@ -91,7 +91,8 @@ namespace EasyToolkit.Core.Reflection.Tests
             var setter = ReflectionCompiler.CreateInstancePropertySetter(propertyInfo);
 
             // Act
-            setter(testInstance, 100);
+            var obj = (object)testInstance;
+            setter(ref obj, 100);
 
             // Assert
             Assert.AreEqual(100, testInstance.InstanceProperty);
@@ -124,7 +125,8 @@ namespace EasyToolkit.Core.Reflection.Tests
             var setter = ReflectionCompiler.CreateInstancePropertySetter(propertyInfo);
 
             // Act - Set value using the compiled setter (accesses private setter)
-            setter(testInstance, 100);
+            var obj = (object)testInstance;
+            setter(ref obj, 100);
 
             // Assert - Can read value using the property's public getter
             Assert.AreEqual(100, testInstance.ReadOnlyProperty);
@@ -144,6 +146,78 @@ namespace EasyToolkit.Core.Reflection.Tests
             var ex = Assert.Throws<ArgumentException>(() =>
                 ReflectionCompiler.CreateInstancePropertySetter(propertyInfo));
             Assert.That(ex.Message, Does.Contain("not an instance property"));
+        }
+
+        #endregion
+
+        #region Struct Property Tests
+
+        /// <summary>
+        /// Verifies that CreateInstancePropertyGetter retrieves the struct property value correctly.
+        /// </summary>
+        [Test]
+        public void CreateInstancePropertyGetter_StructProperty_ReturnsPropertyValue()
+        {
+            // Arrange
+            var testStruct = new TestStructWithProperty(42);
+            var propertyInfo = typeof(TestStructWithProperty).GetProperty(nameof(TestStructWithProperty.Property),
+                MemberAccessFlags.PublicInstance);
+
+            // Act
+            var getter = ReflectionCompiler.CreateInstancePropertyGetter(propertyInfo);
+            var result = getter(testStruct);
+
+            // Assert
+            Assert.AreEqual(42, result);
+        }
+
+        /// <summary>
+        /// Verifies that CreateInstancePropertySetter modifies the struct property value and preserves the change.
+        /// </summary>
+        [Test]
+        public void CreateInstancePropertySetter_StructProperty_SetsPropertyValueAndPersists()
+        {
+            // Arrange
+            var testStruct = new TestStructWithProperty(10);
+            var propertyInfo = typeof(TestStructWithProperty).GetProperty(nameof(TestStructWithProperty.Property),
+                MemberAccessFlags.PublicInstance);
+            var setter = ReflectionCompiler.CreateInstancePropertySetter(propertyInfo);
+
+            // Act
+            var obj = (object)testStruct;
+            setter(ref obj, 100);
+
+            // Assert - Verify the modified struct has the new value
+            var modifiedStruct = (TestStructWithProperty)obj;
+            Assert.AreEqual(100, modifiedStruct.Property);
+        }
+
+        /// <summary>
+        /// Verifies that getter and setter work together for struct properties, confirming value persistence after modification.
+        /// </summary>
+        [Test]
+        public void CreateInstancePropertyGetterSetter_StructProperty_ValuePersistsAfterModification()
+        {
+            // Arrange
+            var originalStruct = new TestStructWithProperty(5);
+            var propertyInfo = typeof(TestStructWithProperty).GetProperty(nameof(TestStructWithProperty.Property),
+                MemberAccessFlags.PublicInstance);
+            var getter = ReflectionCompiler.CreateInstancePropertyGetter(propertyInfo);
+            var setter = ReflectionCompiler.CreateInstancePropertySetter(propertyInfo);
+
+            // Act - Get initial value
+            var initialValue = getter(originalStruct);
+            Assert.AreEqual(5, initialValue, "Initial value should be 5");
+
+            // Act - Modify the struct property
+            var obj = (object)originalStruct;
+            setter(ref obj, 999);
+
+            // Act - Get modified value
+            var modifiedValue = getter(obj);
+
+            // Assert - Verify value persists after modification
+            Assert.AreEqual(999, modifiedValue, "Modified value should be 999");
         }
 
         #endregion

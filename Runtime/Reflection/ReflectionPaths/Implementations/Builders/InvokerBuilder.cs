@@ -56,7 +56,7 @@ namespace EasyToolkit.Core.Reflection
                     {
                         current = pathSteps[i].CompiledGetter(current);
                     }
-                    return methodInvoker(current, args);
+                    return methodInvoker(ref current, args);
                 };
             }
         }
@@ -74,14 +74,14 @@ namespace EasyToolkit.Core.Reflection
 
             // Path-based instance method
             var methodInvoker = ReflectionCompiler.CreateInstanceMethodInvoker(method);
-            return (target, args) =>
+            return delegate(ref object target, object[] args)
             {
                 object current = target;
                 for (int i = 0; i < pathSteps.Count; i++)
                 {
                     current = pathSteps[i].CompiledGetter(current);
                 }
-                return methodInvoker.Invoke(current, args);
+                return methodInvoker.Invoke(ref current, args);
             };
         }
 

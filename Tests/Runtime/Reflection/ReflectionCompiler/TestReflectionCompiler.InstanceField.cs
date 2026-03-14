@@ -69,7 +69,8 @@ namespace EasyToolkit.Core.Reflection.Tests
             var setter = ReflectionCompiler.CreateInstanceFieldSetter(fieldInfo);
 
             // Act
-            setter(testInstance, 100);
+            var obj = (object)testInstance;
+            setter(ref obj, 100);
 
             // Assert
             Assert.AreEqual(100, testInstance.InstanceField);
@@ -116,6 +117,78 @@ namespace EasyToolkit.Core.Reflection.Tests
             // Act & Assert
             var ex = Assert.Throws<ArgumentException>(() => ReflectionCompiler.CreateInstanceFieldSetter(fieldInfo));
             Assert.That(ex.Message, Does.Contain("read-only"));
+        }
+
+        #endregion
+
+        #region Struct Field Tests
+
+        /// <summary>
+        /// Verifies that CreateInstanceFieldGetter retrieves the struct field value correctly.
+        /// </summary>
+        [Test]
+        public void CreateInstanceFieldGetter_StructField_ReturnsFieldValue()
+        {
+            // Arrange
+            var testStruct = new TestStruct(42);
+            var fieldInfo = typeof(TestStruct).GetField(nameof(TestStruct.Field),
+                MemberAccessFlags.PublicInstance);
+
+            // Act
+            var getter = ReflectionCompiler.CreateInstanceFieldGetter(fieldInfo);
+            var result = getter(testStruct);
+
+            // Assert
+            Assert.AreEqual(42, result);
+        }
+
+        /// <summary>
+        /// Verifies that CreateInstanceFieldSetter modifies the struct field value and preserves the change.
+        /// </summary>
+        [Test]
+        public void CreateInstanceFieldSetter_StructField_SetsFieldValueAndPersists()
+        {
+            // Arrange
+            var testStruct = new TestStruct(10);
+            var fieldInfo = typeof(TestStruct).GetField(nameof(TestStruct.Field),
+                MemberAccessFlags.PublicInstance);
+            var setter = ReflectionCompiler.CreateInstanceFieldSetter(fieldInfo);
+
+            // Act
+            var obj = (object)testStruct;
+            setter(ref obj, 100);
+
+            // Assert - Verify the modified struct has the new value
+            var modifiedStruct = (TestStruct)obj;
+            Assert.AreEqual(100, modifiedStruct.Field);
+        }
+
+        /// <summary>
+        /// Verifies that getter and setter work together for struct fields, confirming value persistence after modification.
+        /// </summary>
+        [Test]
+        public void CreateInstanceFieldGetterSetter_StructField_ValuePersistsAfterModification()
+        {
+            // Arrange
+            var originalStruct = new TestStruct(5);
+            var fieldInfo = typeof(TestStruct).GetField(nameof(TestStruct.Field),
+                MemberAccessFlags.PublicInstance);
+            var getter = ReflectionCompiler.CreateInstanceFieldGetter(fieldInfo);
+            var setter = ReflectionCompiler.CreateInstanceFieldSetter(fieldInfo);
+
+            // Act - Get initial value
+            var initialValue = getter(originalStruct);
+            Assert.AreEqual(5, initialValue, "Initial value should be 5");
+
+            // Act - Modify the struct field
+            var obj = (object)originalStruct;
+            setter(ref obj, 999);
+
+            // Act - Get modified value
+            var modifiedValue = getter(obj);
+
+            // Assert - Verify value persists after modification
+            Assert.AreEqual(999, modifiedValue, "Modified value should be 999");
         }
 
         #endregion
