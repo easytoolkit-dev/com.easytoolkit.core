@@ -46,21 +46,6 @@ namespace EasyToolkit.Core.Reflection
             return type.IsGenericType ? GetGenericTypeName(type) : type.Name;
         }
 
-        private static string GetGenericTypeName(this Type type)
-        {
-            var genericArguments = type.GetGenericArguments();
-            var typeName = type.Name;
-            var genericPartIndex = typeName.IndexOf('`');
-            if (genericPartIndex > -1)
-            {
-                typeName = typeName.Substring(0, genericPartIndex);
-            }
-
-            var genericArgs = string.Join(", ", Array.ConvertAll(genericArguments, GetAliases));
-            return $"{typeName}<{genericArgs}>";
-        }
-
-
         /// <summary>
         /// Determines whether the specified type is a struct type (value type excluding primitives and enums).
         /// </summary>
@@ -199,6 +184,22 @@ namespace EasyToolkit.Core.Reflection
 
             var elementType = type.GetElementType();
             return elementType != null && elementType.IsGenericParameter;
+        }
+
+        /// <summary>
+        /// Determines whether the specified type is an anonymous type.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>true if the type is an anonymous type; otherwise, false.</returns>
+        public static bool IsAnonymousType(this Type type)
+        {
+            if (type == null)
+                return false;
+
+            // Anonymous types have names starting with '<' (compiler-generated format)
+            // and are marked with CompilerGeneratedAttribute
+            return type.Name.StartsWith("<", StringComparison.Ordinal) &&
+                   type.GetCustomAttributes(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute), inherit: false).Length > 0;
         }
 
         /// <summary>
@@ -370,5 +371,20 @@ namespace EasyToolkit.Core.Reflection
                 throw new ArgumentException($"Generic type '{typeof(T)}' must be convertible by '{type}'");
             return (T)CreateInstance(type, args);
         }
+
+        private static string GetGenericTypeName(this Type type)
+        {
+            var genericArguments = type.GetGenericArguments();
+            var typeName = type.Name;
+            var genericPartIndex = typeName.IndexOf('`');
+            if (genericPartIndex > -1)
+            {
+                typeName = typeName.Substring(0, genericPartIndex);
+            }
+
+            var genericArgs = string.Join(", ", Array.ConvertAll(genericArguments, GetAliases));
+            return $"{typeName}<{genericArgs}>";
+        }
+
     }
 }

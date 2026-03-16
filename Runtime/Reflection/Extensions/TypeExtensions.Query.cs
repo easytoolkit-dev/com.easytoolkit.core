@@ -9,8 +9,6 @@ namespace EasyToolkit.Core.Reflection
 {
     public static partial class TypeExtensions
     {
-        #region Inheritance
-
         /// <summary>
         /// Gets all base types and optionally interfaces for the specified type.
         /// </summary>
@@ -38,17 +36,14 @@ namespace EasyToolkit.Core.Reflection
 
             if (includeInterface)
             {
-                foreach (var i in type.GetInterfaces())
+                foreach (var iface in type.GetInterfaces())
                 {
-                    parentTypes.Add(i);
+                    parentTypes.Add(iface);
                 }
             }
 
             return parentTypes.ToArray();
         }
-        #endregion
-
-        #region Method Query
 
         /// <summary>
         /// Gets the method overload with the specified parameter count.
@@ -146,10 +141,6 @@ namespace EasyToolkit.Core.Reflection
             return result;
         }
 
-        #endregion
-
-        #region Member Query
-
         /// <summary>
         /// Gets all members of the specified type, including inherited members, using the specified binding flags.
         /// </summary>
@@ -206,7 +197,5 @@ namespace EasyToolkit.Core.Reflection
 
             return type.GetAllMembers(flags).Where(member => member.Name == name);
         }
-
-        #endregion
     }
 }
