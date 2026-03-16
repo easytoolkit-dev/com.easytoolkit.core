@@ -105,25 +105,52 @@ namespace EasyToolkit.Core.Reflection
                 method.GetParameters().Select(x => $"{x.ParameterType.GetAliases()} {x.Name}"));
         }
 
-        public static Type GetMemberType([NotNull] this MemberInfo member)
+        /// <summary>
+        /// Tries to get the type of the specified member.
+        /// </summary>
+        /// <param name="member">The member to get the type from.</param>
+        /// <param name="memberType">When this method returns, contains the type of the member if successful; otherwise, <c>null</c>.</param>
+        /// <returns>
+        /// <c>true</c> if the member type was successfully retrieved; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool TryGetMemberType([NotNull] this MemberInfo member, out Type memberType)
         {
-            if (member == null) throw new ArgumentNullException(nameof(member));
+            if (member == null)
+                throw new ArgumentNullException(nameof(member));
+
             if (member is FieldInfo field)
             {
-                return field.FieldType;
+                memberType = field.FieldType;
+                return true;
             }
 
             if (member is PropertyInfo property)
             {
-                return property.PropertyType;
+                memberType = property.PropertyType;
+                return true;
             }
 
             if (member is MethodInfo method)
             {
-                return method.ReturnType;
+                memberType = method.ReturnType;
+                return true;
             }
 
-            throw new NotSupportedException();
+            memberType = null;
+            return false;
+        }
+
+        public static Type GetMemberType([NotNull] this MemberInfo member)
+        {
+            if (member == null)
+                throw new ArgumentNullException(nameof(member));
+
+            if (member.TryGetMemberType(out var memberType))
+            {
+                return memberType;
+            }
+
+            throw new NotSupportedException($"Member type '{member.MemberType}' is not supported.");
         }
 
         /// <summary>

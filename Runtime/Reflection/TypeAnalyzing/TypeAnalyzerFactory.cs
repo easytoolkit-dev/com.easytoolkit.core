@@ -17,6 +17,9 @@ namespace EasyToolkit.Core.Reflection
         /// </summary>
         /// <param name="genericType">The generic type definition to analyze.</param>
         /// <returns>An <see cref="IGenericTypeDefinitionAnalyzer"/> for analyzing the generic type definition.</returns>
+        /// <exception cref="ArgumentException">
+        /// Thrown when <paramref name="genericType"/> is not a generic type definition.
+        /// </exception>
         public static IGenericTypeDefinitionAnalyzer GetGenericTypeDefinitionAnalyzer(Type genericType)
         {
             if (!genericType.IsGenericTypeDefinition)
@@ -38,6 +41,9 @@ namespace EasyToolkit.Core.Reflection
         /// </summary>
         /// <param name="genericParameterType">The generic parameter type to analyze.</param>
         /// <returns>An <see cref="IGenericParameterAnalyzer"/> for analyzing the generic parameter.</returns>
+        /// <exception cref="ArgumentException">
+        /// Thrown when <paramref name="genericParameterType"/> is not a generic parameter type.
+        /// </exception>
         public static IGenericParameterAnalyzer GetGenericParameterAnalyzer(Type genericParameterType)
         {
             if (!genericParameterType.IsGenericParameter)
@@ -61,7 +67,7 @@ namespace EasyToolkit.Core.Reflection
         /// partially constructed type, or fully constructed type.</param>
         /// <returns>An <see cref="IOpenGenericTypeAnalyzer"/> for analyzing the open generic type.</returns>
         /// <exception cref="ArgumentException">
-        /// Thrown when <paramref name="openGenericType"/> is not a generic type.
+        /// Thrown when <paramref name="openGenericType"/> is not a open generic type.
         /// </exception>
         public static IOpenGenericTypeAnalyzer GetOpenGenericTypeAnalyzer(Type openGenericType)
         {

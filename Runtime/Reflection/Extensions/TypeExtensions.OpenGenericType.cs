@@ -29,6 +29,19 @@ namespace EasyToolkit.Core.Reflection
                 .GetGenericArgumentsRelativeTo(genericTypeDefinition);
         }
 
+        /// <summary>
+        /// Gets the number of generic parameters that have not yet been substituted with concrete types.
+        /// </summary>
+        /// <param name="openGenericType">A partially constructed generic type or generic type definition.</param>
+        /// <returns>The count of unresolved generic parameters.</returns>
+        /// <remarks>
+        /// For a generic type definition like <c>List&lt;T&gt;</c>, returns 1 (T is unresolved).
+        /// For a partially constructed type like <c>Dictionary&lt;string, T&gt;</c>, returns 1 (T is unresolved, string is substituted).
+        /// For a fully constructed type like <c>List&lt;int&gt;</c>, returns 0 (all parameters are resolved).
+        /// </remarks>
+        /// <exception cref="ArgumentException">
+        /// Thrown when <paramref name="openGenericType"/> is not a generic type.
+        /// </exception>
         public static int GetGenericParameterCount(this Type openGenericType)
         {
             if (openGenericType == null)
