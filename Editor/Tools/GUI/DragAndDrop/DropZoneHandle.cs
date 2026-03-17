@@ -116,7 +116,7 @@ namespace EasyToolkit.Core.Editor
                 this.IsAccepted = DragAndDropManager.IsDragInProgress &&
                                  (DragAndDropManager.CurrentDraggingHandle.Object != null &&
                                   DragAndDropManager.CurrentDraggingHandle.Object.GetType().IsDerivedFrom(this.Type) ||
-                                  Type.IsNullableType() &&
+                                  !Type.IsValueType &&
                                   ReferenceEquals(null, DragAndDropManager.CurrentDraggingHandle.Object));
 
 

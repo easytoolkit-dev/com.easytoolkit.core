@@ -88,7 +88,11 @@ namespace EasyToolkit.Core.Reflection
         /// otherwise, <c>false</c>.
         /// </returns>
         /// <remarks>
-        /// This method detects compiler-generated backing fields (with names like "&lt;PropertyName&gt;k__BackingField").
+        /// This method detects compiler-generated backing fields with the following formats:
+        /// <list type="bullet">
+        /// <item><description>&lt;PropertyName&gt;k__BackingField - Standard auto-property backing field</description></item>
+        /// <item><description>&lt;FieldName&gt;i__Field - Compiler-generated field (e.g., anonymous types, async state machines)</description></item>
+        /// </list>
         /// </remarks>
         public static bool IsBackingField([NotNull] this FieldInfo field)
         {
@@ -99,6 +103,12 @@ namespace EasyToolkit.Core.Reflection
 
             // Check for compiler-generated auto-property backing field
             if (fieldName.StartsWith("<") && fieldName.EndsWith(">k__BackingField"))
+            {
+                return true;
+            }
+
+            // Check for other compiler-generated field formats
+            if (fieldName.StartsWith("<") && fieldName.EndsWith(">i__Field"))
             {
                 return true;
             }
