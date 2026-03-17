@@ -27,7 +27,7 @@ namespace EasyToolkit.Core.Editor
         {
             if (s_methodOfFindTexture == null)
             {
-                s_methodOfFindTexture = typeof(EditorGUIUtility).GetOverloadMethod("FindTexture",
+                s_methodOfFindTexture = typeof(EditorGUIUtility).FindMethod("FindTexture",
                     MemberAccessFlags.NonPublicStatic, new[] { typeof(Type) });
             }
 

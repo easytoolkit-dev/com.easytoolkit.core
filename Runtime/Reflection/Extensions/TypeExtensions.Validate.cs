@@ -1,51 +1,12 @@
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using UnityEngine;
 
 namespace EasyToolkit.Core.Reflection
 {
-    /// <summary>
-    /// Provides extension methods for System.Type reflection operations.
-    /// </summary>
     public static partial class TypeExtensions
     {
-        private static readonly Dictionary<Type, string> TypeAliasesByType = new Dictionary<Type, string>
-        {
-            { typeof(void), "void" },
-            { typeof(bool), "bool" },
-            { typeof(byte), "byte" },
-            { typeof(sbyte), "sbyte" },
-            { typeof(char), "char" },
-            { typeof(decimal), "decimal" },
-            { typeof(double), "double" },
-            { typeof(float), "float" },
-            { typeof(int), "int" },
-            { typeof(uint), "uint" },
-            { typeof(long), "long" },
-            { typeof(ulong), "ulong" },
-            { typeof(object), "object" },
-            { typeof(short), "short" },
-            { typeof(ushort), "ushort" },
-            { typeof(string), "string" }
-        };
-
-        /// <summary>
-        /// Gets the friendly name alias for a type.
-        /// </summary>
-        /// <param name="type">The type to get the alias for.</param>
-        /// <returns>The friendly type name (e.g., "int", "string", "List&lt;T&gt;").</returns>
-        public static string GetAliases(this Type type)
-        {
-            if (TypeAliasesByType.TryGetValue(type, out string alias))
-            {
-                return alias;
-            }
-
-            return type.IsGenericType ? GetGenericTypeName(type) : type.Name;
-        }
-
         /// <summary>
         /// Determines whether the specified type is a struct type (value type excluding primitives and enums).
         /// </summary>
@@ -199,7 +160,8 @@ namespace EasyToolkit.Core.Reflection
             // Anonymous types have names starting with '<' (compiler-generated format)
             // and are marked with CompilerGeneratedAttribute
             return type.Name.StartsWith("<", StringComparison.Ordinal) &&
-                   type.GetCustomAttributes(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute), inherit: false).Length > 0;
+                   type.GetCustomAttributes(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute),
+                       inherit: false).Length > 0;
         }
 
         /// <summary>
@@ -296,95 +258,5 @@ namespace EasyToolkit.Core.Reflection
                 return ctor != null;
             }
         }
-
-        /// <summary>
-        /// Tries to create an instance of the specified type.
-        /// </summary>
-        /// <param name="type">The type to instantiate.</param>
-        /// <param name="instance">When this method returns, contains the created instance, or null if creation failed.</param>
-        /// <param name="args">Constructor arguments.</param>
-        /// <returns>true if an instance was created; otherwise, false.</returns>
-        public static bool TryCreateInstance(this Type type, out object instance, params object[] args)
-        {
-            instance = null;
-            try
-            {
-                instance = type.CreateInstance(args);
-                return instance != null;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Tries to create an instance of the specified type as type T.
-        /// </summary>
-        /// <typeparam name="T">The type to cast the instance to.</typeparam>
-        /// <param name="type">The type to instantiate.</param>
-        /// <param name="instance">When this method returns, contains the created instance, or default if creation failed.</param>
-        /// <param name="args">Constructor arguments.</param>
-        /// <returns>true if an instance was created; otherwise, false.</returns>
-        public static bool TryCreateInstance<T>(this Type type, out T instance, params object[] args)
-        {
-            instance = default;
-            try
-            {
-                instance = type.CreateInstance<T>(args);
-                return instance != null;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Creates an instance of the specified type.
-        /// </summary>
-        /// <param name="type">The type to instantiate.</param>
-        /// <param name="args">Constructor arguments.</param>
-        /// <returns>A new instance of the specified type.</returns>
-        public static object CreateInstance(this Type type, params object[] args)
-        {
-            if (type == null)
-                return null;
-
-            if (type == typeof(string))
-                return string.Empty;
-
-            return Activator.CreateInstance(type, args);
-        }
-
-        /// <summary>
-        /// Creates an instance of the specified type as type T.
-        /// </summary>
-        /// <typeparam name="T">The type to cast the instance to.</typeparam>
-        /// <param name="type">The type to instantiate.</param>
-        /// <param name="args">Constructor arguments.</param>
-        /// <returns>A new instance of the specified type cast to T.</returns>
-        /// <exception cref="ArgumentException">Generic type T is not assignable from the created instance.</exception>
-        public static T CreateInstance<T>(this Type type, params object[] args)
-        {
-            if (!typeof(T).IsAssignableFrom(type))
-                throw new ArgumentException($"Generic type '{typeof(T)}' must be convertible by '{type}'");
-            return (T)CreateInstance(type, args);
-        }
-
-        private static string GetGenericTypeName(this Type type)
-        {
-            var genericArguments = type.GetGenericArguments();
-            var typeName = type.Name;
-            var genericPartIndex = typeName.IndexOf('`');
-            if (genericPartIndex > -1)
-            {
-                typeName = typeName.Substring(0, genericPartIndex);
-            }
-
-            var genericArgs = string.Join(", ", Array.ConvertAll(genericArguments, GetAliases));
-            return $"{typeName}<{genericArgs}>";
-        }
-
     }
 }

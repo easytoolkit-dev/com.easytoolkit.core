@@ -142,73 +142,6 @@ namespace EasyToolkit.Core.Reflection
         }
 
         /// <summary>
-        /// Handles the creation of array types with generic element types.
-        /// </summary>
-        /// <param name="arrayType">The array type with generic elements (e.g., T[], List<T>[,], etc.).</param>
-        /// <param name="providedTypeArguments">Type arguments to substitute for generic parameters in the element type.</param>
-        /// <returns>A concrete array type with all generic parameters resolved.</returns>
-        private static Type MakeGenericArrayType(Type arrayType, Type[] providedTypeArguments)
-        {
-            if (!arrayType.IsArray)
-                throw new ArgumentException($"Type '{arrayType}' must be an array.", nameof(arrayType));
-
-            Type elementType = arrayType.GetElementType();
-
-            // If the element type is not generic, just return the original array type
-            if (!elementType.ContainsGenericParameters)
-                return arrayType;
-
-            // Recursively process the element type to resolve its generic parameters
-            Type concreteElementType;
-
-            if (elementType.IsArray)
-            {
-                // For multi-dimensional or jagged arrays, process recursively
-                concreteElementType = MakeGenericArrayType(elementType, providedTypeArguments);
-            }
-            else if (elementType.IsGenericType)
-            {
-                // For generic element types, resolve the generic parameters
-                concreteElementType = elementType.MakeGenericTypeExtended(providedTypeArguments);
-            }
-            else if (elementType.IsGenericParameter)
-            {
-                // For direct generic parameter element types (e.g., T[])
-                int placeholderCount = 1; // Single generic parameter
-                int providedCount = providedTypeArguments.Length;
-
-                if (providedCount != placeholderCount)
-                {
-                    throw new ArgumentException(
-                        $"Number of provided type arguments ({providedCount}) does not match " +
-                        $"the number of remaining generic parameters ({placeholderCount}) in array element type.",
-                        nameof(providedTypeArguments));
-                }
-
-                concreteElementType = providedTypeArguments[0];
-            }
-            else
-            {
-                // Non-generic element type
-                return arrayType;
-            }
-
-            // Recreate the array with the same dimensions
-            int rank = arrayType.GetArrayRank();
-
-            if (rank == 1)
-            {
-                // Single-dimensional array
-                return concreteElementType.MakeArrayType();
-            }
-            else
-            {
-                // Multi-dimensional array
-                return concreteElementType.MakeArrayType(rank);
-            }
-        }
-
-        /// <summary>
         /// Completes the generic type arguments by merging the partially constructed generic type's
         /// arguments with the provided type arguments.
         /// </summary>
@@ -271,6 +204,73 @@ namespace EasyToolkit.Core.Reflection
 
             return TypeAnalyzerFactory.GetOpenGenericTypeAnalyzer(openGenericType)
                 .GetCompletedGenericArguments(targetType, allowTypeInheritance);
+        }
+
+        /// <summary>
+        /// Handles the creation of array types with generic element types.
+        /// </summary>
+        /// <param name="arrayType">The array type with generic elements (e.g., T[], List&lt;T&gt;[,], etc.).</param>
+        /// <param name="providedTypeArguments">Type arguments to substitute for generic parameters in the element type.</param>
+        /// <returns>A concrete array type with all generic parameters resolved.</returns>
+        private static Type MakeGenericArrayType(Type arrayType, Type[] providedTypeArguments)
+        {
+            if (!arrayType.IsArray)
+                throw new ArgumentException($"Type '{arrayType}' must be an array.", nameof(arrayType));
+
+            Type elementType = arrayType.GetElementType();
+
+            // If the element type is not generic, just return the original array type
+            if (!elementType.ContainsGenericParameters)
+                return arrayType;
+
+            // Recursively process the element type to resolve its generic parameters
+            Type concreteElementType;
+
+            if (elementType.IsArray)
+            {
+                // For multi-dimensional or jagged arrays, process recursively
+                concreteElementType = MakeGenericArrayType(elementType, providedTypeArguments);
+            }
+            else if (elementType.IsGenericType)
+            {
+                // For generic element types, resolve the generic parameters
+                concreteElementType = elementType.MakeGenericTypeExtended(providedTypeArguments);
+            }
+            else if (elementType.IsGenericParameter)
+            {
+                // For direct generic parameter element types (e.g., T[])
+                int placeholderCount = 1; // Single generic parameter
+                int providedCount = providedTypeArguments.Length;
+
+                if (providedCount != placeholderCount)
+                {
+                    throw new ArgumentException(
+                        $"Number of provided type arguments ({providedCount}) does not match " +
+                        $"the number of remaining generic parameters ({placeholderCount}) in array element type.",
+                        nameof(providedTypeArguments));
+                }
+
+                concreteElementType = providedTypeArguments[0];
+            }
+            else
+            {
+                // Non-generic element type
+                return arrayType;
+            }
+
+            // Recreate the array with the same dimensions
+            int rank = arrayType.GetArrayRank();
+
+            if (rank == 1)
+            {
+                // Single-dimensional array
+                return concreteElementType.MakeArrayType();
+            }
+            else
+            {
+                // Multi-dimensional array
+                return concreteElementType.MakeArrayType(rank);
+            }
         }
     }
 }

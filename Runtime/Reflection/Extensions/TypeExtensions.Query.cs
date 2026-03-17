@@ -10,27 +10,31 @@ namespace EasyToolkit.Core.Reflection
     public static partial class TypeExtensions
     {
         /// <summary>
-        /// Gets all base types and optionally interfaces for the specified type.
+        /// Gets all base types of the specified type by traversing the inheritance chain.
         /// </summary>
         /// <param name="type">The type to get base types for.</param>
-        /// <param name="includeInterface">Whether to include interfaces in the result.</param>
-        /// <param name="includeTargetType">Whether to include the target type itself in the result.</param>
-        /// <returns>An array of all base types and optionally interfaces.</returns>
-        public static Type[] GetAllBaseTypes(this Type type, bool includeInterface = true,
+        /// <param name="includeInterface">Whether to include interfaces implemented by the type.</param>
+        /// <param name="includeTargetType">Whether to include the type itself in the result.</param>
+        /// <returns>An enumerable collection of all base types in the inheritance chain.</returns>
+        /// <remarks>
+        /// This method traverses the type hierarchy from immediate base type to <see cref="object"/>.
+        /// Base types are returned in inheritance order (closest to farthest).
+        /// When <paramref name="includeInterface"/> is true, all interfaces implemented by the type
+        /// are included after base types in the result.
+        /// </remarks>
+        public static IEnumerable<Type> GetAllBaseTypes(this Type type, bool includeInterface = true,
             bool includeTargetType = false)
         {
-            var parentTypes = new List<Type>();
-
             if (includeTargetType)
             {
-                parentTypes.Add(type);
+                yield return type;
             }
 
             var baseType = type.BaseType;
 
             while (baseType != null)
             {
-                parentTypes.Add(baseType);
+                yield return baseType;
                 baseType = baseType.BaseType;
             }
 
@@ -38,24 +42,23 @@ namespace EasyToolkit.Core.Reflection
             {
                 foreach (var iface in type.GetInterfaces())
                 {
-                    parentTypes.Add(iface);
+                    yield return iface;
                 }
             }
-
-            return parentTypes.ToArray();
         }
 
         /// <summary>
-        /// Gets the method overload with the specified parameter count.
+        /// Finds the method with the specified name and parameter count.
         /// </summary>
         /// <param name="targetType">The type to search for the method.</param>
-        /// <param name="methodName">The name of the method.</param>
-        /// <param name="flags">Binding flags for the search.</param>
+        /// <param name="methodName">The name of the method to find.</param>
+        /// <param name="flags">A bitmask comprised of one or more BindingFlags that specify how the search is conducted.</param>
         /// <param name="parameterCount">The number of parameters the method should have.</param>
-        /// <returns>The method info matching the criteria.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when targetType or methodName is null.</exception>
-        /// <exception cref="ArgumentException">Thrown when methodName is whitespace or method not found.</exception>
-        public static MethodInfo GetOverloadMethod(
+        /// <returns>The <see cref="MethodInfo"/> matching the criteria.</returns>
+        /// <exception cref="ArgumentException">
+        /// Thrown when no method with the specified name and parameter count is found.
+        /// </exception>
+        public static MethodInfo FindMethod(
             [NotNull] this Type targetType,
             [NotNull] string methodName,
             BindingFlags flags,
@@ -64,7 +67,7 @@ namespace EasyToolkit.Core.Reflection
             if (targetType == null)
                 throw new ArgumentNullException(nameof(targetType));
             if (string.IsNullOrWhiteSpace(methodName))
-                throw new ArgumentException("Method name cannot be null or whitespace.", nameof(methodName));
+                throw new ArgumentNullException(nameof(methodName), "Method name cannot be null or whitespace.");
 
             var result = targetType.GetMethods(flags)
                 .FirstOrDefault(info => info.Name == methodName && info.GetParameters().Length == parameterCount);
@@ -78,22 +81,28 @@ namespace EasyToolkit.Core.Reflection
         }
 
         /// <summary>
-        /// Gets the method overload with the specified parameter types.
+        /// Finds the method with the specified name and parameter types.
         /// </summary>
         /// <param name="targetType">The type to search for the method.</param>
-        /// <param name="methodName">The name of the method.</param>
-        /// <param name="flags">Binding flags for the search.</param>
-        /// <param name="parameterTypes">The parameter types to match.</param>
-        /// <returns>The method info matching the criteria.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when targetType or methodName is null.</exception>
-        /// <exception cref="ArgumentException">Thrown when methodName is whitespace or no matching method found.</exception>
-        public static MethodInfo GetOverloadMethod([NotNull] this Type targetType, [NotNull] string methodName,
+        /// <param name="methodName">The name of the method to find.</param>
+        /// <param name="flags">A bitmask comprised of one or more BindingFlags that specify how the search is conducted.</param>
+        /// <param name="parameterTypes">The parameter types to match. Use null or empty to find a parameterless method.</param>
+        /// <returns>The <see cref="MethodInfo"/> matching the parameter types.</returns>
+        /// <exception cref="ArgumentException">
+        /// Thrown when no method with the specified name and parameter types is found.
+        /// The exception message includes all available method signatures for debugging.
+        /// </exception>
+        /// <remarks>
+        /// Parameter type matching uses <see cref="Type.IsAssignableFrom"/> to support covariance.
+        /// The error message displays all available overloads when no match is found.
+        /// </remarks>
+        public static MethodInfo FindMethod([NotNull] this Type targetType, [NotNull] string methodName,
             BindingFlags flags, params Type[] parameterTypes)
         {
             if (targetType == null)
                 throw new ArgumentNullException(nameof(targetType));
             if (string.IsNullOrWhiteSpace(methodName))
-                throw new ArgumentException("Method name cannot be null or whitespace.", nameof(methodName));
+                throw new ArgumentNullException(nameof(methodName), "Method name cannot be null or whitespace.");
 
             var candidates = targetType.GetMethods(flags).Where(info => info.Name == methodName).ToArray();
 
@@ -122,19 +131,19 @@ namespace EasyToolkit.Core.Reflection
             });
             if (result == null)
             {
-                string paramTypeNames = parameterTypes.Length > 0
-                    ? string.Join(", ", parameterTypes.Select(t => t.GetAliases()))
+                var paramTypeNames = parameterTypes.Length > 0
+                    ? string.Join(", ", parameterTypes.Select(t => t.ToCodeString()))
                     : "none";
 
-                string availableSignatures = string.Join("\n  ",
+                var availableSignatures = string.Join("\n  ",
                     candidates.Select(m =>
                     {
                         var parameters = m.GetParameters();
-                        return $"{m.Name}({string.Join(", ", parameters.Select(p => p.ParameterType.GetAliases()))})";
+                        return $"{m.Name}({string.Join(", ", parameters.Select(p => p.ParameterType.ToCodeString()))})";
                     }));
 
                 throw new ArgumentException(
-                    $"No matching method overload found for '{methodName}({paramTypeNames})' on type '{targetType.GetAliases()}'.\n" +
+                    $"No matching method overload found for '{methodName}({paramTypeNames})' on type '{targetType.ToCodeString()}'.\n" +
                     $"Available overloads:\n  {availableSignatures}");
             }
 
