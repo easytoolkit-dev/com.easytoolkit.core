@@ -124,16 +124,6 @@ namespace EasyToolkit.Core.Reflection
         }
 
         /// <summary>
-        /// Determines whether the specified type is a nullable reference type.
-        /// </summary>
-        /// <param name="type">The type to check.</param>
-        /// <returns>true if the type is nullable (not a primitive, value type, or enum); otherwise, false.</returns>
-        public static bool IsNullableType(this Type type)
-        {
-            return !(type.IsPrimitive || type.IsValueType || type.IsEnum);
-        }
-
-        /// <summary>
         /// Determines whether the specified type is a generic array (array with generic parameter element type).
         /// </summary>
         /// <param name="type">The type to check.</param>
