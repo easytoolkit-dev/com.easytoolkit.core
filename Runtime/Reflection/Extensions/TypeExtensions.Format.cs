@@ -25,7 +25,9 @@ namespace EasyToolkit.Core.Reflection
         /// </summary>
         IncludeNamespace = 1 << 1,
 
-        Default = UseTypeAliases
+        Default = UseTypeAliases,
+
+        Full = UseTypeAliases | IncludeNamespace
     }
 
     public static partial class TypeExtensions
