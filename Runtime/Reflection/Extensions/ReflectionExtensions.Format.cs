@@ -48,7 +48,7 @@ namespace EasyToolkit.Core.Reflection
         /// </summary>
         IncludeNamespace = 1 << 5,
 
-        Default = IncludeModifiers | IncludeBody | UseTypeAliases
+        Default = IncludeModifiers | IncludeBody | UseTypeAliases | IncludeNamespace
     }
 
     public static partial class ReflectionExtensions

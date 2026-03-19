@@ -117,6 +117,25 @@ namespace EasyToolkit.Core.Reflection.Tests
             Assert.That(ex.Message, Does.Contain("read-only"));
         }
 
+        /// <summary>
+        /// Verifies that CreateStaticFieldSetter sets value type field to default value when null is passed.
+        /// </summary>
+        [Test]
+        public void CreateStaticFieldSetter_ValueTypeFieldWithNull_SetsToDefaultValue()
+        {
+            // Arrange
+            TestClass.StaticField = 42;
+            var fieldInfo = typeof(TestClass).GetField(nameof(TestClass.StaticField),
+                MemberAccessFlags.PublicStatic);
+            var setter = ReflectionCompiler.CreateStaticFieldSetter(fieldInfo);
+
+            // Act
+            setter(null);
+
+            // Assert - int default value is 0
+            Assert.AreEqual(0, TestClass.StaticField);
+        }
+
         #endregion
     }
 }
