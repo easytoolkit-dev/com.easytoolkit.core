@@ -220,6 +220,26 @@ namespace EasyToolkit.Core.Reflection.Tests
             Assert.AreEqual(999, modifiedValue, "Modified value should be 999");
         }
 
+        /// <summary>
+        /// Verifies that CreateInstancePropertySetter sets value type property to default value when null is passed.
+        /// </summary>
+        [Test]
+        public void CreateInstancePropertySetter_ValueTypePropertyWithNull_SetsToDefaultValue()
+        {
+            // Arrange
+            var testInstance = new TestClass { InstanceProperty = 42 };
+            var propertyInfo = typeof(TestClass).GetProperty(nameof(TestClass.InstanceProperty),
+                MemberAccessFlags.PublicInstance);
+            var setter = ReflectionCompiler.CreateInstancePropertySetter(propertyInfo);
+
+            // Act
+            var obj = (object)testInstance;
+            setter(ref obj, null);
+
+            // Assert - int default value is 0
+            Assert.AreEqual(0, testInstance.InstanceProperty);
+        }
+
         #endregion
     }
 }

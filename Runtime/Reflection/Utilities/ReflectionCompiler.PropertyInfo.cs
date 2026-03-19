@@ -137,7 +137,7 @@ namespace EasyToolkit.Core.Reflection
             var propertyExpression = Expression.Property(null, propertyInfo);
 
             // Convert the value parameter to the property type
-            var convertedValue = Expression.Convert(valueParameter, propertyInfo.PropertyType);
+            var convertedValue = CreateValueConversionExpression(valueParameter, propertyInfo.PropertyType);
 
             // Create assignment expression
             var assignExpression = Expression.Assign(propertyExpression, convertedValue);
@@ -195,7 +195,7 @@ namespace EasyToolkit.Core.Reflection
                 var propertyExpression = Expression.Property(structVar, propertyInfo);
 
                 // Convert the value parameter to the property type
-                var convertedValue = Expression.Convert(valueParameter, propertyInfo.PropertyType);
+                var convertedValue = CreateValueConversionExpression(valueParameter, propertyInfo.PropertyType);
 
                 // Build the body:
                 // 1. Unbox the instance to struct
@@ -220,7 +220,7 @@ namespace EasyToolkit.Core.Reflection
                 var propertyExpression = Expression.Property(convertedInstance, propertyInfo);
 
                 // Convert the value parameter to the property type
-                var convertedValue = Expression.Convert(valueParameter, propertyInfo.PropertyType);
+                var convertedValue = CreateValueConversionExpression(valueParameter, propertyInfo.PropertyType);
 
                 // Create assignment expression
                 var assignExpression = Expression.Assign(propertyExpression, convertedValue);

@@ -141,6 +141,25 @@ namespace EasyToolkit.Core.Reflection.Tests
             Assert.That(ex.Message, Does.Contain("not static"));
         }
 
+        /// <summary>
+        /// Verifies that CreateStaticPropertySetter sets value type property to default value when null is passed.
+        /// </summary>
+        [Test]
+        public void CreateStaticPropertySetter_ValueTypePropertyWithNull_SetsToDefaultValue()
+        {
+            // Arrange
+            TestClass.StaticProperty = 42;
+            var propertyInfo = typeof(TestClass).GetProperty(nameof(TestClass.StaticProperty),
+                MemberAccessFlags.PublicStatic);
+            var setter = ReflectionCompiler.CreateStaticPropertySetter(propertyInfo);
+
+            // Act
+            setter(null);
+
+            // Assert - int default value is 0
+            Assert.AreEqual(0, TestClass.StaticProperty);
+        }
+
         #endregion
     }
 }

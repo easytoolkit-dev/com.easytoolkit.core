@@ -191,6 +191,26 @@ namespace EasyToolkit.Core.Reflection.Tests
             Assert.AreEqual(999, modifiedValue, "Modified value should be 999");
         }
 
+        /// <summary>
+        /// Verifies that CreateInstanceFieldSetter sets value type field to default value when null is passed.
+        /// </summary>
+        [Test]
+        public void CreateInstanceFieldSetter_ValueTypeFieldWithNull_SetsToDefaultValue()
+        {
+            // Arrange
+            var testInstance = new TestClass { InstanceField = 42 };
+            var fieldInfo = typeof(TestClass).GetField(nameof(TestClass.InstanceField),
+                MemberAccessFlags.PublicInstance);
+            var setter = ReflectionCompiler.CreateInstanceFieldSetter(fieldInfo);
+
+            // Act
+            var obj = (object)testInstance;
+            setter(ref obj, null);
+
+            // Assert - int default value is 0
+            Assert.AreEqual(0, testInstance.InstanceField);
+        }
+
         #endregion
     }
 }

@@ -74,6 +74,24 @@ namespace EasyToolkit.Core.Reflection.Tests
             Assert.That(ex.Message, Does.Contain("not static"));
         }
 
+        /// <summary>
+        /// Verifies that CreateStaticMethodInvoker converts null to default value for value type parameters.
+        /// </summary>
+        [Test]
+        public void CreateStaticMethodInvoker_ValueTypeParameterWithNull_UsesDefaultValue()
+        {
+            // Arrange
+            var methodInfo = typeof(TestClass).GetMethod(nameof(TestClass.MethodWithSingleIntArg),
+                MemberAccessFlags.PublicStatic);
+            var invoker = ReflectionCompiler.CreateStaticMethodInvoker(methodInfo);
+
+            // Act
+            var result = invoker(new object[] { null });
+
+            // Assert - int default value is 0
+            Assert.AreEqual(0, result);
+        }
+
         #endregion
 
         #region Static Void Method Tests

@@ -118,7 +118,7 @@ namespace EasyToolkit.Core.Reflection
             var fieldExpression = Expression.Field(null, fieldInfo);
 
             // Convert the value parameter to the field type
-            var convertedValue = Expression.Convert(valueParameter, fieldInfo.FieldType);
+            var convertedValue = CreateValueConversionExpression(valueParameter, fieldInfo.FieldType);
 
             // Create assignment expression
             var assignExpression = Expression.Assign(fieldExpression, convertedValue);
@@ -173,7 +173,7 @@ namespace EasyToolkit.Core.Reflection
                 var fieldExpression = Expression.Field(structVar, fieldInfo);
 
                 // Convert the value parameter to the field type
-                var convertedValue = Expression.Convert(valueParameter, fieldInfo.FieldType);
+                var convertedValue = CreateValueConversionExpression(valueParameter, fieldInfo.FieldType);
 
                 // Build the body:
                 // 1. Unbox the instance to struct
@@ -198,7 +198,7 @@ namespace EasyToolkit.Core.Reflection
                 var fieldExpression = Expression.Field(convertedInstance, fieldInfo);
 
                 // Convert the value parameter to the field type
-                var convertedValue = Expression.Convert(valueParameter, fieldInfo.FieldType);
+                var convertedValue = CreateValueConversionExpression(valueParameter, fieldInfo.FieldType);
 
                 // Create assignment expression
                 var assignExpression = Expression.Assign(fieldExpression, convertedValue);

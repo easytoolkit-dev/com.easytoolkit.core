@@ -228,7 +228,7 @@ namespace EasyToolkit.Core.Reflection
             {
                 var indexExpression = Expression.Constant(i, typeof(int));
                 var arrayAccessExpression = Expression.ArrayAccess(argsParameter, indexExpression);
-                parameterExpressions[i] = Expression.Convert(arrayAccessExpression, parameters[i].ParameterType);
+                parameterExpressions[i] = CreateValueConversionExpression(arrayAccessExpression, parameters[i].ParameterType);
             }
 
             return parameterExpressions;

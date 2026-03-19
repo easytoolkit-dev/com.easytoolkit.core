@@ -306,6 +306,26 @@ namespace EasyToolkit.Core.Reflection.Tests
             Assert.AreEqual(999, modifiedStruct.Field);
         }
 
+        /// <summary>
+        /// Verifies that CreateInstanceMethodInvoker converts null to default value for value type parameters.
+        /// </summary>
+        [Test]
+        public void CreateInstanceMethodInvoker_ValueTypeParameterWithNull_UsesDefaultValue()
+        {
+            // Arrange
+            var testInstance = new TestClass();
+            var methodInfo = typeof(TestClass).GetMethod(nameof(TestClass.MethodWithSingleIntArgInstance),
+                MemberAccessFlags.PublicInstance);
+            var invoker = ReflectionCompiler.CreateInstanceMethodInvoker(methodInfo);
+
+            // Act
+            var obj = (object)testInstance;
+            var result = invoker(ref obj, new object[] { null });
+
+            // Assert - int default value is 0
+            Assert.AreEqual(0, result);
+        }
+
         #endregion
     }
 }

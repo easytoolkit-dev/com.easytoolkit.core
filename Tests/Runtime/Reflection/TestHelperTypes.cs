@@ -16,6 +16,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         public static readonly int StaticReadOnlyField = 10;
         public static int StaticWriteOnlyProperty { private get; set; }
         public static int StaticReadOnlyProperty { get; private set; } = 10;
+        public static int MethodWithSingleIntArg(int x) => x;
 
         public int InstanceField;
         public int InstanceProperty { get; set; }
@@ -23,6 +24,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         public int InstanceMethodWithArgs(int x, int y) => x * y;
         public void InstanceVoidMethod() { InstanceField = 200; }
         public void InstanceVoidMethodWithArgs(int x, int y) { InstanceField = x * y; }
+        public int MethodWithSingleIntArgInstance(int x) => x;
 
         public readonly int ReadOnlyField = 10;
         public int WriteOnlyProperty { private get; set; }
