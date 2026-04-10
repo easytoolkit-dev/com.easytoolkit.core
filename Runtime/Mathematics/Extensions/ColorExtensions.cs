@@ -187,5 +187,163 @@ namespace EasyToolkit.Core.Mathematics
         }
 
         #endregion
+
+        #region Clamped Operations
+
+        /// <summary>
+        /// Clamps the red component between the specified minimum and maximum values and returns the modified color for fluent chaining.
+        /// </summary>
+        /// <param name="color">The source color.</param>
+        /// <param name="min">The minimum value to enforce.</param>
+        /// <param name="max">The maximum value to enforce.</param>
+        /// <returns>The modified color with red component clamped between minimum and maximum values.</returns>
+        public static Color WithRClamped(this Color color, float min, float max)
+        {
+            color.r = Mathf.Clamp(color.r, min, max);
+            return color;
+        }
+
+        /// <summary>
+        /// Clamps the green component between the specified minimum and maximum values and returns the modified color for fluent chaining.
+        /// </summary>
+        /// <param name="color">The source color.</param>
+        /// <param name="min">The minimum value to enforce.</param>
+        /// <param name="max">The maximum value to enforce.</param>
+        /// <returns>The modified color with green component clamped between minimum and maximum values.</returns>
+        public static Color WithGClamped(this Color color, float min, float max)
+        {
+            color.g = Mathf.Clamp(color.g, min, max);
+            return color;
+        }
+
+        /// <summary>
+        /// Clamps the blue component between the specified minimum and maximum values and returns the modified color for fluent chaining.
+        /// </summary>
+        /// <param name="color">The source color.</param>
+        /// <param name="min">The minimum value to enforce.</param>
+        /// <param name="max">The maximum value to enforce.</param>
+        /// <returns>The modified color with blue component clamped between minimum and maximum values.</returns>
+        public static Color WithBClamped(this Color color, float min, float max)
+        {
+            color.b = Mathf.Clamp(color.b, min, max);
+            return color;
+        }
+
+        /// <summary>
+        /// Clamps the alpha component between the specified minimum and maximum values and returns the modified color for fluent chaining.
+        /// </summary>
+        /// <param name="color">The source color.</param>
+        /// <param name="min">The minimum value to enforce.</param>
+        /// <param name="max">The maximum value to enforce.</param>
+        /// <returns>The modified color with alpha component clamped between minimum and maximum values.</returns>
+        public static Color WithAClamped(this Color color, float min, float max)
+        {
+            color.a = Mathf.Clamp(color.a, min, max);
+            return color;
+        }
+
+        /// <summary>
+        /// Clamps all RGB components between the specified minimum and maximum values and returns the modified color for fluent chaining.
+        /// </summary>
+        /// <param name="color">The source color.</param>
+        /// <param name="min">The minimum value to enforce.</param>
+        /// <param name="max">The maximum value to enforce.</param>
+        /// <returns>The modified color with RGB components clamped between minimum and maximum values.</returns>
+        public static Color WithRgbClamped(this Color color, float min, float max)
+        {
+            color.r = Mathf.Clamp(color.r, min, max);
+            color.g = Mathf.Clamp(color.g, min, max);
+            color.b = Mathf.Clamp(color.b, min, max);
+            return color;
+        }
+
+        /// <summary>
+        /// Clamps all RGBA components between the specified minimum and maximum values and returns the modified color for fluent chaining.
+        /// </summary>
+        /// <param name="color">The source color.</param>
+        /// <param name="min">The minimum value to enforce.</param>
+        /// <param name="max">The maximum value to enforce.</param>
+        /// <returns>The modified color with all components clamped between minimum and maximum values.</returns>
+        public static Color WithClamped(this Color color, float min, float max)
+        {
+            color.r = Mathf.Clamp(color.r, min, max);
+            color.g = Mathf.Clamp(color.g, min, max);
+            color.b = Mathf.Clamp(color.b, min, max);
+            color.a = Mathf.Clamp(color.a, min, max);
+            return color;
+        }
+
+        /// <summary>
+        /// Clamps the red component to the valid color range (0-1) and returns the modified color for fluent chaining.
+        /// </summary>
+        /// <param name="color">The source color.</param>
+        /// <returns>The modified color with red component clamped to valid range.</returns>
+        public static Color WithRClamped(this Color color)
+        {
+            color.r = Mathf.Clamp01(color.r);
+            return color;
+        }
+
+        /// <summary>
+        /// Clamps the green component to the valid color range (0-1) and returns the modified color for fluent chaining.
+        /// </summary>
+        /// <param name="color">The source color.</param>
+        /// <returns>The modified color with green component clamped to valid range.</returns>
+        public static Color WithGClamped(this Color color)
+        {
+            color.g = Mathf.Clamp01(color.g);
+            return color;
+        }
+
+        /// <summary>
+        /// Clamps the blue component to the valid color range (0-1) and returns the modified color for fluent chaining.
+        /// </summary>
+        /// <param name="color">The source color.</param>
+        /// <returns>The modified color with blue component clamped to valid range.</returns>
+        public static Color WithBClamped(this Color color)
+        {
+            color.b = Mathf.Clamp01(color.b);
+            return color;
+        }
+
+        /// <summary>
+        /// Clamps the alpha component to the valid color range (0-1) and returns the modified color for fluent chaining.
+        /// </summary>
+        /// <param name="color">The source color.</param>
+        /// <returns>The modified color with alpha component clamped to valid range.</returns>
+        public static Color WithAClamped(this Color color)
+        {
+            color.a = Mathf.Clamp01(color.a);
+            return color;
+        }
+
+        /// <summary>
+        /// Clamps all RGB components to the valid color range (0-1) and returns the modified color for fluent chaining.
+        /// </summary>
+        /// <param name="color">The source color.</param>
+        /// <returns>The modified color with RGB components clamped to valid range.</returns>
+        public static Color WithRgbClamped(this Color color)
+        {
+            color.r = Mathf.Clamp01(color.r);
+            color.g = Mathf.Clamp01(color.g);
+            color.b = Mathf.Clamp01(color.b);
+            return color;
+        }
+
+        /// <summary>
+        /// Clamps all RGBA components to the valid color range (0-1) and returns the modified color for fluent chaining.
+        /// </summary>
+        /// <param name="color">The source color.</param>
+        /// <returns>The modified color with all components clamped to valid range.</returns>
+        public static Color WithClamped(this Color color)
+        {
+            color.r = Mathf.Clamp01(color.r);
+            color.g = Mathf.Clamp01(color.g);
+            color.b = Mathf.Clamp01(color.b);
+            color.a = Mathf.Clamp01(color.a);
+            return color;
+        }
+
+        #endregion
     }
 }

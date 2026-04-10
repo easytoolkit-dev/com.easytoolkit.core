@@ -384,5 +384,406 @@ namespace EasyToolkit.Core.Mathematics
         }
 
         #endregion
+
+        #region Multiplied Operations
+
+        /// <summary>
+        /// Multiplies the X component by a factor and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="factor">The multiplication factor.</param>
+        /// <returns>The modified vector with multiplied X component.</returns>
+        public static Vector2 WithXMultiplied(this Vector2 vector, float factor)
+        {
+            vector.x *= factor;
+            return vector;
+        }
+
+        /// <summary>
+        /// Multiplies the Y component by a factor and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="factor">The multiplication factor.</param>
+        /// <returns>The modified vector with multiplied Y component.</returns>
+        public static Vector2 WithYMultiplied(this Vector2 vector, float factor)
+        {
+            vector.y *= factor;
+            return vector;
+        }
+
+        /// <summary>
+        /// Multiplies all components by a factor and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="factor">The multiplication factor.</param>
+        /// <returns>The modified vector with multiplied components.</returns>
+        public static Vector2 WithMultiplied(this Vector2 vector, float factor)
+        {
+            vector.x *= factor;
+            vector.y *= factor;
+            return vector;
+        }
+
+        /// <summary>
+        /// Multiplies the X component by a factor and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="factor">The multiplication factor.</param>
+        /// <returns>The modified vector with multiplied X component.</returns>
+        public static Vector3 WithXMultiplied(this Vector3 vector, float factor)
+        {
+            vector.x *= factor;
+            return vector;
+        }
+
+        /// <summary>
+        /// Multiplies the Y component by a factor and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="factor">The multiplication factor.</param>
+        /// <returns>The modified vector with multiplied Y component.</returns>
+        public static Vector3 WithYMultiplied(this Vector3 vector, float factor)
+        {
+            vector.y *= factor;
+            return vector;
+        }
+
+        /// <summary>
+        /// Multiplies the Z component by a factor and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="factor">The multiplication factor.</param>
+        /// <returns>The modified vector with multiplied Z component.</returns>
+        public static Vector3 WithZMultiplied(this Vector3 vector, float factor)
+        {
+            vector.z *= factor;
+            return vector;
+        }
+
+        /// <summary>
+        /// Multiplies all components by a factor and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="factor">The multiplication factor.</param>
+        /// <returns>The modified vector with multiplied components.</returns>
+        public static Vector3 WithMultiplied(this Vector3 vector, float factor)
+        {
+            vector.x *= factor;
+            vector.y *= factor;
+            vector.z *= factor;
+            return vector;
+        }
+
+        #endregion
+
+        #region OffsetBy Operations
+
+        /// <summary>
+        /// Adds an offset to the X component and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="offset">The offset value to add.</param>
+        /// <returns>The modified vector with offset X component.</returns>
+        public static Vector2 WithXOffsetBy(this Vector2 vector, float offset)
+        {
+            vector.x += offset;
+            return vector;
+        }
+
+        /// <summary>
+        /// Adds an offset to the Y component and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="offset">The offset value to add.</param>
+        /// <returns>The modified vector with offset Y component.</returns>
+        public static Vector2 WithYOffsetBy(this Vector2 vector, float offset)
+        {
+            vector.y += offset;
+            return vector;
+        }
+
+        /// <summary>
+        /// Adds an offset to all components and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="offset">The offset value to add to each component.</param>
+        /// <returns>The modified vector with offset components.</returns>
+        public static Vector2 WithOffsetBy(this Vector2 vector, float offset)
+        {
+            vector.x += offset;
+            vector.y += offset;
+            return vector;
+        }
+
+        /// <summary>
+        /// Adds an offset to the X component and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="offset">The offset value to add.</param>
+        /// <returns>The modified vector with offset X component.</returns>
+        public static Vector3 WithXOffsetBy(this Vector3 vector, float offset)
+        {
+            vector.x += offset;
+            return vector;
+        }
+
+        /// <summary>
+        /// Adds an offset to the Y component and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="offset">The offset value to add.</param>
+        /// <returns>The modified vector with offset Y component.</returns>
+        public static Vector3 WithYOffsetBy(this Vector3 vector, float offset)
+        {
+            vector.y += offset;
+            return vector;
+        }
+
+        /// <summary>
+        /// Adds an offset to the Z component and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="offset">The offset value to add.</param>
+        /// <returns>The modified vector with offset Z component.</returns>
+        public static Vector3 WithZOffsetBy(this Vector3 vector, float offset)
+        {
+            vector.z += offset;
+            return vector;
+        }
+
+        /// <summary>
+        /// Adds an offset to all components and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="offset">The offset value to add to each component.</param>
+        /// <returns>The modified vector with offset components.</returns>
+        public static Vector3 WithOffsetBy(this Vector3 vector, float offset)
+        {
+            vector.x += offset;
+            vector.y += offset;
+            vector.z += offset;
+            return vector;
+        }
+
+        #endregion
+
+        #region Clamped Operations
+
+        /// <summary>
+        /// Clamps the X component between the specified minimum and maximum values and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="min">The minimum value to enforce.</param>
+        /// <param name="max">The maximum value to enforce.</param>
+        /// <returns>The modified vector with X component clamped between minimum and maximum values.</returns>
+        public static Vector2 WithXClamped(this Vector2 vector, float min, float max)
+        {
+            vector.x = Mathf.Clamp(vector.x, min, max);
+            return vector;
+        }
+
+        /// <summary>
+        /// Clamps the Y component between the specified minimum and maximum values and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="min">The minimum value to enforce.</param>
+        /// <param name="max">The maximum value to enforce.</param>
+        /// <returns>The modified vector with Y component clamped between minimum and maximum values.</returns>
+        public static Vector2 WithYClamped(this Vector2 vector, float min, float max)
+        {
+            vector.y = Mathf.Clamp(vector.y, min, max);
+            return vector;
+        }
+
+        /// <summary>
+        /// Clamps all components between the specified minimum and maximum values and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="min">The minimum value to enforce.</param>
+        /// <param name="max">The maximum value to enforce.</param>
+        /// <returns>The modified vector with components clamped between minimum and maximum values.</returns>
+        public static Vector2 WithClamped(this Vector2 vector, float min, float max)
+        {
+            vector.x = Mathf.Clamp(vector.x, min, max);
+            vector.y = Mathf.Clamp(vector.y, min, max);
+            return vector;
+        }
+
+        /// <summary>
+        /// Clamps the X component between the specified minimum and maximum values and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="min">The minimum value to enforce.</param>
+        /// <param name="max">The maximum value to enforce.</param>
+        /// <returns>The modified vector with X component clamped between minimum and maximum values.</returns>
+        public static Vector3 WithXClamped(this Vector3 vector, float min, float max)
+        {
+            vector.x = Mathf.Clamp(vector.x, min, max);
+            return vector;
+        }
+
+        /// <summary>
+        /// Clamps the Y component between the specified minimum and maximum values and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="min">The minimum value to enforce.</param>
+        /// <param name="max">The maximum value to enforce.</param>
+        /// <returns>The modified vector with Y component clamped between minimum and maximum values.</returns>
+        public static Vector3 WithYClamped(this Vector3 vector, float min, float max)
+        {
+            vector.y = Mathf.Clamp(vector.y, min, max);
+            return vector;
+        }
+
+        /// <summary>
+        /// Clamps the Z component between the specified minimum and maximum values and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="min">The minimum value to enforce.</param>
+        /// <param name="max">The maximum value to enforce.</param>
+        /// <returns>The modified vector with Z component clamped between minimum and maximum values.</returns>
+        public static Vector3 WithZClamped(this Vector3 vector, float min, float max)
+        {
+            vector.z = Mathf.Clamp(vector.z, min, max);
+            return vector;
+        }
+
+        /// <summary>
+        /// Clamps all components between the specified minimum and maximum values and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="min">The minimum value to enforce.</param>
+        /// <param name="max">The maximum value to enforce.</param>
+        /// <returns>The modified vector with components clamped between minimum and maximum values.</returns>
+        public static Vector3 WithClamped(this Vector3 vector, float min, float max)
+        {
+            vector.x = Mathf.Clamp(vector.x, min, max);
+            vector.y = Mathf.Clamp(vector.y, min, max);
+            vector.z = Mathf.Clamp(vector.z, min, max);
+            return vector;
+        }
+
+        /// <summary>
+        /// Clamps the magnitude of the vector between the specified minimum and maximum values and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="minMagnitude">The minimum magnitude to enforce.</param>
+        /// <param name="maxMagnitude">The maximum magnitude to enforce.</param>
+        /// <returns>The modified vector with magnitude clamped between minimum and maximum values.</returns>
+        /// <remarks>
+        /// If the vector's magnitude is below minMagnitude, it is scaled to have exactly minMagnitude.
+        /// If the magnitude is above maxMagnitude, it is scaled to have exactly maxMagnitude.
+        /// If the vector is zero, it is returned unchanged.
+        /// </remarks>
+        public static Vector2 WithMagnitudeClamped(this Vector2 vector, float minMagnitude, float maxMagnitude)
+        {
+            float magnitude = vector.magnitude;
+            if (magnitude > 0f)
+            {
+                float newMagnitude = Mathf.Clamp(magnitude, minMagnitude, maxMagnitude);
+                vector = vector.normalized * newMagnitude;
+            }
+            return vector;
+        }
+
+        /// <summary>
+        /// Clamps the magnitude of the vector between the specified minimum and maximum values and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="minMagnitude">The minimum magnitude to enforce.</param>
+        /// <param name="maxMagnitude">The maximum magnitude to enforce.</param>
+        /// <returns>The modified vector with magnitude clamped between minimum and maximum values.</returns>
+        /// <remarks>
+        /// If the vector's magnitude is below minMagnitude, it is scaled to have exactly minMagnitude.
+        /// If the magnitude is above maxMagnitude, it is scaled to have exactly maxMagnitude.
+        /// If the vector is zero, it is returned unchanged.
+        /// </remarks>
+        public static Vector3 WithMagnitudeClamped(this Vector3 vector, float minMagnitude, float maxMagnitude)
+        {
+            float magnitude = vector.magnitude;
+            if (magnitude > 0f)
+            {
+                float newMagnitude = Mathf.Clamp(magnitude, minMagnitude, maxMagnitude);
+                vector = vector.normalized * newMagnitude;
+            }
+            return vector;
+        }
+
+        #endregion
+
+        #region Scale Operations
+
+        /// <summary>
+        /// Scales the vector by another vector component-wise and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="scale">The scale vector to multiply by component-wise.</param>
+        /// <returns>The modified vector with scaled components.</returns>
+        public static Vector2 WithScaled(this Vector2 vector, Vector2 scale)
+        {
+            vector.x *= scale.x;
+            vector.y *= scale.y;
+            return vector;
+        }
+
+        /// <summary>
+        /// Scales the vector by another vector component-wise and returns the modified vector for fluent chaining.
+        /// </summary>
+        /// <param name="vector">The source vector.</param>
+        /// <param name="scale">The scale vector to multiply by component-wise.</param>
+        /// <returns>The modified vector with scaled components.</returns>
+        public static Vector3 WithScaled(this Vector3 vector, Vector3 scale)
+        {
+            vector.x *= scale.x;
+            vector.y *= scale.y;
+            vector.z *= scale.z;
+            return vector;
+        }
+
+        #endregion
+
+        #region Swap Operations
+
+        /// <summary>
+        /// Returns a new Vector2 with the X and Y components swapped.
+        /// </summary>
+        /// <param name="vector">The Vector2 to swap.</param>
+        /// <returns>A new Vector2 with X and Y components exchanged.</returns>
+        public static Vector2 WithXYSwapped(this Vector2 vector)
+        {
+            return new Vector2(vector.y, vector.x);
+        }
+
+        /// <summary>
+        /// Returns a new Vector3 with the X and Y components swapped.
+        /// </summary>
+        /// <param name="vector">The Vector3 to swap.</param>
+        /// <returns>A new Vector3 with X and Y components exchanged.</returns>
+        public static Vector3 WithXYSwapped(this Vector3 vector)
+        {
+            return new Vector3(vector.y, vector.x, vector.z);
+        }
+
+        /// <summary>
+        /// Returns a new Vector2Int with the X and Y components swapped.
+        /// </summary>
+        /// <param name="vector">The Vector2Int to swap.</param>
+        /// <returns>A new Vector2Int with X and Y components exchanged.</returns>
+        public static Vector2Int WithXYSwapped(this Vector2Int vector)
+        {
+            return new Vector2Int(vector.y, vector.x);
+        }
+
+        /// <summary>
+        /// Returns a new Vector3Int with the X and Y components swapped.
+        /// </summary>
+        /// <param name="vector">The Vector3Int to swap.</param>
+        /// <returns>A new Vector3Int with X and Y components exchanged.</returns>
+        public static Vector3Int WithXYSwapped(this Vector3Int vector)
+        {
+            return new Vector3Int(vector.y, vector.x, vector.z);
+        }
+
+        #endregion
     }
 }

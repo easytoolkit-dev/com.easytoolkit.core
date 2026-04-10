@@ -117,32 +117,5 @@ namespace EasyToolkit.Core.Mathematics
         }
 
         #endregion
-
-        #region Approximation
-
-        /// <summary>
-        /// Compares two floating point values and returns true if they are similar.
-        /// </summary>
-        /// <param name="value">The source value.</param>
-        /// <param name="other">The value to compare against.</param>
-        /// <returns>True if the values are approximately equal.</returns>
-        public static bool Approximately(this float value, float other)
-        {
-            return Mathf.Approximately(value, other);
-        }
-
-        /// <summary>
-        /// Compares two floating point values and returns true if they are within a specified tolerance.
-        /// </summary>
-        /// <param name="value">The source value.</param>
-        /// <param name="other">The value to compare against.</param>
-        /// <param name="tolerance">The tolerance for comparison.</param>
-        /// <returns>True if the difference between values is less than the tolerance.</returns>
-        public static bool Approximately(this float value, float other, float tolerance)
-        {
-            return Math.Abs(value - other) < tolerance;
-        }
-
-        #endregion
     }
 }
