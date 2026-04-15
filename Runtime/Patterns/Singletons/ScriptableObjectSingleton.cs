@@ -11,7 +11,7 @@ namespace EasyToolkit.Core.Patterns
     /// <remarks>
     /// Usage:
     /// <code>
-    /// [ScriptableObjectSingletonConfiguration("Resources/Configs", ScriptableObjectLoadMode.Asset)]
+    /// [ScriptableObjectSingletonConfiguration("Assets/Resources/Configs", ScriptableObjectLoadMode.Asset)]
     /// public class GameConfig : ScriptableObjectSingleton&lt;GameConfig&gt;
     /// {
     ///     [SerializeField] private int _maxPlayers = 4;
@@ -24,8 +24,10 @@ namespace EasyToolkit.Core.Patterns
     public class ScriptableObjectSingleton<T> : ScriptableObject, IUnitySingleton
         where T : ScriptableObjectSingleton<T>
     {
-        private static readonly object InitLock = new();
+        // ReSharper disable once StaticMemberInGenericType
+        private static readonly object InitialLock = new();
         private static T s_instance;
+        // ReSharper disable once StaticMemberInGenericType
         private static ScriptableObjectSingletonConfigurationAttribute s_configurationAttribute;
 
         /// <summary>
@@ -62,11 +64,11 @@ namespace EasyToolkit.Core.Patterns
         {
             get
             {
-                if (s_instance == null)
+                if (s_instance is null)
                 {
-                    lock (InitLock)
+                    lock (InitialLock)
                     {
-                        if (s_instance != null)
+                        if (s_instance is not null)
                             return s_instance;
 
                         var config = ConfigurationAttribute;
