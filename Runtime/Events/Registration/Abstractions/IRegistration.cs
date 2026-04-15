@@ -1,4 +1,4 @@
-﻿
+
 namespace EasyToolkit.Core.Events
 {
     /// <summary>

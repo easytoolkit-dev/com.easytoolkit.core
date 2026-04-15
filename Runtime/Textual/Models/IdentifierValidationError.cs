@@ -1,4 +1,4 @@
-﻿namespace EasyToolkit.Core.Textual
+namespace EasyToolkit.Core.Textual
 {
     /// <summary>
     /// Type of identifier validation error.

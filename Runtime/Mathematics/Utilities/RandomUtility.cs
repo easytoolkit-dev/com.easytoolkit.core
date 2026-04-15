@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using EasyToolkit.Core.ThirdParty.xxHash;
 
 namespace EasyToolkit.Core.Mathematics

@@ -1,4 +1,4 @@
-﻿namespace EasyToolkit.Core.Pooling
+namespace EasyToolkit.Core.Pooling
 {
     public static class PoolUtility
     {

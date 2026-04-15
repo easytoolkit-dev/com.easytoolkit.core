@@ -1,4 +1,4 @@
-﻿namespace EasyToolkit.Core.Reflection
+namespace EasyToolkit.Core.Reflection
 {
     public interface IReflectionBuilder
     {
