@@ -21,10 +21,10 @@ namespace EasyToolkit.Core.Pooling.Implementations
         /// <summary>
         /// Flags indicating whether each slot is idle (true) or active (false).
         /// </summary>
-        private bool _slot0Idle;
-        private bool _slot1Idle;
-        private bool _slot2Idle;
-        private bool _slot3Idle;
+        private bool? _slot0Idle;
+        private bool? _slot1Idle;
+        private bool? _slot2Idle;
+        private bool? _slot3Idle;
 
         /// <summary>
         /// Gets the number of idle objects in the cache.
@@ -34,15 +34,29 @@ namespace EasyToolkit.Core.Pooling.Implementations
             get
             {
                 int count = 0;
-                if (_slot0Idle) count++;
-                if (_slot1Idle) count++;
-                if (_slot2Idle) count++;
-                if (_slot3Idle) count++;
+                if (_slot0Idle == true) count++;
+                if (_slot1Idle == true) count++;
+                if (_slot2Idle == true) count++;
+                if (_slot3Idle == true) count++;
                 return count;
             }
         }
 
-        public int ActiveCount => 4 - IdleCount;
+        /// <summary>
+        /// Gets the number of active objects in the cache.
+        /// </summary>
+        public int ActiveCount
+        {
+            get
+            {
+                int count = 0;
+                if (_slot0Idle == false) count++;
+                if (_slot1Idle == false) count++;
+                if (_slot2Idle == false) count++;
+                if (_slot3Idle == false) count++;
+                return count;
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FastCache{T}"/> structure.
@@ -61,11 +75,6 @@ namespace EasyToolkit.Core.Pooling.Implementations
             _slot1 = allocator();
             _slot2 = allocator();
             _slot3 = allocator();
-
-            _slot0Idle = true;
-            _slot1Idle = true;
-            _slot2Idle = true;
-            _slot3Idle = true;
         }
 
         /// <summary>
@@ -75,28 +84,28 @@ namespace EasyToolkit.Core.Pooling.Implementations
         /// <returns><c>true</c> if an object was retrieved; otherwise, <c>false</c>.</returns>
         public bool TryGet(out T result)
         {
-            if (_slot0Idle)
+            if (_slot0Idle != false)
             {
                 _slot0Idle = false;
                 result = _slot0;
                 return true;
             }
 
-            if (_slot1Idle)
+            if (_slot1Idle != false)
             {
                 _slot1Idle = false;
                 result = _slot1;
                 return true;
             }
 
-            if (_slot2Idle)
+            if (_slot2Idle != false)
             {
                 _slot2Idle = false;
                 result = _slot2;
                 return true;
             }
 
-            if (_slot3Idle)
+            if (_slot3Idle != false)
             {
                 _slot3Idle = false;
                 result = _slot3;
@@ -119,25 +128,25 @@ namespace EasyToolkit.Core.Pooling.Implementations
                 return false;
             }
 
-            if (ReferenceEquals(_slot0, item) && !_slot0Idle)
+            if (ReferenceEquals(_slot0, item) && _slot0Idle == false)
             {
                 _slot0Idle = true;
                 return true;
             }
 
-            if (ReferenceEquals(_slot1, item) && !_slot1Idle)
+            if (ReferenceEquals(_slot1, item) && _slot0Idle == false)
             {
                 _slot1Idle = true;
                 return true;
             }
 
-            if (ReferenceEquals(_slot2, item) && !_slot2Idle)
+            if (ReferenceEquals(_slot2, item) && _slot0Idle == false)
             {
                 _slot2Idle = true;
                 return true;
             }
 
-            if (ReferenceEquals(_slot3, item) && !_slot3Idle)
+            if (ReferenceEquals(_slot3, item) && _slot0Idle == false)
             {
                 _slot3Idle = true;
                 return true;
@@ -178,22 +187,22 @@ namespace EasyToolkit.Core.Pooling.Implementations
 
             if (ReferenceEquals(_slot0, item))
             {
-                return _slot0Idle;
+                return _slot0Idle == true;
             }
 
             if (ReferenceEquals(_slot1, item))
             {
-                return _slot1Idle;
+                return _slot1Idle == true;
             }
 
             if (ReferenceEquals(_slot2, item))
             {
-                return _slot2Idle;
+                return _slot2Idle == true;
             }
 
             if (ReferenceEquals(_slot3, item))
             {
-                return _slot3Idle;
+                return _slot3Idle == true;
             }
 
             return false;
@@ -204,10 +213,10 @@ namespace EasyToolkit.Core.Pooling.Implementations
         /// </summary>
         public void Reset()
         {
-            _slot0Idle = true;
-            _slot1Idle = true;
-            _slot2Idle = true;
-            _slot3Idle = true;
+            _slot0Idle = null;
+            _slot1Idle = null;
+            _slot2Idle = null;
+            _slot3Idle = null;
         }
     }
 }

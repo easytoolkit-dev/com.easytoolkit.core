@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using EasyToolkit.Core.Pooling;
 using JetBrains.Annotations;
 
 namespace EasyToolkit.Core.Pooling.Implementations

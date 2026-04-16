@@ -291,7 +291,14 @@ namespace EasyToolkit.Core.Pooling.Implementations
 
                     if (pooledInfo.ElapsedTime >= pooledInfo.IdleLifetime)
                     {
-                        UnityEngine.Object.Destroy(pooledInfo.Target);
+                        if (Application.isPlaying)
+                        {
+                            UnityEngine.Object.Destroy(pooledInfo.Target);
+                        }
+                        else
+                        {
+                            UnityEngine.Object.DestroyImmediate(pooledInfo.Target);
+                        }
                         _idleInstances.RemoveAt(i);
                     }
                 }
