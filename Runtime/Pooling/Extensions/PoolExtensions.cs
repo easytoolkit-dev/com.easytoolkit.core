@@ -63,7 +63,7 @@ namespace EasyToolkit.Core.Pooling
         /// <param name="capacity">The new capacity value.</param>
         /// <returns>The same pool instance for fluent chaining.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="pool"/> is null.</exception>
-        public static IPool<T> SetCapacity<T>(this IPool<T> pool, int capacity)
+        public static IPool<T> SetCapacity<T>(this IPool<T> pool, int? capacity)
         {
             if (pool == null)
             {

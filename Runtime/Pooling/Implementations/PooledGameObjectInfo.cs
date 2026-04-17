@@ -1,0 +1,66 @@
+using System;
+using UnityEngine;
+
+namespace EasyToolkit.Core.Pooling.Implementations
+{
+    /// <summary>
+    /// Provides metadata about a pooled GameObject instance.
+    /// </summary>
+    internal sealed class PooledGameObjectInfo
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PooledGameObjectInfo"/> class.
+        /// </summary>
+        /// <param name="target">The target GameObject instance.</param>
+        /// <param name="owningPool">The pool that owns this instance.</param>
+        public PooledGameObjectInfo(GameObject target, IGameObjectPool owningPool)
+        {
+            Target = target;
+            OwningPool = owningPool;
+            PoolItems = target.GetComponents<IPoolObject>();
+        }
+
+        /// <summary>
+        /// Gets the target GameObject instance.
+        /// </summary>
+        public GameObject Target { get; }
+
+        /// <summary>
+        /// Gets the cached array of &lt;see cref="IPoolItem"/&gt; components on the target GameObject.
+        /// </summary>
+        public IPoolObject[] PoolItems { get; }
+
+        /// <summary>
+        /// Gets the pool that owns this instance.
+        /// </summary>
+        public IGameObjectPool OwningPool { get; }
+
+        /// <summary>
+        /// Gets or sets the maximum lifetime for the active state.
+        /// Objects exceeding this time will be recycled back to the pool.
+        /// A <c>null</c> value disables automatic recycling.
+        /// </summary>
+        public float? ActiveLifetime { get; set; }
+
+        /// <summary>
+        /// Gets or sets the maximum lifetime for the idle state.
+        /// Objects exceeding this time will be destroyed.
+        /// A <c>null</c> value disables automatic destruction.
+        /// </summary>
+        public float? IdleLifetime { get; set; }
+
+        /// <summary>
+        /// Gets or sets the elapsed time since the last state change.
+        /// <list type="bullet">
+        ///   <item>When <see cref="State"/> is <see cref="PooledGameObjectState.Active"/>: represents active duration.</item>
+        ///   <item>When <see cref="State"/> is <see cref="PooledGameObjectState.Idle"/>: represents idle duration.</item>
+        /// </list>
+        /// </summary>
+        public float ElapsedTime { get; set; }
+
+        /// <summary>
+        /// Gets or sets the current state of the pooled GameObject.
+        /// </summary>
+        public PooledGameObjectState State { get; set; }
+    }
+}
