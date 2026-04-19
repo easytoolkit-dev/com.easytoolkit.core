@@ -13,7 +13,7 @@ namespace EasyToolkit.Core.Pooling
             int? maxCapacity = null,
             bool enablePoolItemCallbacks = true,
             float? activeLifetime = null,
-            float? idleLifetime = 10f,
+            float? idleLifetime = 30f,
             float tickInterval = 1f)
             : base(preallocationCount, maxCapacity, enablePoolItemCallbacks)
         {

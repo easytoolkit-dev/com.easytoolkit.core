@@ -1,7 +1,19 @@
+using EasyToolkit.Core.Reflection;
+
 namespace EasyToolkit.Core.Pooling
 {
     public static class PoolUtility
     {
+        public static T RentObject<T>() where T : class, new()
+        {
+            return PoolFastGetter<T>.Pool.Rent();
+        }
+
+        public static void ReleaseObject<T>(T obj) where T : class, new()
+        {
+            PoolFastGetter<T>.Pool.Release(obj);
+        }
+
         /// <summary>
         /// Fast getter for object pools with generic type constraint.
         /// </summary>
@@ -13,21 +25,11 @@ namespace EasyToolkit.Core.Pooling
 
             static PoolFastGetter()
             {
-                if (!PoolManagerFactory.DefaultObjectPoolManager.TryGetPool(typeof(T).FullName, out Pool))
+                if (!PoolManagerFactory.DefaultObjectPoolManager.TryGetPool(typeof(T).ToCodeString(TypeFormat.Full), out Pool))
                 {
-                    Pool = PoolManagerFactory.DefaultObjectPoolManager.CreatePool<T>(typeof(T).FullName);
+                    Pool = PoolManagerFactory.DefaultObjectPoolManager.CreatePool<T>(typeof(T).ToCodeString(TypeFormat.Full));
                 }
             }
-        }
-
-        public static T RentObject<T>() where T : class, new()
-        {
-            return PoolFastGetter<T>.Pool.Rent();
-        }
-
-        public static void ReleaseObject<T>(T obj) where T : class, new()
-        {
-            PoolFastGetter<T>.Pool.Release(obj);
         }
     }
 }
