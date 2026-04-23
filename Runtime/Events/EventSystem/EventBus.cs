@@ -17,6 +17,12 @@ namespace EasyToolkit.Core.Events
             public bool IsActive;
         }
 
+        private sealed class HandlerDispatchFailure
+        {
+            public HandlerRegistration Registration;
+            public Exception Exception;
+        }
+
         private readonly Dictionary<Type, List<HandlerRegistration>> _handlersByEventType;
         private readonly object _lock;
 
@@ -181,11 +187,14 @@ namespace EasyToolkit.Core.Events
                 if (!_handlersByEventType.TryGetValue(eventType, out var handlers))
                     return 0;
 
-                activeHandlers = handlers.Where(r => r.IsActive).OrderByDescending(r => r.Priority).ToList();
+                activeHandlers = handlers.Where(r => r.IsActive)
+                    .OrderByDescending(r => r.Priority)
+                    .ToList();
             }
 
             var invokedCount = 0;
 
+            var handlerFailures = new List<HandlerDispatchFailure>();
             foreach (var registration in activeHandlers)
             {
                 try
@@ -195,9 +204,19 @@ namespace EasyToolkit.Core.Events
                 }
                 catch (Exception ex)
                 {
-                    UnityEngine.Debug.LogError(
-                        $"[EventBus] HandlerFailed: Event type '{eventType.Name}' threw exception: {ex.Message}\n{ex.StackTrace}");
+                    handlerFailures.Add(new HandlerDispatchFailure
+                    {
+                        Registration = registration,
+                        Exception = ex
+                    });
                 }
+            }
+
+            if (handlerFailures.Count > 0)
+            {
+                throw new AggregateException(
+                    BuildDispatchFailureMessage(eventType, activeHandlers.Count, invokedCount, handlerFailures),
+                    handlerFailures.Select(failure => failure.Exception));
             }
 
             return invokedCount;
@@ -278,6 +297,45 @@ namespace EasyToolkit.Core.Events
             {
                 _handlersByEventType.Remove(eventType);
             }
+        }
+
+        private static string BuildDispatchFailureMessage(
+            Type eventType,
+            int handlerCount,
+            int completedHandlerCount,
+            IReadOnlyList<HandlerDispatchFailure> failures)
+        {
+            var failureSummaries = failures.Select((failure, index) =>
+            {
+                var exception = failure.Exception;
+                var exceptionMessage = string.IsNullOrEmpty(exception.Message)
+                    ? "<no message>"
+                    : exception.Message;
+
+                return $"#{index + 1} {DescribeHandler(failure.Registration.OriginalHandler)} " +
+                    $"[{failure.Registration.Priority}] threw {exception.GetType().FullName}: {exceptionMessage}";
+            });
+
+            return $"Failed to dispatch event '{eventType.FullName}'. {failures.Count} of {handlerCount} " +
+                $"handler(s) failed; {completedHandlerCount} handler(s) completed successfully. " +
+                $"Failures: {string.Join("; ", failureSummaries)}";
+        }
+
+        private static string DescribeHandler(object handler)
+        {
+            if (handler is Delegate handlerDelegate)
+            {
+                var declaringTypeName = handlerDelegate.Method.DeclaringType?.FullName ?? "<unknown>";
+                var methodName = handlerDelegate.Method.Name;
+                var targetTypeName = handlerDelegate.Target?.GetType().FullName;
+
+                if (!string.IsNullOrEmpty(targetTypeName))
+                    return $"{declaringTypeName}.{methodName} (target: {targetTypeName})";
+
+                return $"{declaringTypeName}.{methodName}";
+            }
+
+            return handler.GetType().FullName ?? handler.GetType().Name;
         }
     }
 }

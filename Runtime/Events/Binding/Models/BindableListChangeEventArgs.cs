@@ -49,7 +49,7 @@ namespace EasyToolkit.Core.Events
     /// Provides data for the <see cref="IReadOnlyBindableList{T}.ItemChanged"/> event.
     /// </summary>
     /// <typeparam name="T">The type of elements in the list.</typeparam>
-    public sealed class BindableListChangeEventArgs<T> : EventArgs, IPoolObject, IDisposable
+    public sealed class BindableListChangeEventArgs<T> : EventArgs, IDisposable
     {
         /// <summary>
         /// Gets the type of change operation.
@@ -146,16 +146,7 @@ namespace EasyToolkit.Core.Events
         /// <summary>
         /// Releases the instance back to the object pool.
         /// </summary>
-        public void Dispose()
-        {
-            PoolUtility.ReleaseObject(this);
-        }
-
-        void IPoolObject.OnRent()
-        {
-        }
-
-        void IPoolObject.OnRelease()
+        void IDisposable.Dispose()
         {
             ChangeType = default;
             Timing = default;
@@ -163,6 +154,7 @@ namespace EasyToolkit.Core.Events
             Element = default;
             OldElement = default;
             Cancel = false;
+            PoolUtility.ReleaseObject(this);
         }
     }
 }

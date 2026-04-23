@@ -152,7 +152,7 @@ namespace EasyToolkit.Core.Patterns.Implementations
         /// <summary>
         /// Cleans up resources.
         /// </summary>
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             if (_disposed)
                 return;
@@ -225,7 +225,7 @@ namespace EasyToolkit.Core.Patterns.Implementations
             /// <summary>
             /// Disposes the scope and its scoped instances.
             /// </summary>
-            public void Dispose()
+            void IDisposable.Dispose()
             {
                 if (_disposed)
                     return;
