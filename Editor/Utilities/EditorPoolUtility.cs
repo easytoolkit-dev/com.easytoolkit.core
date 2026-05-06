@@ -7,7 +7,7 @@ namespace EasyToolkit.Core.Editor
 {
     public static class EditorPoolUtility
     {
-        private static readonly IObjectPoolManager ObjectPoolManager = PoolManagerFactory.CreateObjectPoolManager();
+        private static readonly ObjectPoolManager ObjectPoolManager = new();
 
         /// <summary>
         /// Fast getter for object pools with generic type constraint.

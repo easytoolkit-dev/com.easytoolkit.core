@@ -1,0 +1,15 @@
+using System;
+
+namespace EasyToolkit.Core.Patterns
+{
+    /// <summary>
+    /// Represents a scope for service resolution.
+    /// </summary>
+    public interface IServiceScope : IDisposable
+    {
+        /// <summary>
+        /// The service provider for this scope.
+        /// </summary>
+        IServiceResolver ServiceResolver { get; }
+    }
+}

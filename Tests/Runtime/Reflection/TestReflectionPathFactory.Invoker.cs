@@ -21,7 +21,7 @@ namespace EasyToolkit.Core.Reflection.Tests
             string methodPath = null;
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => ReflectionPathFactory.BuildInvoker(methodPath));
+            Assert.Throws<ArgumentException>(() => new InvokerBuilder(methodPath));
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace EasyToolkit.Core.Reflection.Tests
             string methodPath = string.Empty;
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => ReflectionPathFactory.BuildInvoker(methodPath));
+            Assert.Throws<ArgumentException>(() => new InvokerBuilder(methodPath));
         }
 
         /// <summary>
@@ -47,24 +47,7 @@ namespace EasyToolkit.Core.Reflection.Tests
             string methodPath = "   ";
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => ReflectionPathFactory.BuildInvoker(methodPath));
-        }
-
-        /// <summary>
-        /// Verifies that BuildInvoker returns a valid IInvokerBuilder for a valid path.
-        /// </summary>
-        [Test]
-        public void BuildInvoker_ValidPath_ReturnsInvokerBuilder()
-        {
-            // Arrange
-            string methodPath = "InstanceMethod";
-
-            // Act
-            var builder = ReflectionPathFactory.BuildInvoker(methodPath);
-
-            // Assert
-            Assert.IsNotNull(builder);
-            Assert.IsInstanceOf<IInvokerBuilder>(builder);
+            Assert.Throws<ArgumentException>(() => new InvokerBuilder(methodPath));
         }
 
         #endregion
@@ -79,7 +62,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         {
             // Arrange
             TestInvokerClass.StaticMethodCallCount = 0;
-            var builder = ReflectionPathFactory.BuildInvoker("StaticMethod");
+            var builder = new InvokerBuilder("StaticMethod");
 
             // Act
             var invoker = builder.BuildStaticFunc(typeof(TestInvokerClass));
@@ -97,7 +80,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         public void BuildStaticFunc_NonExistentMethod_ThrowsArgumentException()
         {
             // Arrange
-            var builder = ReflectionPathFactory.BuildInvoker("NonExistentMethod");
+            var builder = new InvokerBuilder("NonExistentMethod");
 
             // Act & Assert
             Assert.Throws<ArgumentException>(() => builder.BuildStaticFunc(typeof(TestInvokerClass)));
@@ -115,7 +98,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         {
             // Arrange
             TestInvokerClass.StaticMethodCallCount = 0;
-            var builder = ReflectionPathFactory.BuildInvoker("StaticMethodWithParams");
+            var builder = new InvokerBuilder("StaticMethodWithParams");
 
             // Act
             var invoker = builder.BuildStaticFunc(typeof(TestInvokerClass), typeof(string), typeof(int));
@@ -133,7 +116,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         public void BuildStaticFunc_OverloadNoParams_CallsCorrectOverload()
         {
             // Arrange
-            var builder = ReflectionPathFactory.BuildInvoker("StaticOverloadMethod");
+            var builder = new InvokerBuilder("StaticOverloadMethod");
 
             // Act
             var invoker = builder.BuildStaticFunc(typeof(TestInvokerClass));
@@ -150,7 +133,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         public void BuildStaticFunc_OverloadOneParam_CallsCorrectOverload()
         {
             // Arrange
-            var builder = ReflectionPathFactory.BuildInvoker("StaticOverloadMethod");
+            var builder = new InvokerBuilder("StaticOverloadMethod");
 
             // Act
             var invoker = builder.BuildStaticFunc(typeof(TestInvokerClass), typeof(int));
@@ -167,7 +150,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         public void BuildStaticFunc_OverloadTwoParams_CallsCorrectOverload()
         {
             // Arrange
-            var builder = ReflectionPathFactory.BuildInvoker("StaticOverloadMethod");
+            var builder = new InvokerBuilder("StaticOverloadMethod");
 
             // Act
             var invoker = builder.BuildStaticFunc(typeof(TestInvokerClass), typeof(int), typeof(int));
@@ -184,7 +167,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         public void BuildStaticFunc_ParameterTypeMismatch_ThrowsArgumentException()
         {
             // Arrange
-            var builder = ReflectionPathFactory.BuildInvoker("StaticMethodWithParams");
+            var builder = new InvokerBuilder("StaticMethodWithParams");
 
             // Act & Assert
             Assert.Throws<ArgumentException>(() =>
@@ -198,7 +181,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         public void BuildStaticFunc_ParameterCountMismatch_ThrowsArgumentException()
         {
             // Arrange
-            var builder = ReflectionPathFactory.BuildInvoker("StaticMethodWithParams");
+            var builder = new InvokerBuilder("StaticMethodWithParams");
 
             // Act & Assert
             Assert.Throws<ArgumentException>(() =>
@@ -212,7 +195,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         public void BuildStaticFunc_MethodRequiresParams_NoParamsProvided_ThrowsArgumentException()
         {
             // Arrange
-            var builder = ReflectionPathFactory.BuildInvoker("StaticMethodWithParams");
+            var builder = new InvokerBuilder("StaticMethodWithParams");
 
             // Act & Assert
             Assert.Throws<ArgumentException>(() =>
@@ -230,7 +213,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         public void BuildStaticFunc_NestedStaticPath_InvokesNestedMethod()
         {
             // Arrange
-            var builder = ReflectionPathFactory.BuildInvoker("StaticNested.NestedMethod");
+            var builder = new InvokerBuilder("StaticNested.NestedMethod");
 
             // Act
             var invoker = builder.BuildStaticFunc(typeof(TestInvokerClass));
@@ -247,7 +230,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         public void BuildStaticFunc_NestedStaticPathWithParams_InvokesNestedMethod()
         {
             // Arrange
-            var builder = ReflectionPathFactory.BuildInvoker("StaticNested.NestedMethodWithParams");
+            var builder = new InvokerBuilder("StaticNested.NestedMethodWithParams");
 
             // Act
             var invoker = builder.BuildStaticFunc(typeof(TestInvokerClass), typeof(double), typeof(double));
@@ -270,7 +253,7 @@ namespace EasyToolkit.Core.Reflection.Tests
             // Arrange
             var testInstance = new TestInvokerClass();
             testInstance.InstanceMethodCallCount = 0;
-            var builder = ReflectionPathFactory.BuildInvoker("InstanceMethod");
+            var builder = new InvokerBuilder("InstanceMethod");
 
             // Act
             var invoker = builder.BuildInstanceFunc(typeof(TestInvokerClass));
@@ -289,7 +272,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         public void BuildInstanceFunc_NonExistentMethod_ThrowsArgumentException()
         {
             // Arrange
-            var builder = ReflectionPathFactory.BuildInvoker("NonExistentMethod");
+            var builder = new InvokerBuilder("NonExistentMethod");
 
             // Act & Assert
             Assert.Throws<ArgumentException>(() => builder.BuildInstanceFunc(typeof(TestInvokerClass)));
@@ -307,7 +290,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         {
             // Arrange
             var testInstance = new TestInvokerClass();
-            var builder = ReflectionPathFactory.BuildInvoker("InstanceMethodWithParams");
+            var builder = new InvokerBuilder("InstanceMethodWithParams");
 
             // Act
             var invoker = builder.BuildInstanceFunc(typeof(TestInvokerClass), typeof(string), typeof(string));
@@ -326,7 +309,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         {
             // Arrange
             var testInstance = new TestInvokerClass();
-            var builder = ReflectionPathFactory.BuildInvoker("InstanceOverloadMethod");
+            var builder = new InvokerBuilder("InstanceOverloadMethod");
 
             // Act
             var invoker = builder.BuildInstanceFunc(typeof(TestInvokerClass));
@@ -345,7 +328,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         {
             // Arrange
             var testInstance = new TestInvokerClass();
-            var builder = ReflectionPathFactory.BuildInvoker("InstanceOverloadMethod");
+            var builder = new InvokerBuilder("InstanceOverloadMethod");
 
             // Act
             var invoker = builder.BuildInstanceFunc(typeof(TestInvokerClass), typeof(int));
@@ -364,7 +347,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         {
             // Arrange
             var testInstance = new TestInvokerClass();
-            var builder = ReflectionPathFactory.BuildInvoker("InstanceOverloadMethod");
+            var builder = new InvokerBuilder("InstanceOverloadMethod");
 
             // Act
             var invoker = builder.BuildInstanceFunc(typeof(TestInvokerClass), typeof(int), typeof(int));
@@ -382,7 +365,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         public void BuildInstanceFunc_ParameterTypeMismatch_ThrowsArgumentException()
         {
             // Arrange
-            var builder = ReflectionPathFactory.BuildInvoker("InstanceMethodWithParams");
+            var builder = new InvokerBuilder("InstanceMethodWithParams");
 
             // Act & Assert
             Assert.Throws<ArgumentException>(() =>
@@ -396,7 +379,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         public void BuildInstanceFunc_ParameterCountMismatch_ThrowsArgumentException()
         {
             // Arrange
-            var builder = ReflectionPathFactory.BuildInvoker("InstanceMethodWithParams");
+            var builder = new InvokerBuilder("InstanceMethodWithParams");
 
             // Act & Assert
             Assert.Throws<ArgumentException>(() =>
@@ -410,7 +393,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         public void BuildInstanceFunc_MethodRequiresParams_NoParamsProvided_ThrowsArgumentException()
         {
             // Arrange
-            var builder = ReflectionPathFactory.BuildInvoker("InstanceMethodWithParams");
+            var builder = new InvokerBuilder("InstanceMethodWithParams");
 
             // Act & Assert
             Assert.Throws<ArgumentException>(() =>
@@ -432,7 +415,7 @@ namespace EasyToolkit.Core.Reflection.Tests
             {
                 Nested = new NestedInvokerClass()
             };
-            var builder = ReflectionPathFactory.BuildInvoker("Nested.NestedMethod");
+            var builder = new InvokerBuilder("Nested.NestedMethod");
 
             // Act
             var invoker = builder.BuildInstanceFunc(typeof(TestInvokerClass));
@@ -454,7 +437,7 @@ namespace EasyToolkit.Core.Reflection.Tests
             {
                 Nested = new NestedInvokerClass()
             };
-            var builder = ReflectionPathFactory.BuildInvoker("Nested.NestedMethodWithParams");
+            var builder = new InvokerBuilder("Nested.NestedMethodWithParams");
 
             // Act
             var invoker = builder.BuildInstanceFunc(typeof(TestInvokerClass), typeof(double), typeof(double));
@@ -476,7 +459,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         public void BuildStaticFunc_PathEndsWithField_ThrowsArgumentException()
         {
             // Arrange
-            var builder = ReflectionPathFactory.BuildInvoker("StaticNested.NestedProperty");
+            var builder = new InvokerBuilder("StaticNested.NestedProperty");
 
             // Act & Assert
             Assert.Throws<ArgumentException>(() => builder.BuildStaticFunc(typeof(TestInvokerClass)));
@@ -489,7 +472,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         public void BuildInstanceFunc_PathEndsWithField_ThrowsArgumentException()
         {
             // Arrange
-            var builder = ReflectionPathFactory.BuildInvoker("Nested.NestedProperty");
+            var builder = new InvokerBuilder("Nested.NestedProperty");
 
             // Act & Assert
             Assert.Throws<ArgumentException>(() => builder.BuildInstanceFunc(typeof(TestInvokerClass)));

@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using EasyToolkit.Core.Patterns.Implementations;
+using EasyToolkit.Core.Patterns;
 
 namespace EasyToolkit.Core.Patterns
 {

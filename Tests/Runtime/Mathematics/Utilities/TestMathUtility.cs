@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using UnityEngine;
 
-namespace EasyToolkit.Core.Mathematics.Tests
+namespace EasyToolkit.Core.Foundation.Tests
 {
     /// <summary>
     /// Unit tests for MathUtility components.

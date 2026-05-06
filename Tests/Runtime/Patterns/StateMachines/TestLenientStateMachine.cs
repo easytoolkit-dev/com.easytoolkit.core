@@ -1,4 +1,4 @@
-using EasyToolkit.Core.Patterns.Implementations;
+using EasyToolkit.Core.Patterns;
 using NUnit.Framework;
 
 namespace EasyToolkit.Core.Patterns.Tests
@@ -240,38 +240,6 @@ namespace EasyToolkit.Core.Patterns.Tests
 
             // Assert
             Assert.IsTrue(onFixedUpdateCalled);
-        }
-
-        #endregion
-
-        #region Factory Tests
-
-        /// <summary>
-        /// Verifies that StateMachineFactory.CreateLenient creates a lenient state machine.
-        /// </summary>
-        [Test]
-        public void Factory_CreateLenient_CreatesLenientStateMachine()
-        {
-            // Arrange & Act
-            var stateMachine = StateMachineFactory.CreateLenient<TestState>();
-
-            // Assert
-            Assert.IsNotNull(stateMachine);
-            Assert.IsInstanceOf<LenientStateMachine<TestState>>(stateMachine);
-        }
-
-        /// <summary>
-        /// Verifies that StateMachineFactory.Create creates a strict state machine.
-        /// </summary>
-        [Test]
-        public void Factory_Create_CreatesStrictStateMachine()
-        {
-            // Arrange & Act
-            var stateMachine = StateMachineFactory.Create<TestState>();
-
-            // Assert
-            Assert.IsNotNull(stateMachine);
-            Assert.IsInstanceOf<StateMachine<TestState>>(stateMachine);
         }
 
         #endregion

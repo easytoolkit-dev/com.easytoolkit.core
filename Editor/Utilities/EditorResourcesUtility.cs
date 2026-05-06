@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using EasyToolkit.Core.Textual;
+using EasyToolkit.Core.Foundation;
 using UnityEditor;
 
 namespace EasyToolkit.Core.Editor

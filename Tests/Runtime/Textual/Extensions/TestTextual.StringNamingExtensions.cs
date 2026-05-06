@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace EasyToolkit.Core.Textual.Tests
+namespace EasyToolkit.Core.Foundation.Tests
 {
     /// <summary>
     /// Unit tests for StringNamingExtensions.

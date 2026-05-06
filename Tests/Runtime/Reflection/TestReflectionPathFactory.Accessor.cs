@@ -21,7 +21,7 @@ namespace EasyToolkit.Core.Reflection.Tests
             string memberPath = null;
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => ReflectionPathFactory.BuildAccessor(memberPath));
+            Assert.Throws<ArgumentException>(() => new AccessorBuilder(memberPath));
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace EasyToolkit.Core.Reflection.Tests
             string memberPath = string.Empty;
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => ReflectionPathFactory.BuildAccessor(memberPath));
+            Assert.Throws<ArgumentException>(() => new AccessorBuilder(memberPath));
         }
 
         /// <summary>
@@ -47,24 +47,7 @@ namespace EasyToolkit.Core.Reflection.Tests
             string memberPath = "   ";
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => ReflectionPathFactory.BuildAccessor(memberPath));
-        }
-
-        /// <summary>
-        /// Verifies that BuildAccessor returns a valid IAccessorBuilder for a valid path.
-        /// </summary>
-        [Test]
-        public void BuildAccessor_ValidPath_ReturnsAccessorBuilder()
-        {
-            // Arrange
-            string memberPath = "InstanceField";
-
-            // Act
-            var builder = ReflectionPathFactory.BuildAccessor(memberPath);
-
-            // Assert
-            Assert.IsNotNull(builder);
-            Assert.IsInstanceOf<IAccessorBuilder>(builder);
+            Assert.Throws<ArgumentException>(() => new AccessorBuilder(memberPath));
         }
 
         #endregion
@@ -79,7 +62,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         {
             // Arrange
             TestClassForAccessor.StaticField = 100;
-            var builder = ReflectionPathFactory.BuildAccessor("StaticField");
+            var builder = new AccessorBuilder("StaticField");
 
             // Act
             var getter = builder.BuildStaticGetter(typeof(TestClassForAccessor));
@@ -97,7 +80,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         {
             // Arrange
             TestClassForAccessor.StaticProperty = "TestValue";
-            var builder = ReflectionPathFactory.BuildAccessor("StaticProperty");
+            var builder = new AccessorBuilder("StaticProperty");
 
             // Act
             var getter = builder.BuildStaticGetter(typeof(TestClassForAccessor));
@@ -115,7 +98,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         {
             // Arrange
             TestClassForAccessor.StaticNested.NestedField = 2.71;
-            var builder = ReflectionPathFactory.BuildAccessor("StaticNested.NestedField");
+            var builder = new AccessorBuilder("StaticNested.NestedField");
 
             // Act
             var getter = builder.BuildStaticGetter(typeof(TestClassForAccessor));
@@ -132,7 +115,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         public void BuildStaticGetter_InvalidPath_ThrowsArgumentException()
         {
             // Arrange
-            var builder = ReflectionPathFactory.BuildAccessor("NonExistentField");
+            var builder = new AccessorBuilder("NonExistentField");
 
             // Act & Assert
             Assert.Throws<ArgumentException>(() => builder.BuildStaticGetter(typeof(TestClassForAccessor)));
@@ -150,7 +133,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         {
             // Arrange
             var testInstance = new TestClassForAccessor { InstanceField = 42 };
-            var builder = ReflectionPathFactory.BuildAccessor("InstanceField");
+            var builder = new AccessorBuilder("InstanceField");
 
             // Act
             var getter = builder.BuildInstanceGetter(typeof(TestClassForAccessor));
@@ -168,7 +151,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         {
             // Arrange
             var testInstance = new TestClassForAccessor { InstanceProperty = "PropertyValue" };
-            var builder = ReflectionPathFactory.BuildAccessor("InstanceProperty");
+            var builder = new AccessorBuilder("InstanceProperty");
 
             // Act
             var getter = builder.BuildInstanceGetter(typeof(TestClassForAccessor));
@@ -186,7 +169,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         {
             // Arrange
             var testInstance = new TestClassForAccessor { Nested = new NestedClassForAccessor { NestedField = 1.618 } };
-            var builder = ReflectionPathFactory.BuildAccessor("Nested.NestedField");
+            var builder = new AccessorBuilder("Nested.NestedField");
 
             // Act
             var getter = builder.BuildInstanceGetter(typeof(TestClassForAccessor));
@@ -204,7 +187,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         {
             // Arrange
             var testInstance = new TestClassForAccessor { Nested = new NestedClassForAccessor { NestedProperty = "DeepValue" } };
-            var builder = ReflectionPathFactory.BuildAccessor("Nested.NestedProperty");
+            var builder = new AccessorBuilder("Nested.NestedProperty");
 
             // Act
             var getter = builder.BuildInstanceGetter(typeof(TestClassForAccessor));
@@ -221,7 +204,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         public void BuildInstanceGetter_InvalidPath_ThrowsArgumentException()
         {
             // Arrange
-            var builder = ReflectionPathFactory.BuildAccessor("NonExistentMember");
+            var builder = new AccessorBuilder("NonExistentMember");
 
             // Act & Assert
             Assert.Throws<ArgumentException>(() => builder.BuildInstanceGetter(typeof(TestClassForAccessor)));
@@ -239,7 +222,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         {
             // Arrange
             var testInstance = new TestClassForAccessor { InstanceField = 0 };
-            var builder = ReflectionPathFactory.BuildAccessor("InstanceField");
+            var builder = new AccessorBuilder("InstanceField");
 
             // Act
             var setter = builder.BuildInstanceSetter(typeof(TestClassForAccessor));
@@ -258,7 +241,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         {
             // Arrange
             var testInstance = new TestClassForAccessor { InstanceProperty = "OldValue" };
-            var builder = ReflectionPathFactory.BuildAccessor("InstanceProperty");
+            var builder = new AccessorBuilder("InstanceProperty");
 
             // Act
             var setter = builder.BuildInstanceSetter(typeof(TestClassForAccessor));
@@ -277,7 +260,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         {
             // Arrange
             var testInstance = new TestClassForAccessor { Nested = new NestedClassForAccessor() };
-            var builder = ReflectionPathFactory.BuildAccessor("Nested.NestedField");
+            var builder = new AccessorBuilder("Nested.NestedField");
 
             // Act
             var setter = builder.BuildInstanceSetter(typeof(TestClassForAccessor));
@@ -296,7 +279,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         {
             // Arrange
             var testInstance = new TestClassForAccessor { Nested = new NestedClassForAccessor() };
-            var builder = ReflectionPathFactory.BuildAccessor("Nested.NestedProperty");
+            var builder = new AccessorBuilder("Nested.NestedProperty");
 
             // Act
             var setter = builder.BuildInstanceSetter(typeof(TestClassForAccessor));
@@ -314,7 +297,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         public void BuildInstanceSetter_InvalidPath_ThrowsArgumentException()
         {
             // Arrange
-            var builder = ReflectionPathFactory.BuildAccessor("NonExistentMember");
+            var builder = new AccessorBuilder("NonExistentMember");
 
             // Act & Assert
             Assert.Throws<ArgumentException>(() => builder.BuildInstanceSetter(typeof(TestClassForAccessor)));
@@ -332,7 +315,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         {
             // Arrange
             TestClassForAccessor.StaticField = 0;
-            var builder = ReflectionPathFactory.BuildAccessor("StaticField");
+            var builder = new AccessorBuilder("StaticField");
 
             // Act
             var setter = builder.BuildStaticSetter(typeof(TestClassForAccessor));
@@ -350,7 +333,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         {
             // Arrange
             TestClassForAccessor.StaticProperty = "OldStatic";
-            var builder = ReflectionPathFactory.BuildAccessor("StaticProperty");
+            var builder = new AccessorBuilder("StaticProperty");
 
             // Act
             var setter = builder.BuildStaticSetter(typeof(TestClassForAccessor));
@@ -368,7 +351,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         {
             // Arrange
             TestClassForAccessor.StaticNested.NestedField = 0.0;
-            var builder = ReflectionPathFactory.BuildAccessor("StaticNested.NestedField");
+            var builder = new AccessorBuilder("StaticNested.NestedField");
 
             // Act
             var setter = builder.BuildStaticSetter(typeof(TestClassForAccessor));
@@ -385,7 +368,7 @@ namespace EasyToolkit.Core.Reflection.Tests
         public void BuildStaticSetter_InvalidPath_ThrowsArgumentException()
         {
             // Arrange
-            var builder = ReflectionPathFactory.BuildAccessor("NonExistentField");
+            var builder = new AccessorBuilder("NonExistentField");
 
             // Act & Assert
             Assert.Throws<ArgumentException>(() => builder.BuildStaticSetter(typeof(TestClassForAccessor)));

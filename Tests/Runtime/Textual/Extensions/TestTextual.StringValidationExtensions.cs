@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using System;
 
-namespace EasyToolkit.Core.Textual.Tests
+namespace EasyToolkit.Core.Foundation.Tests
 {
     /// <summary>
     /// Unit tests for StringValidationExtensions.

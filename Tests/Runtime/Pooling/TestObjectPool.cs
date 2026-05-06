@@ -18,7 +18,7 @@ namespace EasyToolkit.Core.Pooling.Tests
         public void CreatePool_ValidName_RegistersPoolInManager()
         {
             // Arrange
-            var manager = PoolManagerFactory.CreateObjectPoolManager();
+            var manager =  new ObjectPoolManager();
 
             // Act
             var createdPool = manager.CreatePool<PooledDummy>("dummy_pool");
@@ -38,7 +38,7 @@ namespace EasyToolkit.Core.Pooling.Tests
         public void RemovePool_ExistingPool_AllowsRecreatingPoolWithSameName()
         {
             // Arrange
-            var manager = PoolManagerFactory.CreateObjectPoolManager();
+            var manager = new ObjectPoolManager();
             manager.CreatePool<PooledDummy>("dummy_pool");
 
             // Act
@@ -63,7 +63,7 @@ namespace EasyToolkit.Core.Pooling.Tests
         public void CreatePool_PreallocationWithoutFastCache_InitializesIdleInstances()
         {
             // Arrange
-            var manager = PoolManagerFactory.CreateObjectPoolManager();
+            var manager = new ObjectPoolManager();
             var pool = manager.CreatePool(
                 "dummy_pool",
                 new ObjectPoolConfiguration<PooledDummy>(
@@ -83,7 +83,7 @@ namespace EasyToolkit.Core.Pooling.Tests
         public void Rent_WithFastCacheEnabled_UsesHotCacheBeforeAllocatingAdditionalInstances()
         {
             // Arrange
-            var manager = PoolManagerFactory.CreateObjectPoolManager();
+            var manager = new ObjectPoolManager();
             var allocationCount = 0;
             var pool = manager.CreatePool(
                 "dummy_pool",
@@ -122,7 +122,7 @@ namespace EasyToolkit.Core.Pooling.Tests
         public void RentAndRelease_CallbacksEnabled_InvokesPoolObjectAndRegisteredCallbacks()
         {
             // Arrange
-            var manager = PoolManagerFactory.CreateObjectPoolManager();
+            var manager = new ObjectPoolManager();
             var pool = manager.CreatePool<PooledCallbackDummy>("dummy_pool")
                 .OnRent(instance => instance.ExternalRentCallbackCount++)
                 .OnRelease(instance => instance.ExternalReleaseCallbackCount++);
@@ -146,7 +146,7 @@ namespace EasyToolkit.Core.Pooling.Tests
         public void RentAndRelease_CallbacksDisabled_SkipsPoolObjectCallbacksButKeepsRegisteredCallbacks()
         {
             // Arrange
-            var manager = PoolManagerFactory.CreateObjectPoolManager();
+            var manager = new ObjectPoolManager();
             var pool = manager.CreatePool(
                 "dummy_pool",
                 new ObjectPoolConfiguration<PooledCallbackDummy>(enablePoolItemCallbacks: false))
@@ -172,7 +172,7 @@ namespace EasyToolkit.Core.Pooling.Tests
         public void Remove_ActiveInstance_StopsTrackingAndPreventsLaterRelease()
         {
             // Arrange
-            var manager = PoolManagerFactory.CreateObjectPoolManager();
+            var manager = new ObjectPoolManager();
             var pool = manager.CreatePool(
                 "dummy_pool",
                 new ObjectPoolConfiguration<PooledDummy>(useFastCache: false));
@@ -200,7 +200,7 @@ namespace EasyToolkit.Core.Pooling.Tests
         public void SetCapacity_SmallerThanIdleCount_TrimsIdleInstancesAndEnforcesLimit()
         {
             // Arrange
-            var manager = PoolManagerFactory.CreateObjectPoolManager();
+            var manager = new ObjectPoolManager();
             var pool = manager.CreatePool(
                 "dummy_pool",
                 new ObjectPoolConfiguration<PooledDummy>(
@@ -228,7 +228,7 @@ namespace EasyToolkit.Core.Pooling.Tests
         public void SetCapacity_SmallerThanActiveCount_ThrowsInvalidOperationException()
         {
             // Arrange
-            var manager = PoolManagerFactory.CreateObjectPoolManager();
+            var manager = new ObjectPoolManager();
             var pool = manager.CreatePool(
                 "dummy_pool",
                 new ObjectPoolConfiguration<PooledDummy>(useFastCache: false));

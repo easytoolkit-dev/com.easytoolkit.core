@@ -11,14 +11,14 @@ namespace EasyToolkit.Core.Pooling.Tests
     public class TestGameObjectPool
     {
         private GameObject _managerRootGameObject;
-        private IGameObjectPoolManager _manager;
+        private GameObjectPoolManager _manager;
         private GameObject _prefab;
 
         [SetUp]
         public void SetUp()
         {
             _managerRootGameObject = new GameObject(nameof(TestGameObjectPool));
-            _manager = PoolManagerFactory.CreateGameObjectPoolManager(_managerRootGameObject.transform);
+            _manager = new GameObjectPoolManager(_managerRootGameObject.transform);
 
             _prefab = new GameObject("PoolPrefab");
             _prefab.AddComponent<TestPoolItem>();

@@ -1,0 +1,223 @@
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+
+namespace EasyToolkit.Core.Reflection
+{
+    /// <summary>
+    /// Builder for creating member accessors that get or set values through member paths.
+    /// </summary>
+    public sealed class AccessorBuilder
+    {
+        /// <summary>
+        /// Gets the member path this builder operates on.
+        /// </summary>
+        private readonly string _memberPath;
+
+        /// <summary>
+        /// Initializes a new instance of the AccessorBuilder.
+        /// </summary>
+        /// <param name="memberPath">The path to the member (e.g., "Field", "Property", "Nested.Field").</param>
+        public AccessorBuilder(string memberPath)
+        {
+            _memberPath = memberPath;
+        }
+
+        /// <summary>
+        /// Builds a getter delegate for a static member.
+        /// </summary>
+        /// <param name="targetType">The type containing the static member.</param>
+        /// <returns>A delegate that gets the value from the static member path.</returns>
+        /// <exception cref="ArgumentException">Thrown when the member path is invalid.</exception>
+        public StaticGetter BuildStaticGetter(Type targetType)
+        {
+            List<PathStep> pathSteps = MemberPathParser.Parse(targetType, _memberPath, isStatic: true);
+
+            return () =>
+            {
+                object current = null;
+                foreach (var step in pathSteps)
+                {
+                    current = step.CompiledGetter(current);
+                }
+                return current;
+            };
+        }
+
+        /// <summary>
+        /// Builds a getter delegate for an instance member.
+        /// </summary>
+        /// <param name="targetType">The type containing the instance member.</param>
+        /// <returns>A delegate that gets the value from the instance member path.</returns>
+        /// <exception cref="ArgumentException">Thrown when the member path is invalid.</exception>
+        public InstanceGetter BuildInstanceGetter(Type targetType)
+        {
+            List<PathStep> pathSteps = MemberPathParser.Parse(targetType, _memberPath, isStatic: false);
+
+            return target =>
+            {
+                object current = target;
+                foreach (var step in pathSteps)
+                {
+                    current = step.CompiledGetter(current);
+                }
+                return current;
+            };
+        }
+
+        /// <summary>
+        /// Builds a setter delegate for an instance member.
+        /// </summary>
+        /// <param name="targetType">The type containing the instance member.</param>
+        /// <returns>A delegate that sets the value to the instance member path.</returns>
+        /// <exception cref="ArgumentException">Thrown when the member path is invalid or cannot be set.</exception>
+        /// <remarks>
+        /// Only fields and properties can be set. The final member in the path must be a field or property.
+        /// </remarks>
+        public InstanceSetter BuildInstanceSetter(Type targetType)
+        {
+            List<PathStep> pathSteps = MemberPathParser.Parse(targetType, _memberPath, isStatic: false);
+
+            // Validate that the last step is settable (field or property)
+            PathStep lastStep = pathSteps[pathSteps.Count - 1];
+            ValidateSetter(lastStep);
+
+            InstanceSetter setter = CreateInstanceSetter(lastStep);
+
+            return delegate(ref object target, object value)
+            {
+                object current = target;
+
+                // Navigate to the parent of the last step
+                for (int i = 0; i < pathSteps.Count - 1; i++)
+                {
+                    current = pathSteps[i].CompiledGetter(current);
+                }
+
+                // Set the value on the last step
+                setter.Invoke(ref current, value);
+            };
+        }
+
+        /// <summary>
+        /// Builds a setter delegate for a static member.
+        /// </summary>
+        /// <param name="targetType">The type containing the static member.</param>
+        /// <returns>A delegate that sets the value to the static member path.</returns>
+        /// <exception cref="ArgumentException">Thrown when the member path is invalid or cannot be set.</exception>
+        /// <remarks>
+        /// Only fields and properties can be set. The final member in the path must be a field or property.
+        /// </remarks>
+        public StaticSetter BuildStaticSetter(Type targetType)
+        {
+            List<PathStep> pathSteps = MemberPathParser.Parse(targetType, _memberPath, isStatic: true);
+
+            // Validate that the last step is settable (field or property)
+            PathStep lastStep = pathSteps[pathSteps.Count - 1];
+            ValidateSetter(lastStep);
+
+            // Create the appropriate setter based on whether the final member is static or instance
+            StaticSetter staticSetter = CreateStaticSetter(lastStep, out InstanceSetter instanceSetter);
+
+            // If the final member is an instance member, we need to navigate to the parent and use instance setter
+            if (instanceSetter != null)
+            {
+                return (value) =>
+                {
+                    object current = null;
+
+                    // Navigate to the parent of the last step
+                    for (int i = 0; i < pathSteps.Count - 1; i++)
+                    {
+                        current = pathSteps[i].CompiledGetter(current);
+                    }
+
+                    // Set the value on the last step using the instance setter
+                    instanceSetter.Invoke(ref current, value);
+                };
+            }
+            else
+            {
+                // Static member - use the static setter directly
+                return staticSetter;
+            }
+        }
+
+        /// <summary>
+        /// Validates that the last path step can be set.
+        /// </summary>
+        private void ValidateSetter(PathStep step)
+        {
+            if (step.StepType != PathStepType.Member)
+            {
+                throw new ArgumentException($"Cannot set value to {step.StepType}. Only fields and properties can be set.");
+            }
+
+            if (step.Member is MethodInfo)
+            {
+                throw new ArgumentException($"Cannot set value to method '{step.Member.Name}'. Only fields and properties are supported.");
+            }
+        }
+
+        /// <summary>
+        /// Creates an instance setter delegate for the given path step.
+        /// </summary>
+        /// <param name="step">The path step containing the member to create a setter for.</param>
+        /// <returns>An instance setter delegate.</returns>
+        /// <exception cref="ArgumentException">Thrown when the member is not a field or property.</exception>
+        private InstanceSetter CreateInstanceSetter(PathStep step)
+        {
+            return step.Member switch
+            {
+                FieldInfo field => ReflectionCompiler.CreateInstanceFieldSetter(field),
+                PropertyInfo property => ReflectionCompiler.CreateInstancePropertySetter(property),
+                _ => throw new ArgumentException($"Cannot create setter for '{step.Member.Name}'. Only fields and properties are supported.")
+            };
+        }
+
+        /// <summary>
+        /// Creates a setter delegate for the given path step.
+        /// For nested paths, the final step may be an instance field/property on a statically accessed object.
+        /// This method returns both a static setter (for static members) and an instance setter (for instance members).
+        /// </summary>
+        /// <param name="step">The path step containing the member to create a setter for.</param>
+        /// <param name="instanceSetter">Output parameter for the instance setter (used when the member is an instance member).</param>
+        /// <returns>A static setter delegate, or null if an instance setter should be used instead.</returns>
+        /// <exception cref="ArgumentException">Thrown when the member is not a field or property.</exception>
+        private StaticSetter CreateStaticSetter(PathStep step, out InstanceSetter instanceSetter)
+        {
+            instanceSetter = null;
+
+            if (step.Member is FieldInfo field)
+            {
+                if (field.IsStatic)
+                {
+                    return ReflectionCompiler.CreateStaticFieldSetter(field);
+                }
+                else
+                {
+                    // For instance fields in nested static paths, return an instance setter
+                    instanceSetter = ReflectionCompiler.CreateInstanceFieldSetter(field);
+                    return null;
+                }
+            }
+            else if (step.Member is PropertyInfo property)
+            {
+                if (property.GetMethod.IsStatic)
+                {
+                    return ReflectionCompiler.CreateStaticPropertySetter(property);
+                }
+                else
+                {
+                    // For instance properties in nested static paths, return an instance setter
+                    instanceSetter = ReflectionCompiler.CreateInstancePropertySetter(property);
+                    return null;
+                }
+            }
+            else
+            {
+                throw new ArgumentException($"Cannot create setter for '{step.Member.Name}'. Only fields and properties are supported.");
+            }
+        }
+    }
+}

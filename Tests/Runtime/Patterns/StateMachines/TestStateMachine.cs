@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using EasyToolkit.Core.Patterns.Implementations;
+using EasyToolkit.Core.Patterns;
 using NUnit.Framework;
 
 namespace EasyToolkit.Core.Patterns.Tests
@@ -203,7 +203,7 @@ namespace EasyToolkit.Core.Patterns.Tests
             // Arrange
             var stateMachine = new StateMachine<TestState>();
             bool onEnterCalled = false;
-            IStateMachine<TestState> receivedOwner = null;
+            StateMachine<TestState> receivedOwner = null;
             var state = new ChainableState<TestState>().WithEnter((owner) =>
             {
                 onEnterCalled = true;
@@ -293,8 +293,8 @@ namespace EasyToolkit.Core.Patterns.Tests
             var stateMachine = new StateMachine<TestState>();
             bool idleOnExitCalled = false;
             bool runningOnEnterCalled = false;
-            IStateMachine<TestState> onExitOwner = null;
-            IStateMachine<TestState> onEnterOwner = null;
+            StateMachine<TestState> onExitOwner = null;
+            StateMachine<TestState> onEnterOwner = null;
 
             var idleState = new ChainableState<TestState>().WithExit((owner) =>
             {
@@ -407,7 +407,7 @@ namespace EasyToolkit.Core.Patterns.Tests
             // Arrange
             var stateMachine = new StateMachine<TestState>();
             bool onUpdateCalled = false;
-            IStateMachine<TestState> receivedOwner = null;
+            StateMachine<TestState> receivedOwner = null;
             var state = new ChainableState<TestState>().WithUpdate((owner) =>
             {
                 onUpdateCalled = true;
@@ -476,7 +476,7 @@ namespace EasyToolkit.Core.Patterns.Tests
             // Arrange
             var stateMachine = new StateMachine<TestState>();
             bool onFixedUpdateCalled = false;
-            IStateMachine<TestState> receivedOwner = null;
+            StateMachine<TestState> receivedOwner = null;
             var state = new ChainableState<TestState>().WithFixedUpdate((owner) =>
             {
                 onFixedUpdateCalled = true;
@@ -534,82 +534,6 @@ namespace EasyToolkit.Core.Patterns.Tests
 
         #endregion
 
-        #region Custom IState Implementation Tests
-
-        /// <summary>
-        /// Verifies that StateMachine works with custom IState implementations.
-        /// </summary>
-        [Test]
-        public void CustomIState_Implementation_WorksCorrectly()
-        {
-            // Arrange
-            var stateMachine = new StateMachine<TestState>();
-            var customState = new CustomTestState();
-            stateMachine.AddState(TestState.Idle, customState);
-
-            // Act
-            stateMachine.StartState(TestState.Idle);
-
-            // Assert
-            Assert.AreEqual(1, customState.OnEnterCallCount);
-            Assert.AreSame(stateMachine, customState.LastOnEnterOwner);
-
-            stateMachine.Update();
-            Assert.AreEqual(1, customState.OnUpdateCallCount);
-            Assert.AreSame(stateMachine, customState.LastOnUpdateOwner);
-
-            stateMachine.FixedUpdate();
-            Assert.AreEqual(1, customState.OnFixedUpdateCallCount);
-            Assert.AreSame(stateMachine, customState.LastOnFixedUpdateOwner);
-
-            stateMachine.ChangeState(TestState.Idle);
-            Assert.AreEqual(1, customState.OnExitCallCount);
-            Assert.AreSame(stateMachine, customState.LastOnExitOwner);
-            Assert.AreEqual(2, customState.OnEnterCallCount);
-        }
-
-        /// <summary>
-        /// Custom IState implementation for testing.
-        /// </summary>
-        private class CustomTestState : IState<TestState>
-        {
-            public int OnEnterCallCount { get; private set; }
-            public int OnExitCallCount { get; private set; }
-            public int OnUpdateCallCount { get; private set; }
-            public int OnFixedUpdateCallCount { get; private set; }
-
-            public IStateMachine<TestState> LastOnEnterOwner { get; private set; }
-            public IStateMachine<TestState> LastOnExitOwner { get; private set; }
-            public IStateMachine<TestState> LastOnUpdateOwner { get; private set; }
-            public IStateMachine<TestState> LastOnFixedUpdateOwner { get; private set; }
-
-            public void OnEnter(IStateMachine<TestState> owner)
-            {
-                OnEnterCallCount++;
-                LastOnEnterOwner = owner;
-            }
-
-            public void OnExit(IStateMachine<TestState> owner)
-            {
-                OnExitCallCount++;
-                LastOnExitOwner = owner;
-            }
-
-            public void OnUpdate(IStateMachine<TestState> owner)
-            {
-                OnUpdateCallCount++;
-                LastOnUpdateOwner = owner;
-            }
-
-            public void OnFixedUpdate(IStateMachine<TestState> owner)
-            {
-                OnFixedUpdateCallCount++;
-                LastOnFixedUpdateOwner = owner;
-            }
-        }
-
-        #endregion
-
         #region Owner Parameter Tests
 
         /// <summary>
@@ -620,10 +544,10 @@ namespace EasyToolkit.Core.Patterns.Tests
         {
             // Arrange
             var stateMachine = new StateMachine<TestState>();
-            IStateMachine<TestState> onEnterOwner = null;
-            IStateMachine<TestState> onUpdateOwner = null;
-            IStateMachine<TestState> onFixedUpdateOwner = null;
-            IStateMachine<TestState> onExitOwner = null;
+            StateMachine<TestState> onEnterOwner = null;
+            StateMachine<TestState> onUpdateOwner = null;
+            StateMachine<TestState> onFixedUpdateOwner = null;
+            StateMachine<TestState> onExitOwner = null;
 
             var state = new ChainableState<TestState>()
                 .WithEnter((owner) => onEnterOwner = owner)

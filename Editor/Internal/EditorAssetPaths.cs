@@ -1,5 +1,5 @@
 using System.IO;
-using EasyToolkit.Core.IO;
+using EasyToolkit.Core.Foundation;
 using UnityEditor;
 
 namespace EasyToolkit.Core.Editor.Internal

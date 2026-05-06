@@ -1,4 +1,4 @@
-using EasyToolkit.Core.Mathematics;
+using EasyToolkit.Core.Foundation;
 using UnityEditor;
 
 namespace EasyToolkit.Core.Editor
