@@ -19,7 +19,7 @@ namespace EasyToolkit.Core.Patterns
         /// <summary>
         /// Initializes a new instance of the <see cref="LenientStateMachine"/> class.
         /// </summary>
-        public LenientStateMachine() : base()
+        public LenientStateMachine()
         {
         }
 

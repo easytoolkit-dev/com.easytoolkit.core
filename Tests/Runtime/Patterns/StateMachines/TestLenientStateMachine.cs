@@ -185,7 +185,7 @@ namespace EasyToolkit.Core.Patterns.Tests
             stateMachine.StartState(TestState.Idle); // Idle not added
 
             // Act & Assert
-            Assert.DoesNotThrow(() => stateMachine.Update());
+            Assert.DoesNotThrow(() => ((IStateMachineTickable)stateMachine).OnTick(0.1f));
         }
 
         /// <summary>
@@ -199,7 +199,7 @@ namespace EasyToolkit.Core.Patterns.Tests
             stateMachine.StartState(TestState.Idle); // Idle not added
 
             // Act & Assert
-            Assert.DoesNotThrow(() => stateMachine.FixedUpdate());
+            Assert.DoesNotThrow(() => ((IStateMachineFixedTickable)stateMachine).OnFixedTick(0.1f));
         }
 
         /// <summary>
@@ -211,12 +211,12 @@ namespace EasyToolkit.Core.Patterns.Tests
             // Arrange
             var stateMachine = new LenientStateMachine<TestState>();
             bool onUpdateCalled = false;
-            var state = new ChainableState<TestState>().WithUpdate((owner) => onUpdateCalled = true);
+            var state = new ChainableState<TestState>().WithTick((owner, deltaTime) => onUpdateCalled = true);
             stateMachine.AddState(TestState.Idle, state);
             stateMachine.StartState(TestState.Idle);
 
             // Act
-            stateMachine.Update();
+            ((IStateMachineTickable)stateMachine).OnTick(0.1f);
 
             // Assert
             Assert.IsTrue(onUpdateCalled);
@@ -231,12 +231,12 @@ namespace EasyToolkit.Core.Patterns.Tests
             // Arrange
             var stateMachine = new LenientStateMachine<TestState>();
             bool onFixedUpdateCalled = false;
-            var state = new ChainableState<TestState>().WithFixedUpdate((owner) => onFixedUpdateCalled = true);
+            var state = new ChainableState<TestState>().WithFixedTick((owner, deltaTime) => onFixedUpdateCalled = true);
             stateMachine.AddState(TestState.Idle, state);
             stateMachine.StartState(TestState.Idle);
 
             // Act
-            stateMachine.FixedUpdate();
+            ((IStateMachineFixedTickable)stateMachine).OnFixedTick(0.1f);
 
             // Assert
             Assert.IsTrue(onFixedUpdateCalled);

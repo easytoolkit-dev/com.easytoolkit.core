@@ -28,7 +28,7 @@ namespace EasyToolkit.Core.Patterns
         /// Called every frame while the state is active.
         /// </summary>
         /// <param name="owner">The state machine that owns this state.</param>
-        public virtual void OnUpdate(StateMachine owner)
+        public virtual void OnTick(StateMachine owner, float deltaTime)
         {
         }
 
@@ -36,7 +36,7 @@ namespace EasyToolkit.Core.Patterns
         /// Called every fixed framerate frame while the state is active.
         /// </summary>
         /// <param name="owner">The state machine that owns this state.</param>
-        public virtual void OnFixedUpdate(StateMachine owner)
+        public virtual void OnFixedTick(StateMachine owner, float deltaTime)
         {
         }
     }
@@ -68,7 +68,7 @@ namespace EasyToolkit.Core.Patterns
         /// Called every frame while the state is active.
         /// </summary>
         /// <param name="owner">The state machine that owns this state.</param>
-        public virtual void OnUpdate(StateMachine<T> owner)
+        public virtual void OnTick(StateMachine<T> owner, float deltaTime)
         {
         }
 
@@ -76,7 +76,7 @@ namespace EasyToolkit.Core.Patterns
         /// Called every fixed framerate frame while the state is active.
         /// </summary>
         /// <param name="owner">The state machine that owns this state.</param>
-        public virtual void OnFixedUpdate(StateMachine<T> owner)
+        public virtual void OnFixedTick(StateMachine<T> owner, float deltaTime)
         {
         }
     }

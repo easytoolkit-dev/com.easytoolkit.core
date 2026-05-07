@@ -408,7 +408,7 @@ namespace EasyToolkit.Core.Patterns.Tests
             var stateMachine = new StateMachine<TestState>();
             bool onUpdateCalled = false;
             StateMachine<TestState> receivedOwner = null;
-            var state = new ChainableState<TestState>().WithUpdate((owner) =>
+            var state = new ChainableState<TestState>().WithTick((owner, deltaTime) =>
             {
                 onUpdateCalled = true;
                 receivedOwner = owner;
@@ -417,7 +417,7 @@ namespace EasyToolkit.Core.Patterns.Tests
             stateMachine.StartState(TestState.Idle);
 
             // Act
-            stateMachine.Update();
+            ((IStateMachineTickable)stateMachine).OnTick(0.1f);
 
             // Assert
             Assert.IsTrue(onUpdateCalled);
@@ -434,7 +434,7 @@ namespace EasyToolkit.Core.Patterns.Tests
             var stateMachine = new StateMachine<TestState>();
 
             // Act & Assert
-            Assert.DoesNotThrow(() => stateMachine.Update());
+            Assert.DoesNotThrow(() => ((IStateMachineTickable)stateMachine).OnTick(0.1f));
         }
 
         /// <summary>
@@ -448,15 +448,15 @@ namespace EasyToolkit.Core.Patterns.Tests
             bool idleOnUpdateCalled = false;
             bool runningOnUpdateCalled = false;
 
-            var idleState = new ChainableState<TestState>().WithUpdate((owner) => idleOnUpdateCalled = true);
-            var runningState = new ChainableState<TestState>().WithUpdate((owner) => runningOnUpdateCalled = true);
+            var idleState = new ChainableState<TestState>().WithTick((owner, deltaTime) => idleOnUpdateCalled = true);
+            var runningState = new ChainableState<TestState>().WithTick((owner, deltaTime) => runningOnUpdateCalled = true);
 
             stateMachine.AddState(TestState.Idle, idleState);
             stateMachine.AddState(TestState.Running, runningState);
             stateMachine.StartState(TestState.Idle);
 
             // Act
-            stateMachine.Update();
+            ((IStateMachineTickable)stateMachine).OnTick(0.1f);
 
             // Assert
             Assert.IsTrue(idleOnUpdateCalled);
@@ -477,7 +477,7 @@ namespace EasyToolkit.Core.Patterns.Tests
             var stateMachine = new StateMachine<TestState>();
             bool onFixedUpdateCalled = false;
             StateMachine<TestState> receivedOwner = null;
-            var state = new ChainableState<TestState>().WithFixedUpdate((owner) =>
+            var state = new ChainableState<TestState>().WithFixedTick((owner, deltaTime) =>
             {
                 onFixedUpdateCalled = true;
                 receivedOwner = owner;
@@ -486,7 +486,7 @@ namespace EasyToolkit.Core.Patterns.Tests
             stateMachine.StartState(TestState.Idle);
 
             // Act
-            stateMachine.FixedUpdate();
+            ((IStateMachineFixedTickable)stateMachine).OnFixedTick(0.1f);
 
             // Assert
             Assert.IsTrue(onFixedUpdateCalled);
@@ -503,7 +503,7 @@ namespace EasyToolkit.Core.Patterns.Tests
             var stateMachine = new StateMachine<TestState>();
 
             // Act & Assert
-            Assert.DoesNotThrow(() => stateMachine.FixedUpdate());
+            Assert.DoesNotThrow(() => ((IStateMachineFixedTickable)stateMachine).OnFixedTick(0.1f));
         }
 
         /// <summary>
@@ -517,15 +517,15 @@ namespace EasyToolkit.Core.Patterns.Tests
             bool idleOnFixedUpdateCalled = false;
             bool runningOnFixedUpdateCalled = false;
 
-            var idleState = new ChainableState<TestState>().WithFixedUpdate((owner) => idleOnFixedUpdateCalled = true);
-            var runningState = new ChainableState<TestState>().WithFixedUpdate((owner) => runningOnFixedUpdateCalled = true);
+            var idleState = new ChainableState<TestState>().WithFixedTick((owner, deltaTime) => idleOnFixedUpdateCalled = true);
+            var runningState = new ChainableState<TestState>().WithFixedTick((owner, deltaTime) => runningOnFixedUpdateCalled = true);
 
             stateMachine.AddState(TestState.Idle, idleState);
             stateMachine.AddState(TestState.Running, runningState);
             stateMachine.StartState(TestState.Idle);
 
             // Act
-            stateMachine.FixedUpdate();
+            ((IStateMachineFixedTickable)stateMachine).OnFixedTick(0.1f);
 
             // Assert
             Assert.IsTrue(idleOnFixedUpdateCalled);
@@ -551,8 +551,8 @@ namespace EasyToolkit.Core.Patterns.Tests
 
             var state = new ChainableState<TestState>()
                 .WithEnter((owner) => onEnterOwner = owner)
-                .WithUpdate((owner) => onUpdateOwner = owner)
-                .WithFixedUpdate((owner) => onFixedUpdateOwner = owner)
+                .WithTick((owner, deltaTime) => onUpdateOwner = owner)
+                .WithFixedTick((owner, deltaTime) => onFixedUpdateOwner = owner)
                 .WithExit((owner) => onExitOwner = owner);
 
             stateMachine.AddState(TestState.Idle, state);
@@ -560,8 +560,8 @@ namespace EasyToolkit.Core.Patterns.Tests
 
             // Act
             stateMachine.StartState(TestState.Idle);
-            stateMachine.Update();
-            stateMachine.FixedUpdate();
+            ((IStateMachineTickable)stateMachine).OnTick(0.1f);
+            ((IStateMachineFixedTickable)stateMachine).OnFixedTick(0.1f);
             stateMachine.ChangeState(TestState.Running);
 
             // Assert
@@ -582,7 +582,7 @@ namespace EasyToolkit.Core.Patterns.Tests
             stateMachine.CreateState(TestState.Running);
 
             bool ownerCanChangeState = false;
-            var idleState = new ChainableState<TestState>().WithUpdate((owner) =>
+            var idleState = new ChainableState<TestState>().WithTick((owner, deltaTime) =>
             {
                 // Verify we can use owner to change states
                 if (owner.CurrentStateKey == TestState.Idle)
@@ -596,7 +596,7 @@ namespace EasyToolkit.Core.Patterns.Tests
             stateMachine.StartState(TestState.Idle);
 
             // Act
-            stateMachine.Update();
+            ((IStateMachineTickable)stateMachine).OnTick(0.1f);
 
             // Assert
             Assert.IsTrue(ownerCanChangeState);

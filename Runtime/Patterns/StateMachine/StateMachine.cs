@@ -12,13 +12,18 @@ namespace EasyToolkit.Core.Patterns
     /// <see cref="AddState"/> before they can be used. For a lenient implementation that allows
     /// transitions to non-existent states, use <see cref="LenientStateMachine"/>.
     /// </remarks>
-    public class StateMachine
+    public class StateMachine : IStateView, IStateMachineTickable, IStateMachineFixedTickable
     {
         // Dictionary for O(1) state lookup during transitions
         private readonly Dictionary<string, StateNode> _stateByKey = new();
 
+        /// <inheritdoc/>
         public event StateChangeHandler StateChanged;
+
+        /// <inheritdoc/>
         public StateNode CurrentState { get; protected set; }
+
+        /// <inheritdoc/>
         public string CurrentStateKey { get; protected set; }
 
         /// <summary>
@@ -66,6 +71,7 @@ namespace EasyToolkit.Core.Patterns
             }
         }
 
+        /// <inheritdoc/>
         public StateNode FindState(string keyName)
         {
             return _stateByKey.GetValueOrDefault(keyName);
@@ -137,22 +143,16 @@ namespace EasyToolkit.Core.Patterns
             }
         }
 
-        /// <summary>
-        /// Updates the current state.
-        /// Should be called every frame.
-        /// </summary>
-        public void Update()
+        /// <inheritdoc/>
+        void IStateMachineTickable.OnTick(float deltaTime)
         {
-            CurrentState?.OnUpdate(this);
+            CurrentState?.OnTick(this, deltaTime);
         }
 
-        /// <summary>
-        /// Updates the current state.
-        /// Should be called every fixed framerate frame.
-        /// </summary>
-        public void FixedUpdate()
+        /// <inheritdoc/>
+        void IStateMachineFixedTickable.OnFixedTick(float deltaTime)
         {
-            CurrentState?.OnFixedUpdate(this);
+            CurrentState?.OnFixedTick(this, deltaTime);
         }
 
         /// <summary>
@@ -175,13 +175,19 @@ namespace EasyToolkit.Core.Patterns
     /// <see cref="AddState"/> before they can be used. For a lenient implementation that allows
     /// transitions to non-existent states, use <see cref="LenientStateMachine{T}"/>.
     /// </remarks>
-    public class StateMachine<T> where T : struct, Enum
+    public class StateMachine<T> : IStateView<T>, IStateMachineTickable, IStateMachineFixedTickable
+        where T : struct, Enum
     {
         private readonly Dictionary<T, StateNode<T>> _stateByKey = new();
         private StateChangeHandler _untypedStateChangeHandler;
 
+        /// <inheritdoc/>
         public event StateChangeHandler<T> StateChanged;
+
+        /// <inheritdoc/>
         public StateNode<T> CurrentState { get; protected set; }
+
+        /// <inheritdoc/>
         public T? CurrentStateKey { get; protected set; }
 
         /// <summary>
@@ -291,22 +297,16 @@ namespace EasyToolkit.Core.Patterns
             }
         }
 
-        /// <summary>
-        /// Updates the current state.
-        /// Should be called every frame.
-        /// </summary>
-        public void Update()
+        /// <inheritdoc/>
+        void IStateMachineTickable.OnTick(float deltaTime)
         {
-            CurrentState?.OnUpdate(this);
+            CurrentState?.OnTick(this, deltaTime);
         }
 
-        /// <summary>
-        /// Updates the current state.
-        /// Should be called every fixed framerate frame.
-        /// </summary>
-        public void FixedUpdate()
+        /// <inheritdoc/>
+        void IStateMachineFixedTickable.OnFixedTick(float deltaTime)
         {
-            CurrentState?.OnFixedUpdate(this);
+            CurrentState?.OnFixedTick(this, deltaTime);
         }
 
         /// <summary>

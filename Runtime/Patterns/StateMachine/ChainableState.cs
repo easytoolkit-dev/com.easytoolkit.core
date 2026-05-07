@@ -29,19 +29,19 @@ namespace EasyToolkit.Core.Patterns
         /// Event raised every frame while the state is active.
         /// </summary>
         /// <remarks>
-        /// This event is triggered during the state machine's <see cref="StateMachine.Update"/> call.
+        /// This event is triggered during the state machine's <see cref="IStateMachineTickable.OnTick"/> call.
         /// Use this event for per-frame game logic that should run while this state is active.
         /// </remarks>
-        public event Action<StateMachine> Updated;
+        public event Action<StateMachine, float> Ticked;
 
         /// <summary>
         /// Event raised every fixed framerate frame while the state is active.
         /// </summary>
         /// <remarks>
-        /// This event is triggered during the state machine's <see cref="StateMachine.FixedUpdate"/> call.
+        /// This event is triggered during the state machine's <see cref="IStateMachineFixedTickable.OnFixedTick"/> call.
         /// Use this event for physics-based logic that should run while this state is active.
         /// </remarks>
-        public event Action<StateMachine> FixedUpdated;
+        public event Action<StateMachine, float> FixedTicked;
 
         /// <inheritdoc/>
         public override void OnEnter(StateMachine owner)
@@ -56,15 +56,15 @@ namespace EasyToolkit.Core.Patterns
         }
 
         /// <inheritdoc/>
-        public override void OnUpdate(StateMachine owner)
+        public override void OnTick(StateMachine owner, float deltaTime)
         {
-            Updated?.Invoke(owner);
+            Ticked?.Invoke(owner, deltaTime);
         }
 
         /// <inheritdoc/>
-        public override void OnFixedUpdate(StateMachine owner)
+        public override void OnFixedTick(StateMachine owner, float deltaTime)
         {
-            FixedUpdated?.Invoke(owner);
+            FixedTicked?.Invoke(owner, deltaTime);
         }
     }
 
@@ -97,19 +97,19 @@ namespace EasyToolkit.Core.Patterns
         /// Event raised every frame while the state is active.
         /// </summary>
         /// <remarks>
-        /// This event is triggered during the state machine's <see cref="StateMachine{T}.Update"/> call.
+        /// This event is triggered during the state machine's <see cref="IStateMachineTickable.OnTick"/> call.
         /// Use this event for per-frame game logic that should run while this state is active.
         /// </remarks>
-        public event Action<StateMachine<T>> Updated;
+        public event Action<StateMachine<T>, float> Ticked;
 
         /// <summary>
         /// Event raised every fixed framerate frame while the state is active.
         /// </summary>
         /// <remarks>
-        /// This event is triggered during the state machine's <see cref="StateMachine{T}.FixedUpdate"/> call.
+        /// This event is triggered during the state machine's <see cref="IStateMachineFixedTickable.OnFixedTick"/> call.
         /// Use this event for physics-based logic that should run while this state is active.
         /// </remarks>
-        public event Action<StateMachine<T>> FixedUpdated;
+        public event Action<StateMachine<T>, float> FixedTicked;
 
         /// <inheritdoc/>
         public override void OnEnter(StateMachine<T> owner)
@@ -124,15 +124,15 @@ namespace EasyToolkit.Core.Patterns
         }
 
         /// <inheritdoc/>
-        public override void OnUpdate(StateMachine<T> owner)
+        public override void OnTick(StateMachine<T> owner, float deltaTime)
         {
-            Updated?.Invoke(owner);
+            Ticked?.Invoke(owner, deltaTime);
         }
 
         /// <inheritdoc/>
-        public override void OnFixedUpdate(StateMachine<T> owner)
+        public override void OnFixedTick(StateMachine<T> owner, float deltaTime)
         {
-            FixedUpdated?.Invoke(owner);
+            FixedTicked?.Invoke(owner, deltaTime);
         }
     }
 }

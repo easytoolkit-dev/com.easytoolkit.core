@@ -16,7 +16,7 @@ namespace EasyToolkit.Core.Patterns
     /// <code>
     /// var state = new ChainableState&lt;PlayerState&gt;()
     ///     .WithEnter((owner) => Debug.Log("Enter"))
-    ///     .WithUpdate((owner) => HandleUpdate())
+    ///     .WithTick((owner, deltaTime) => HandleUpdate())
     ///     .WithExit((owner) => Debug.Log("Exit"));
     /// </code>
     /// </example>
@@ -69,46 +69,46 @@ namespace EasyToolkit.Core.Patterns
         }
 
         /// <summary>
-        /// Attaches an event handler to the <see cref="ChainableState.Updated"/> event.
+        /// Attaches an event handler to the <see cref="ChainableState.Ticked"/> event.
         /// </summary>
         /// <param name="chainableState">The chainable state to configure.</param>
         /// <param name="callback">The event handler to attach.</param>
         /// <returns>The same state instance for method chaining.</returns>
         /// <remarks>
-        /// This method provides a fluent API for attaching handlers to the <see cref="ChainableState.Updated"/> event.
+        /// This method provides a fluent API for attaching handlers to the <see cref="ChainableState.Ticked"/> event.
         /// Multiple handlers can be attached by calling this method multiple times.
         /// </remarks>
         /// <example>
         /// <code>
         /// var state = new ChainableState()
-        ///     .WithUpdate((owner) => Debug.Log("State updated"));
+        ///     .WithTick((owner, deltaTime) => Debug.Log("State updated"));
         /// </code>
         /// </example>
-        public static ChainableState WithUpdate(this ChainableState chainableState, Action<StateMachine> callback)
+        public static ChainableState WithTick(this ChainableState chainableState, Action<StateMachine, float> callback)
         {
-            chainableState.Updated += callback;
+            chainableState.Ticked += callback;
             return chainableState;
         }
 
         /// <summary>
-        /// Attaches an event handler to the <see cref="ChainableState.FixedUpdated"/> event.
+        /// Attaches an event handler to the <see cref="ChainableState.FixedTicked"/> event.
         /// </summary>
         /// <param name="chainableState">The chainable state to configure.</param>
         /// <param name="callback">The event handler to attach.</param>
         /// <returns>The same state instance for method chaining.</returns>
         /// <remarks>
-        /// This method provides a fluent API for attaching handlers to the <see cref="ChainableState.FixedUpdated"/> event.
+        /// This method provides a fluent API for attaching handlers to the <see cref="ChainableState.FixedTicked"/> event.
         /// Multiple handlers can be attached by calling this method multiple times.
         /// </remarks>
         /// <example>
         /// <code>
         /// var state = new ChainableState()
-        ///     .WithFixedUpdate((owner) => Debug.Log("State fixed updated"));
+        ///     .WithFixedTick((owner, deltaTime) => Debug.Log("State fixed updated"));
         /// </code>
         /// </example>
-        public static ChainableState WithFixedUpdate(this ChainableState chainableState, Action<StateMachine> callback)
+        public static ChainableState WithFixedTick(this ChainableState chainableState, Action<StateMachine, float> callback)
         {
-            chainableState.FixedUpdated += callback;
+            chainableState.FixedTicked += callback;
             return chainableState;
         }
 
@@ -165,50 +165,50 @@ namespace EasyToolkit.Core.Patterns
         }
 
         /// <summary>
-        /// Attaches an event handler to the <see cref="ChainableState{T}.Updated"/> event.
+        /// Attaches an event handler to the <see cref="ChainableState{T}.Ticked"/> event.
         /// </summary>
         /// <typeparam name="T">The enum type identifying the state.</typeparam>
         /// <param name="chainableState">The chainable state to configure.</param>
         /// <param name="callback">The event handler to attach.</param>
         /// <returns>The same state instance for method chaining.</returns>
         /// <remarks>
-        /// This method provides a fluent API for attaching handlers to the <see cref="ChainableState{T}.Updated"/> event.
+        /// This method provides a fluent API for attaching handlers to the <see cref="ChainableState{T}.Ticked"/> event.
         /// Multiple handlers can be attached by calling this method multiple times.
         /// </remarks>
         /// <example>
         /// <code>
         /// var state = new ChainableState&lt;PlayerState&gt;()
-        ///     .WithUpdate((owner) => Debug.Log("State updated"));
+        ///     .WithTick((owner, deltaTime) => Debug.Log("State updated"));
         /// </code>
         /// </example>
-        public static ChainableState<T> WithUpdate<T>(this ChainableState<T> chainableState, Action<StateMachine<T>> callback)
+        public static ChainableState<T> WithTick<T>(this ChainableState<T> chainableState, Action<StateMachine<T>, float> callback)
             where T : struct, Enum
         {
-            chainableState.Updated += callback;
+            chainableState.Ticked += callback;
             return chainableState;
         }
 
         /// <summary>
-        /// Attaches an event handler to the <see cref="ChainableState{T}.FixedUpdated"/> event.
+        /// Attaches an event handler to the <see cref="ChainableState{T}.FixedTicked"/> event.
         /// </summary>
         /// <typeparam name="T">The enum type identifying the state.</typeparam>
         /// <param name="chainableState">The chainable state to configure.</param>
         /// <param name="callback">The event handler to attach.</param>
         /// <returns>The same state instance for method chaining.</returns>
         /// <remarks>
-        /// This method provides a fluent API for attaching handlers to the <see cref="ChainableState{T}.FixedUpdated"/> event.
+        /// This method provides a fluent API for attaching handlers to the <see cref="ChainableState{T}.FixedTicked"/> event.
         /// Multiple handlers can be attached by calling this method multiple times.
         /// </remarks>
         /// <example>
         /// <code>
         /// var state = new ChainableState&lt;PlayerState&gt;()
-        ///     .WithFixedUpdate((owner) => Debug.Log("State fixed updated"));
+        ///     .WithFixedTick((owner, deltaTime) => Debug.Log("State fixed updated"));
         /// </code>
         /// </example>
-        public static ChainableState<T> WithFixedUpdate<T>(this ChainableState<T> chainableState, Action<StateMachine<T>> callback)
+        public static ChainableState<T> WithFixedTick<T>(this ChainableState<T> chainableState, Action<StateMachine<T>, float> callback)
             where T : struct, Enum
         {
-            chainableState.FixedUpdated += callback;
+            chainableState.FixedTicked += callback;
             return chainableState;
         }
 
