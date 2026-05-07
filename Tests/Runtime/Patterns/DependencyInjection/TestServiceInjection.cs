@@ -13,13 +13,13 @@ namespace EasyToolkit.Core.Patterns.Tests
     [TestFixture]
     public class TestServiceInjection
     {
-        #region Automatic Injection Tests
+        #region Creation Tests
 
         /// <summary>
-        /// Verifies that the container injects private fields marked with InjectAttribute.
+        /// Verifies that service creation does not inject private fields marked with InjectAttribute.
         /// </summary>
         [Test]
-        public void GetService_MarkedPrivateField_InjectsDependency()
+        public void GetService_MarkedPrivateField_DoesNotInjectDependency()
         {
             // Arrange
             var dependency = new TestDependency();
@@ -31,14 +31,14 @@ namespace EasyToolkit.Core.Patterns.Tests
             var service = container.GetService<FieldInjectedService>();
 
             // Assert
-            Assert.AreSame(dependency, service.Dependency);
+            Assert.IsNull(service.Dependency);
         }
 
         /// <summary>
-        /// Verifies that cached constructor factories still inject marked fields.
+        /// Verifies that cached constructor factories do not inject marked fields.
         /// </summary>
         [Test]
-        public void GetService_CachedFactory_InjectsDependencyForEveryInstance()
+        public void GetService_CachedFactory_DoesNotInjectDependencyForEveryInstance()
         {
             // Arrange
             var dependency = new TestDependency();
@@ -52,15 +52,15 @@ namespace EasyToolkit.Core.Patterns.Tests
 
             // Assert
             Assert.AreNotSame(first, second);
-            Assert.AreSame(dependency, first.Dependency);
-            Assert.AreSame(dependency, second.Dependency);
+            Assert.IsNull(first.Dependency);
+            Assert.IsNull(second.Dependency);
         }
 
         /// <summary>
-        /// Verifies that inherited private marked fields are injected.
+        /// Verifies that inherited private marked fields are not injected during service creation.
         /// </summary>
         [Test]
-        public void GetService_InheritedMarkedField_InjectsDependency()
+        public void GetService_InheritedMarkedField_DoesNotInjectDependency()
         {
             // Arrange
             var dependency = new TestDependency();
@@ -72,14 +72,14 @@ namespace EasyToolkit.Core.Patterns.Tests
             var service = container.GetService<DerivedInjectedService>();
 
             // Assert
-            Assert.AreSame(dependency, service.BaseDependency);
+            Assert.IsNull(service.BaseDependency);
         }
 
         /// <summary>
-        /// Verifies that factory-created services receive field injection.
+        /// Verifies that factory-created services do not receive field injection during service creation.
         /// </summary>
         [Test]
-        public void GetService_FactoryCreatedService_InjectsDependency()
+        public void GetService_FactoryCreatedService_DoesNotInjectDependency()
         {
             // Arrange
             var dependency = new TestDependency();
@@ -91,14 +91,14 @@ namespace EasyToolkit.Core.Patterns.Tests
             var service = container.GetService<FieldInjectedService>();
 
             // Assert
-            Assert.AreSame(dependency, service.Dependency);
+            Assert.IsNull(service.Dependency);
         }
 
         /// <summary>
-        /// Verifies that existing singleton instances receive field injection on first resolution.
+        /// Verifies that existing singleton instances do not receive field injection on first resolution.
         /// </summary>
         [Test]
-        public void GetService_ExistingSingletonInstance_InjectsDependency()
+        public void GetService_ExistingSingletonInstance_DoesNotInjectDependency()
         {
             // Arrange
             var dependency = new TestDependency();
@@ -112,7 +112,7 @@ namespace EasyToolkit.Core.Patterns.Tests
 
             // Assert
             Assert.AreSame(service, resolved);
-            Assert.AreSame(dependency, resolved.Dependency);
+            Assert.IsNull(resolved.Dependency);
         }
 
         #endregion
@@ -141,7 +141,7 @@ namespace EasyToolkit.Core.Patterns.Tests
         /// Verifies that scoped dependencies are resolved from the active scope during field injection.
         /// </summary>
         [Test]
-        public void GetService_ScopedResolver_InjectsDependencyFromActiveScope()
+        public void Inject_ScopedResolver_InjectsDependencyFromActiveScope()
         {
             // Arrange
             var container = ServiceContainerBuilder.Build(
@@ -156,6 +156,8 @@ namespace EasyToolkit.Core.Patterns.Tests
             var firstDependency = firstScope.ServiceProvider.GetService<ScopedDependency>();
             var secondService = secondScope.ServiceProvider.GetService<ScopedFieldInjectedService>();
             var secondDependency = secondScope.ServiceProvider.GetService<ScopedDependency>();
+            firstScope.ServiceProvider.Inject(firstService);
+            secondScope.ServiceProvider.Inject(secondService);
 
             // Assert
             Assert.AreSame(firstDependency, firstService.Dependency);
@@ -171,59 +173,59 @@ namespace EasyToolkit.Core.Patterns.Tests
         /// Verifies that missing marked field dependencies throw a resolution exception.
         /// </summary>
         [Test]
-        public void GetService_MissingInjectedDependency_ThrowsDependencyResolutionException()
+        public void Inject_MissingInjectedDependency_ThrowsDependencyResolutionException()
         {
             // Arrange
-            var container = ServiceContainerBuilder.Build(
-                ServiceDescriptor.Transient<FieldInjectedService, FieldInjectedService>());
+            var target = new FieldInjectedService();
+            var container = ServiceContainerBuilder.Build();
 
             // Act & Assert
-            Assert.Throws<DependencyResolutionException>(() => container.GetService<FieldInjectedService>());
+            Assert.Throws<DependencyResolutionException>(() => container.Inject(target));
         }
 
         /// <summary>
         /// Verifies that marked static fields throw a resolution exception.
         /// </summary>
         [Test]
-        public void GetService_StaticMarkedField_ThrowsDependencyResolutionException()
+        public void Inject_StaticMarkedField_ThrowsDependencyResolutionException()
         {
             // Arrange
             var container = ServiceContainerBuilder.Build(
-                ServiceDescriptor.Singleton<ITestDependency>(new TestDependency()),
-                ServiceDescriptor.Transient<StaticFieldInjectedService, StaticFieldInjectedService>());
+                ServiceDescriptor.Singleton<ITestDependency>(new TestDependency()));
+            var target = new StaticFieldInjectedService();
 
             // Act & Assert
-            Assert.Throws<DependencyResolutionException>(() => container.GetService<StaticFieldInjectedService>());
+            Assert.Throws<DependencyResolutionException>(() => container.Inject(target));
         }
 
         /// <summary>
         /// Verifies that marked readonly fields throw a resolution exception.
         /// </summary>
         [Test]
-        public void GetService_ReadonlyMarkedField_ThrowsDependencyResolutionException()
+        public void Inject_ReadonlyMarkedField_ThrowsDependencyResolutionException()
         {
             // Arrange
             var container = ServiceContainerBuilder.Build(
-                ServiceDescriptor.Singleton<ITestDependency>(new TestDependency()),
-                ServiceDescriptor.Transient<ReadonlyFieldInjectedService, ReadonlyFieldInjectedService>());
+                ServiceDescriptor.Singleton<ITestDependency>(new TestDependency()));
+            var target = new ReadonlyFieldInjectedService();
 
             // Act & Assert
-            Assert.Throws<DependencyResolutionException>(() => container.GetService<ReadonlyFieldInjectedService>());
+            Assert.Throws<DependencyResolutionException>(() => container.Inject(target));
         }
 
         /// <summary>
         /// Verifies that incompatible resolved services throw a resolution exception.
         /// </summary>
         [Test]
-        public void GetService_IncompatibleInjectedDependency_ThrowsDependencyResolutionException()
+        public void Inject_IncompatibleInjectedDependency_ThrowsDependencyResolutionException()
         {
             // Arrange
             var container = ServiceContainerBuilder.Build(
-                ServiceDescriptor.Singleton(typeof(ITestDependency), typeof(IncompatibleDependency)),
-                ServiceDescriptor.Transient<FieldInjectedService, FieldInjectedService>());
+                ServiceDescriptor.Singleton(typeof(ITestDependency), typeof(IncompatibleDependency)));
+            var target = new FieldInjectedService();
 
             // Act & Assert
-            Assert.Throws<DependencyResolutionException>(() => container.GetService<FieldInjectedService>());
+            Assert.Throws<DependencyResolutionException>(() => container.Inject(target));
         }
 
         #endregion

@@ -100,10 +100,10 @@ namespace EasyToolkit.Core.Patterns
         private object CreateInstance(ServiceDescriptor descriptor, IServiceProvider provider)
         {
             if (descriptor.ImplementationInstance != null)
-                return InjectInstance(provider, descriptor.ImplementationInstance);
+                return descriptor.ImplementationInstance;
 
             if (descriptor.ImplementationFactory != null)
-                return InjectInstance(provider, descriptor.ImplementationFactory(provider));
+                return descriptor.ImplementationFactory(provider);
 
             var type = descriptor.ImplementationType ?? descriptor.ServiceType;
 
@@ -125,7 +125,7 @@ namespace EasyToolkit.Core.Patterns
                 arguments[i] = ResolveParameter(provider, parameter);
             }
 
-            var instance = InjectInstance(provider, constructor.Invoke(arguments));
+            var instance = constructor.Invoke(arguments);
 
             var factory = BuildFactory(constructor, parameters);
             _registry.CacheFactory(type, factory);
@@ -140,15 +140,6 @@ namespace EasyToolkit.Core.Patterns
                        $"Unable to resolve parameter '{parameter.Name}' of type '{parameter.ParameterType.FullName}'");
         }
 
-        private object InjectInstance(IServiceProvider provider, object instance)
-        {
-            if (instance == null)
-                return null;
-
-            ServiceInjector.Inject(provider, instance);
-            return instance;
-        }
-
         private Func<IServiceProvider, object> BuildFactory(ConstructorInfo constructor, ParameterInfo[] parameters)
         {
             return provider =>
@@ -159,7 +150,7 @@ namespace EasyToolkit.Core.Patterns
                     arguments[i] = ResolveParameter(provider, parameters[i]);
                 }
 
-                return InjectInstance(provider, constructor.Invoke(arguments));
+                return constructor.Invoke(arguments);
             };
         }
 
