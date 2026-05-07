@@ -5,7 +5,7 @@ namespace EasyToolkit.Core.Patterns
     /// <summary>
     /// Defines a mechanism for retrieving service objects.
     /// </summary>
-    public interface IServiceResolver
+    public interface IServiceProvider
     {
         /// <summary>
         /// Gets the service object of the specified type.

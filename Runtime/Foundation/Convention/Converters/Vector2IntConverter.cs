@@ -3,15 +3,15 @@ using System.ComponentModel;
 using System.Globalization;
 using UnityEngine;
 
-namespace EasyToolkit.Core.Convention.TypeConverters
+namespace EasyToolkit.Core.Foundation.TypeConverters
 {
     /// <summary>
-    /// Provides type conversion for Vector3Int values to and from string representations.
+    /// Provides type conversion for Vector2Int values to and from string representations.
     /// </summary>
-    public class Vector3IntConverter : TypeConverter
+    public class Vector2IntConverter : TypeConverter
     {
         /// <summary>
-        /// Determines whether this converter can convert an object from the specified source type to Vector3Int.
+        /// Determines whether this converter can convert an object from the specified source type to Vector2Int.
         /// </summary>
         /// <param name="context">An ITypeDescriptorContext that provides a format context.</param>
         /// <param name="sourceType">The type you want to convert from.</param>
@@ -33,18 +33,18 @@ namespace EasyToolkit.Core.Convention.TypeConverters
         }
 
         /// <summary>
-        /// Converts the specified value to a Vector3Int.
+        /// Converts the specified value to a Vector2Int.
         /// </summary>
         /// <param name="context">An ITypeDescriptorContext that provides a format context.</param>
         /// <param name="culture">The CultureInfo to use for the conversion.</param>
         /// <param name="value">The object to convert.</param>
-        /// <returns>A Vector3Int that represents the converted value.</returns>
+        /// <returns>A Vector2Int that represents the converted value.</returns>
         /// <exception cref="NotSupportedException">Thrown when the conversion cannot be performed.</exception>
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
             if (value is string stringValue)
             {
-                return ParseVector3Int(stringValue);
+                return ParseVector2Int(stringValue);
             }
 
             return base.ConvertFrom(context, culture, value);
@@ -61,31 +61,30 @@ namespace EasyToolkit.Core.Convention.TypeConverters
         /// <exception cref="NotSupportedException">Thrown when the conversion cannot be performed.</exception>
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
-            if (destinationType == typeof(string) && value is Vector3Int vector3Int)
+            if (destinationType == typeof(string) && value is Vector2Int vector2Int)
             {
-                return FormatVector3Int(vector3Int);
+                return FormatVector2Int(vector2Int);
             }
 
             return base.ConvertTo(context, culture, value, destinationType);
         }
 
-        private static Vector3Int ParseVector3Int(string value)
+        private static Vector2Int ParseVector2Int(string value)
         {
             var parts = value.Split(new[] { ',', '(', ')', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length == 3 &&
+            if (parts.Length == 2 &&
                 int.TryParse(parts[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out var x) &&
-                int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var y) &&
-                int.TryParse(parts[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var z))
+                int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var y))
             {
-                return new Vector3Int(x, y, z);
+                return new Vector2Int(x, y);
             }
 
-            throw new FormatException($"Invalid Vector3Int format: {value}. Expected format: (x,y,z) or x,y,z");
+            throw new FormatException($"Invalid Vector2Int format: {value}. Expected format: (x,y) or x,y");
         }
 
-        private static string FormatVector3Int(Vector3Int value)
+        private static string FormatVector2Int(Vector2Int value)
         {
-            return $"({value.x.ToString(CultureInfo.InvariantCulture)},{value.y.ToString(CultureInfo.InvariantCulture)},{value.z.ToString(CultureInfo.InvariantCulture)})";
+            return $"({value.x.ToString(CultureInfo.InvariantCulture)},{value.y.ToString(CultureInfo.InvariantCulture)})";
         }
     }
 }

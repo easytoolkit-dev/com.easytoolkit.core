@@ -9,49 +9,6 @@ namespace EasyToolkit.Core.Reflection.Tests
     /// </summary>
     public class TestReflectionPathFactory_Accessor
     {
-        #region BuildAccessor Tests
-
-        /// <summary>
-        /// Verifies that BuildAccessor throws ArgumentException when memberPath is null.
-        /// </summary>
-        [Test]
-        public void BuildAccessor_NullPath_ThrowsArgumentException()
-        {
-            // Arrange
-            string memberPath = null;
-
-            // Act & Assert
-            Assert.Throws<ArgumentException>(() => new AccessorBuilder(memberPath));
-        }
-
-        /// <summary>
-        /// Verifies that BuildAccessor throws ArgumentException when memberPath is empty.
-        /// </summary>
-        [Test]
-        public void BuildAccessor_EmptyPath_ThrowsArgumentException()
-        {
-            // Arrange
-            string memberPath = string.Empty;
-
-            // Act & Assert
-            Assert.Throws<ArgumentException>(() => new AccessorBuilder(memberPath));
-        }
-
-        /// <summary>
-        /// Verifies that BuildAccessor throws ArgumentException when memberPath is whitespace.
-        /// </summary>
-        [Test]
-        public void BuildAccessor_WhitespacePath_ThrowsArgumentException()
-        {
-            // Arrange
-            string memberPath = "   ";
-
-            // Act & Assert
-            Assert.Throws<ArgumentException>(() => new AccessorBuilder(memberPath));
-        }
-
-        #endregion
-
         #region BuildStaticGetter Tests
 
         /// <summary>

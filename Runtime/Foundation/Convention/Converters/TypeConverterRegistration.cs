@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel;
 using UnityEngine;
 
-namespace EasyToolkit.Core.Convention.TypeConverters
+namespace EasyToolkit.Core.Foundation.TypeConverters
 {
     /// <summary>
     /// Manages registration of custom TypeConverter instances for Unity types.

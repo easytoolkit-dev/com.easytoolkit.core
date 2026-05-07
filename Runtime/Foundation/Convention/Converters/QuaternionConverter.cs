@@ -3,15 +3,15 @@ using System.ComponentModel;
 using System.Globalization;
 using UnityEngine;
 
-namespace EasyToolkit.Core.Convention.TypeConverters
+namespace EasyToolkit.Core.Foundation.TypeConverters
 {
     /// <summary>
-    /// Provides type conversion for Color values to and from string representations.
+    /// Provides type conversion for Quaternion values to and from string representations.
     /// </summary>
-    public class ColorConverter : TypeConverter
+    public class QuaternionConverter : TypeConverter
     {
         /// <summary>
-        /// Determines whether this converter can convert an object from the specified source type to Color.
+        /// Determines whether this converter can convert an object from the specified source type to Quaternion.
         /// </summary>
         /// <param name="context">An ITypeDescriptorContext that provides a format context.</param>
         /// <param name="sourceType">The type you want to convert from.</param>
@@ -33,18 +33,18 @@ namespace EasyToolkit.Core.Convention.TypeConverters
         }
 
         /// <summary>
-        /// Converts the specified value to a Color.
+        /// Converts the specified value to a Quaternion.
         /// </summary>
         /// <param name="context">An ITypeDescriptorContext that provides a format context.</param>
         /// <param name="culture">The CultureInfo to use for the conversion.</param>
         /// <param name="value">The object to convert.</param>
-        /// <returns>A Color that represents the converted value.</returns>
+        /// <returns>A Quaternion that represents the converted value.</returns>
         /// <exception cref="NotSupportedException">Thrown when the conversion cannot be performed.</exception>
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
             if (value is string stringValue)
             {
-                return ParseColor(stringValue);
+                return ParseQuaternion(stringValue);
             }
 
             return base.ConvertFrom(context, culture, value);
@@ -61,32 +61,32 @@ namespace EasyToolkit.Core.Convention.TypeConverters
         /// <exception cref="NotSupportedException">Thrown when the conversion cannot be performed.</exception>
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
-            if (destinationType == typeof(string) && value is Color color)
+            if (destinationType == typeof(string) && value is Quaternion quaternion)
             {
-                return FormatColor(color);
+                return FormatQuaternion(quaternion);
             }
 
             return base.ConvertTo(context, culture, value, destinationType);
         }
 
-        private static Color ParseColor(string value)
+        private static Quaternion ParseQuaternion(string value)
         {
             var parts = value.Split(new[] { ',', '(', ')', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length >= 3 &&
-                float.TryParse(parts[0], NumberStyles.Float, CultureInfo.InvariantCulture, out var r) &&
-                float.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var g) &&
-                float.TryParse(parts[2], NumberStyles.Float, CultureInfo.InvariantCulture, out var b))
+            if (parts.Length == 4 &&
+                float.TryParse(parts[0], NumberStyles.Float, CultureInfo.InvariantCulture, out var x) &&
+                float.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var y) &&
+                float.TryParse(parts[2], NumberStyles.Float, CultureInfo.InvariantCulture, out var z) &&
+                float.TryParse(parts[3], NumberStyles.Float, CultureInfo.InvariantCulture, out var w))
             {
-                var a = parts.Length > 3 && float.TryParse(parts[3], NumberStyles.Float, CultureInfo.InvariantCulture, out var alpha) ? alpha : 1f;
-                return new Color(r, g, b, a);
+                return new Quaternion(x, y, z, w);
             }
 
-            throw new FormatException($"Invalid Color format: {value}. Expected format: (r,g,b,a) or r,g,b or r,g,b,a");
+            throw new FormatException($"Invalid Quaternion format: {value}. Expected format: (x,y,z,w) or x,y,z,w");
         }
 
-        private static string FormatColor(Color value)
+        private static string FormatQuaternion(Quaternion value)
         {
-            return $"({value.r.ToString(CultureInfo.InvariantCulture)},{value.g.ToString(CultureInfo.InvariantCulture)},{value.b.ToString(CultureInfo.InvariantCulture)},{value.a.ToString(CultureInfo.InvariantCulture)})";
+            return $"({value.x.ToString(CultureInfo.InvariantCulture)},{value.y.ToString(CultureInfo.InvariantCulture)},{value.z.ToString(CultureInfo.InvariantCulture)},{value.w.ToString(CultureInfo.InvariantCulture)})";
         }
     }
 }

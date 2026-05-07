@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Globalization;
 using UnityEngine;
 
-namespace EasyToolkit.Core.Convention.TypeConverters
+namespace EasyToolkit.Core.Foundation.TypeConverters
 {
     /// <summary>
     /// Provides type conversion for Vector3 values to and from string representations.

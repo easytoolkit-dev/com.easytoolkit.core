@@ -10,6 +10,6 @@ namespace EasyToolkit.Core.Patterns
         /// <summary>
         /// The service provider for this scope.
         /// </summary>
-        IServiceResolver ServiceResolver { get; }
+        IServiceProvider ServiceProvider { get; }
     }
 }

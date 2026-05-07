@@ -3,15 +3,15 @@ using System.ComponentModel;
 using System.Globalization;
 using UnityEngine;
 
-namespace EasyToolkit.Core.Convention.TypeConverters
+namespace EasyToolkit.Core.Foundation.TypeConverters
 {
     /// <summary>
-    /// Provides type conversion for Vector2Int values to and from string representations.
+    /// Provides type conversion for Rect values to and from string representations.
     /// </summary>
-    public class Vector2IntConverter : TypeConverter
+    public class RectConverter : TypeConverter
     {
         /// <summary>
-        /// Determines whether this converter can convert an object from the specified source type to Vector2Int.
+        /// Determines whether this converter can convert an object from the specified source type to Rect.
         /// </summary>
         /// <param name="context">An ITypeDescriptorContext that provides a format context.</param>
         /// <param name="sourceType">The type you want to convert from.</param>
@@ -33,18 +33,18 @@ namespace EasyToolkit.Core.Convention.TypeConverters
         }
 
         /// <summary>
-        /// Converts the specified value to a Vector2Int.
+        /// Converts the specified value to a Rect.
         /// </summary>
         /// <param name="context">An ITypeDescriptorContext that provides a format context.</param>
         /// <param name="culture">The CultureInfo to use for the conversion.</param>
         /// <param name="value">The object to convert.</param>
-        /// <returns>A Vector2Int that represents the converted value.</returns>
+        /// <returns>A Rect that represents the converted value.</returns>
         /// <exception cref="NotSupportedException">Thrown when the conversion cannot be performed.</exception>
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
             if (value is string stringValue)
             {
-                return ParseVector2Int(stringValue);
+                return ParseRect(stringValue);
             }
 
             return base.ConvertFrom(context, culture, value);
@@ -61,30 +61,32 @@ namespace EasyToolkit.Core.Convention.TypeConverters
         /// <exception cref="NotSupportedException">Thrown when the conversion cannot be performed.</exception>
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
-            if (destinationType == typeof(string) && value is Vector2Int vector2Int)
+            if (destinationType == typeof(string) && value is Rect rect)
             {
-                return FormatVector2Int(vector2Int);
+                return FormatRect(rect);
             }
 
             return base.ConvertTo(context, culture, value, destinationType);
         }
 
-        private static Vector2Int ParseVector2Int(string value)
+        private static Rect ParseRect(string value)
         {
             var parts = value.Split(new[] { ',', '(', ')', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length == 2 &&
-                int.TryParse(parts[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out var x) &&
-                int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var y))
+            if (parts.Length == 4 &&
+                float.TryParse(parts[0], NumberStyles.Float, CultureInfo.InvariantCulture, out var x) &&
+                float.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var y) &&
+                float.TryParse(parts[2], NumberStyles.Float, CultureInfo.InvariantCulture, out var width) &&
+                float.TryParse(parts[3], NumberStyles.Float, CultureInfo.InvariantCulture, out var height))
             {
-                return new Vector2Int(x, y);
+                return new Rect(x, y, width, height);
             }
 
-            throw new FormatException($"Invalid Vector2Int format: {value}. Expected format: (x,y) or x,y");
+            throw new FormatException($"Invalid Rect format: {value}. Expected format: (x,y,width,height) or x,y,width,height");
         }
 
-        private static string FormatVector2Int(Vector2Int value)
+        private static string FormatRect(Rect value)
         {
-            return $"({value.x.ToString(CultureInfo.InvariantCulture)},{value.y.ToString(CultureInfo.InvariantCulture)})";
+            return $"({value.x.ToString(CultureInfo.InvariantCulture)},{value.y.ToString(CultureInfo.InvariantCulture)},{value.width.ToString(CultureInfo.InvariantCulture)},{value.height.ToString(CultureInfo.InvariantCulture)})";
         }
     }
 }

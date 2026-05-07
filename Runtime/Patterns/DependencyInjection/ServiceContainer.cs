@@ -11,9 +11,9 @@ namespace EasyToolkit.Core.Patterns
     public sealed class ServiceContainer : IServiceContainer
     {
         private readonly ServiceRegistry _registry;
-        private readonly Dictionary<Type, object> _singletonInstances = new Dictionary<Type, object>();
-        private readonly Dictionary<Type, object> _scopedInstances = new Dictionary<Type, object>();
-        private readonly object _syncLock = new object();
+        private readonly Dictionary<Type, object> _singletonInstances = new();
+        private readonly Dictionary<Type, object> _scopedInstances = new();
+        private readonly object _syncLock = new();
         private bool _disposed;
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace EasyToolkit.Core.Patterns
                 throw new ArgumentNullException(nameof(serviceType));
 
             if (serviceType == typeof(IServiceContainer) ||
-                serviceType == typeof(IServiceResolver))
+                serviceType == typeof(IServiceProvider))
             {
                 return this;
             }
@@ -47,7 +47,7 @@ namespace EasyToolkit.Core.Patterns
             if (descriptor == null)
                 return null;
 
-            return ResolveInstance(descriptor);
+            return ResolveInstance(descriptor, this);
         }
 
         /// <summary>
@@ -58,58 +58,58 @@ namespace EasyToolkit.Core.Patterns
             return new ServiceScope(this);
         }
 
-        private object ResolveInstance(ServiceDescriptor descriptor)
+        private object ResolveInstance(ServiceDescriptor descriptor, IServiceProvider provider)
         {
             switch (descriptor.Lifetime)
             {
                 case ServiceLifetime.Singleton:
-                    return ResolveSingleton(descriptor);
+                    return ResolveSingleton(descriptor, provider);
                 case ServiceLifetime.Scoped:
-                    return ResolveScoped(descriptor);
+                    return ResolveScoped(descriptor, provider);
                 case ServiceLifetime.Transient:
-                    return CreateInstance(descriptor);
+                    return CreateInstance(descriptor, provider);
                 default:
                     throw new DependencyResolutionException($"Unsupported lifetime: {descriptor.Lifetime}");
             }
         }
 
-        private object ResolveSingleton(ServiceDescriptor descriptor)
+        private object ResolveSingleton(ServiceDescriptor descriptor, IServiceProvider provider)
         {
             lock (_syncLock)
             {
                 if (_singletonInstances.TryGetValue(descriptor.ServiceType, out var instance))
                     return instance;
 
-                instance = CreateInstance(descriptor);
+                instance = CreateInstance(descriptor, provider);
                 _singletonInstances[descriptor.ServiceType] = instance;
                 descriptor.ImplementationInstance = instance;
                 return instance;
             }
         }
 
-        private object ResolveScoped(ServiceDescriptor descriptor)
+        private object ResolveScoped(ServiceDescriptor descriptor, IServiceProvider provider)
         {
             if (_scopedInstances.TryGetValue(descriptor.ServiceType, out var instance))
                 return instance;
 
-            instance = CreateInstance(descriptor);
+            instance = CreateInstance(descriptor, provider);
             _scopedInstances[descriptor.ServiceType] = instance;
             return instance;
         }
 
-        private object CreateInstance(ServiceDescriptor descriptor)
+        private object CreateInstance(ServiceDescriptor descriptor, IServiceProvider provider)
         {
             if (descriptor.ImplementationInstance != null)
-                return descriptor.ImplementationInstance;
+                return InjectInstance(provider, descriptor.ImplementationInstance);
 
             if (descriptor.ImplementationFactory != null)
-                return descriptor.ImplementationFactory(this);
+                return InjectInstance(provider, descriptor.ImplementationFactory(provider));
 
             var type = descriptor.ImplementationType ?? descriptor.ServiceType;
 
             var cachedFactory = _registry.GetCachedFactory(type);
             if (cachedFactory != null)
-                return cachedFactory(this);
+                return cachedFactory(provider);
 
             var constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
             if (constructors.Length == 0)
@@ -122,30 +122,44 @@ namespace EasyToolkit.Core.Patterns
             for (int i = 0; i < parameters.Length; i++)
             {
                 var parameter = parameters[i];
-                arguments[i] = GetService(parameter.ParameterType) ??
-                               throw new DependencyResolutionException(
-                                   $"Unable to resolve parameter '{parameter.Name}' of type '{parameter.ParameterType.FullName}'");
+                arguments[i] = ResolveParameter(provider, parameter);
             }
 
-            var instance = constructor.Invoke(arguments);
+            var instance = InjectInstance(provider, constructor.Invoke(arguments));
 
-            var factory = BuildFactory(type, constructor, parameters);
+            var factory = BuildFactory(constructor, parameters);
             _registry.CacheFactory(type, factory);
 
             return instance;
         }
 
-        private Func<IServiceResolver, object> BuildFactory(Type type, ConstructorInfo constructor, ParameterInfo[] parameters)
+        private object ResolveParameter(IServiceProvider provider, ParameterInfo parameter)
+        {
+            return provider.GetService(parameter.ParameterType) ??
+                   throw new DependencyResolutionException(
+                       $"Unable to resolve parameter '{parameter.Name}' of type '{parameter.ParameterType.FullName}'");
+        }
+
+        private object InjectInstance(IServiceProvider provider, object instance)
+        {
+            if (instance == null)
+                return null;
+
+            ServiceInjector.Inject(provider, instance);
+            return instance;
+        }
+
+        private Func<IServiceProvider, object> BuildFactory(ConstructorInfo constructor, ParameterInfo[] parameters)
         {
             return provider =>
             {
                 var arguments = new object[parameters.Length];
                 for (int i = 0; i < parameters.Length; i++)
                 {
-                    arguments[i] = provider.GetService(parameters[i].ParameterType);
+                    arguments[i] = ResolveParameter(provider, parameters[i]);
                 }
 
-                return constructor.Invoke(arguments);
+                return InjectInstance(provider, constructor.Invoke(arguments));
             };
         }
 
@@ -186,23 +200,27 @@ namespace EasyToolkit.Core.Patterns
             public ServiceScope(ServiceContainer parent)
             {
                 _parent = parent ?? throw new ArgumentNullException(nameof(parent));
-                ServiceResolver = new ScopedServiceResolver(this);
+                ServiceProvider = new ScopedServiceProvider(this);
             }
 
             /// <summary>
             /// The service provider for this scope.
             /// </summary>
-            public IServiceResolver ServiceResolver { get; }
+            public IServiceProvider ServiceProvider { get; }
 
             /// <summary>
             /// Gets a service instance from the scope.
             /// </summary>
             public object GetService(Type serviceType)
             {
-                if (serviceType == typeof(IServiceScope) ||
-                    serviceType == typeof(IServiceResolver))
+                if (serviceType == typeof(IServiceScope))
                 {
                     return this;
+                }
+
+                if (serviceType == typeof(IServiceProvider))
+                {
+                    return ServiceProvider;
                 }
 
                 var descriptor = _parent._registry.GetDescriptor(serviceType);
@@ -214,12 +232,12 @@ namespace EasyToolkit.Core.Patterns
                     if (_scopedInstances.TryGetValue(serviceType, out var instance))
                         return instance;
 
-                    instance = _parent.CreateInstance(descriptor);
+                    instance = _parent.CreateInstance(descriptor, ServiceProvider);
                     _scopedInstances[serviceType] = instance;
                     return instance;
                 }
 
-                return _parent.ResolveInstance(descriptor);
+                return _parent.ResolveInstance(descriptor, ServiceProvider);
             }
 
             /// <summary>
@@ -243,14 +261,14 @@ namespace EasyToolkit.Core.Patterns
             /// <summary>
             /// Scoped service provider implementation.
             /// </summary>
-            private sealed class ScopedServiceResolver : IServiceResolver
+            private sealed class ScopedServiceProvider : IServiceProvider
             {
                 private readonly ServiceScope _scope;
 
                 /// <summary>
                 /// Initializes a new instance.
                 /// </summary>
-                public ScopedServiceResolver(ServiceScope scope)
+                public ScopedServiceProvider(ServiceScope scope)
                 {
                     _scope = scope;
                 }

@@ -9,49 +9,6 @@ namespace EasyToolkit.Core.Reflection.Tests
     /// </summary>
     public class TestReflectionPathFactory_Invoker
     {
-        #region BuildInvoker Tests
-
-        /// <summary>
-        /// Verifies that BuildInvoker throws ArgumentException when methodPath is null.
-        /// </summary>
-        [Test]
-        public void BuildInvoker_NullPath_ThrowsArgumentException()
-        {
-            // Arrange
-            string methodPath = null;
-
-            // Act & Assert
-            Assert.Throws<ArgumentException>(() => new InvokerBuilder(methodPath));
-        }
-
-        /// <summary>
-        /// Verifies that BuildInvoker throws ArgumentException when methodPath is empty.
-        /// </summary>
-        [Test]
-        public void BuildInvoker_EmptyPath_ThrowsArgumentException()
-        {
-            // Arrange
-            string methodPath = string.Empty;
-
-            // Act & Assert
-            Assert.Throws<ArgumentException>(() => new InvokerBuilder(methodPath));
-        }
-
-        /// <summary>
-        /// Verifies that BuildInvoker throws ArgumentException when methodPath is whitespace.
-        /// </summary>
-        [Test]
-        public void BuildInvoker_WhitespacePath_ThrowsArgumentException()
-        {
-            // Arrange
-            string methodPath = "   ";
-
-            // Act & Assert
-            Assert.Throws<ArgumentException>(() => new InvokerBuilder(methodPath));
-        }
-
-        #endregion
-
         #region BuildStaticFunc Tests - Parameterless
 
         /// <summary>

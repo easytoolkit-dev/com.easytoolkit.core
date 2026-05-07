@@ -8,8 +8,8 @@ namespace EasyToolkit.Core.Patterns
     /// </summary>
     internal class ServiceRegistry
     {
-        private readonly Dictionary<Type, ServiceDescriptor> _descriptors = new Dictionary<Type, ServiceDescriptor>();
-        private readonly Dictionary<Type, Func<IServiceResolver, object>> _factories = new Dictionary<Type, Func<IServiceResolver, object>>();
+        private readonly Dictionary<Type, ServiceDescriptor> _descriptors = new();
+        private readonly Dictionary<Type, Func<IServiceProvider, object>> _factories = new();
 
         /// <summary>
         /// Adds a service descriptor to the registry.
@@ -27,7 +27,7 @@ namespace EasyToolkit.Core.Patterns
         /// </summary>
         public ServiceDescriptor GetDescriptor(Type serviceType)
         {
-            return _descriptors.TryGetValue(serviceType, out var descriptor) ? descriptor : null;
+            return _descriptors.GetValueOrDefault(serviceType);
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace EasyToolkit.Core.Patterns
         /// <summary>
         /// Caches a factory for a service type.
         /// </summary>
-        public void CacheFactory(Type serviceType, Func<IServiceResolver, object> factory)
+        public void CacheFactory(Type serviceType, Func<IServiceProvider, object> factory)
         {
             _factories[serviceType] = factory;
         }
@@ -49,7 +49,7 @@ namespace EasyToolkit.Core.Patterns
         /// <summary>
         /// Gets the cached factory for a service type.
         /// </summary>
-        public Func<IServiceResolver, object> GetCachedFactory(Type serviceType)
+        public Func<IServiceProvider, object> GetCachedFactory(Type serviceType)
         {
             return _factories.TryGetValue(serviceType, out var factory) ? factory : null;
         }

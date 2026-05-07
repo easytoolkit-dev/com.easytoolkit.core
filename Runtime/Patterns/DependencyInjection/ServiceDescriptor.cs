@@ -33,14 +33,14 @@ namespace EasyToolkit.Core.Patterns
         /// <summary>
         /// The implementation factory (for factory-based registrations).
         /// </summary>
-        public Func<IServiceResolver, object> ImplementationFactory { get; }
+        public Func<IServiceProvider, object> ImplementationFactory { get; }
 
         private ServiceDescriptor(
             Type serviceType,
             ServiceLifetime lifetime,
             Type implementationType = null,
             object implementationInstance = null,
-            Func<IServiceResolver, object> implementationFactory = null)
+            Func<IServiceProvider, object> implementationFactory = null)
         {
             ServiceType = serviceType ?? throw new ArgumentNullException(nameof(serviceType));
             Lifetime = lifetime;
@@ -69,7 +69,7 @@ namespace EasyToolkit.Core.Patterns
         /// <summary>
         /// Creates a transient service descriptor using a factory.
         /// </summary>
-        public static ServiceDescriptor Transient<TService>(Func<IServiceResolver, TService> factory)
+        public static ServiceDescriptor Transient<TService>(Func<IServiceProvider, TService> factory)
         {
             return new ServiceDescriptor(typeof(TService), ServiceLifetime.Transient, implementationFactory: provider => factory(provider));
         }
@@ -94,7 +94,7 @@ namespace EasyToolkit.Core.Patterns
         /// <summary>
         /// Creates a singleton service descriptor using a factory.
         /// </summary>
-        public static ServiceDescriptor Singleton<TService>(Func<IServiceResolver, TService> factory)
+        public static ServiceDescriptor Singleton<TService>(Func<IServiceProvider, TService> factory)
         {
             return new ServiceDescriptor(typeof(TService), ServiceLifetime.Singleton, implementationFactory: provider => factory(provider));
         }
@@ -127,7 +127,7 @@ namespace EasyToolkit.Core.Patterns
         /// <summary>
         /// Creates a scoped service descriptor using a factory.
         /// </summary>
-        public static ServiceDescriptor Scoped<TService>(Func<IServiceResolver, TService> factory)
+        public static ServiceDescriptor Scoped<TService>(Func<IServiceProvider, TService> factory)
         {
             return new ServiceDescriptor(typeof(TService), ServiceLifetime.Scoped, implementationFactory: provider => factory(provider));
         }
