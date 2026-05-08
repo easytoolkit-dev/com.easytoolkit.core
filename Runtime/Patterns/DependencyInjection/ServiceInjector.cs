@@ -44,6 +44,11 @@ namespace EasyToolkit.Core.Patterns
 
                 field.SetValue(target, value);
             }
+
+            if (target is IInjected injected)
+            {
+                injected.OnInjected();
+            }
         }
 
         private static FieldInfo[] GetInjectableFields(Type type)

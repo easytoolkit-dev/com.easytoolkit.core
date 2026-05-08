@@ -245,6 +245,26 @@ namespace EasyToolkit.Core.Patterns.Tests
             Assert.AreNotSame(firstDependency, secondDependency);
         }
 
+        /// <summary>
+        /// Verifies that injected targets receive a callback after their marked fields have been assigned.
+        /// </summary>
+        [Test]
+        public void Inject_InjectedTarget_CallsCallbackAfterDependencyAssignment()
+        {
+            // Arrange
+            var dependency = new TestDependency();
+            var target = new CallbackInjectedService();
+            var container = ServiceContainerBuilder.Build(ServiceDescriptor.Singleton<ITestDependency>(dependency));
+
+            // Act
+            container.Inject(target);
+
+            // Assert
+            Assert.AreSame(dependency, target.Dependency);
+            Assert.IsTrue(target.WasInjected);
+            Assert.AreSame(dependency, target.DependencyDuringCallback);
+        }
+
         #endregion
 
         #region Failure Tests
@@ -261,6 +281,22 @@ namespace EasyToolkit.Core.Patterns.Tests
 
             // Act & Assert
             Assert.Throws<DependencyResolutionException>(() => container.Inject(target));
+        }
+
+        /// <summary>
+        /// Verifies that injection callbacks are not invoked when dependency resolution fails.
+        /// </summary>
+        [Test]
+        public void Inject_MissingInjectedDependency_DoesNotCallCallback()
+        {
+            // Arrange
+            var target = new CallbackInjectedService();
+            var container = ServiceContainerBuilder.Build();
+
+            // Act & Assert
+            Assert.Throws<DependencyResolutionException>(() => container.Inject(target));
+            Assert.IsFalse(target.WasInjected);
+            Assert.IsNull(target.DependencyDuringCallback);
         }
 
         /// <summary>
@@ -361,6 +397,28 @@ namespace EasyToolkit.Core.Patterns.Tests
             }
 
             public ITestDependency Dependency => _dependency;
+        }
+
+        private sealed class CallbackInjectedService : IInjected
+        {
+            [Inject]
+            private ITestDependency _dependency;
+
+            public CallbackInjectedService()
+            {
+            }
+
+            public ITestDependency Dependency => _dependency;
+
+            public ITestDependency DependencyDuringCallback { get; private set; }
+
+            public bool WasInjected { get; private set; }
+
+            public void OnInjected()
+            {
+                DependencyDuringCallback = _dependency;
+                WasInjected = true;
+            }
         }
 
         private sealed class ConstructorInjectedService
