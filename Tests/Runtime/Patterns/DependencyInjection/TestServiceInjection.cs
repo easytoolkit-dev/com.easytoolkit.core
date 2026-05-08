@@ -117,6 +117,86 @@ namespace EasyToolkit.Core.Patterns.Tests
 
         #endregion
 
+        #region Instance Creation Tests
+
+        /// <summary>
+        /// Verifies that unregistered concrete objects can be created with constructor injection.
+        /// </summary>
+        [Test]
+        public void CreateInstance_UnregisteredType_InjectsConstructorDependency()
+        {
+            // Arrange
+            var dependency = new TestDependency();
+            var container = ServiceContainerBuilder.Build(ServiceDescriptor.Singleton<ITestDependency>(dependency));
+
+            // Act
+            var service = container.CreateInstance<ConstructorInjectedService>();
+
+            // Assert
+            Assert.AreSame(dependency, service.Dependency);
+        }
+
+        /// <summary>
+        /// Verifies that created instances are not stored as registered singleton instances.
+        /// </summary>
+        [Test]
+        public void CreateInstance_RegisteredSingletonType_DoesNotStoreCreatedInstance()
+        {
+            // Arrange
+            var dependency = new TestDependency();
+            var container = ServiceContainerBuilder.Build(
+                ServiceDescriptor.Singleton<ITestDependency>(dependency),
+                ServiceDescriptor.Singleton<ConstructorInjectedService, ConstructorInjectedService>());
+
+            // Act
+            var created = container.CreateInstance<ConstructorInjectedService>();
+            var resolved = container.GetService<ConstructorInjectedService>();
+
+            // Assert
+            Assert.AreSame(dependency, created.Dependency);
+            Assert.AreSame(dependency, resolved.Dependency);
+            Assert.AreNotSame(created, resolved);
+        }
+
+        /// <summary>
+        /// Verifies that scoped dependencies are resolved from the active scope during instance creation.
+        /// </summary>
+        [Test]
+        public void CreateInstance_ScopedResolver_InjectsConstructorDependencyFromActiveScope()
+        {
+            // Arrange
+            var container = ServiceContainerBuilder.Build(ServiceDescriptor.Scoped<ScopedDependency, ScopedDependency>());
+
+            using var firstScope = container.CreateScope();
+            using var secondScope = container.CreateScope();
+
+            // Act
+            var firstService = firstScope.ServiceProvider.CreateInstance<ScopedConstructorInjectedService>();
+            var firstDependency = firstScope.ServiceProvider.GetService<ScopedDependency>();
+            var secondService = secondScope.ServiceProvider.CreateInstance<ScopedConstructorInjectedService>();
+            var secondDependency = secondScope.ServiceProvider.GetService<ScopedDependency>();
+
+            // Assert
+            Assert.AreSame(firstDependency, firstService.Dependency);
+            Assert.AreSame(secondDependency, secondService.Dependency);
+            Assert.AreNotSame(firstDependency, secondDependency);
+        }
+
+        /// <summary>
+        /// Verifies that missing constructor dependencies throw a resolution exception during instance creation.
+        /// </summary>
+        [Test]
+        public void CreateInstance_MissingConstructorDependency_ThrowsDependencyResolutionException()
+        {
+            // Arrange
+            var container = ServiceContainerBuilder.Build();
+
+            // Act & Assert
+            Assert.Throws<DependencyResolutionException>(() => container.CreateInstance<ConstructorInjectedService>());
+        }
+
+        #endregion
+
         #region Manual Injection Tests
 
         /// <summary>
@@ -283,11 +363,31 @@ namespace EasyToolkit.Core.Patterns.Tests
             public ITestDependency Dependency => _dependency;
         }
 
+        private sealed class ConstructorInjectedService
+        {
+            public ConstructorInjectedService(ITestDependency dependency)
+            {
+                Dependency = dependency;
+            }
+
+            public ITestDependency Dependency { get; }
+        }
+
         private sealed class ScopedDependency
         {
             public ScopedDependency()
             {
             }
+        }
+
+        private sealed class ScopedConstructorInjectedService
+        {
+            public ScopedConstructorInjectedService(ScopedDependency dependency)
+            {
+                Dependency = dependency;
+            }
+
+            public ScopedDependency Dependency { get; }
         }
 
         private sealed class ScopedFieldInjectedService

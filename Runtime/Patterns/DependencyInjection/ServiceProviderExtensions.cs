@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Reflection;
 
 namespace EasyToolkit.Core.Patterns
 {
@@ -20,6 +22,38 @@ namespace EasyToolkit.Core.Patterns
                 throw new ArgumentNullException(nameof(provider));
 
             return (T)provider.GetService(typeof(T));
+        }
+
+        /// <summary>
+        /// Creates an instance of the specified implementation type and resolves constructor parameters from the provider.
+        /// </summary>
+        /// <param name="provider">The service provider used to resolve constructor dependencies.</param>
+        /// <param name="implementationType">The concrete type to instantiate.</param>
+        /// <returns>A new object created from <paramref name="implementationType"/>.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="provider"/> or <paramref name="implementationType"/> is null.
+        /// </exception>
+        /// <exception cref="DependencyResolutionException">
+        /// Thrown when the type cannot be constructed or one of its constructor dependencies cannot be resolved.
+        /// </exception>
+        public static object CreateInstance(this IServiceProvider provider, Type implementationType)
+        {
+            return ServiceActivator.CreateInstance(provider, implementationType);
+        }
+
+        /// <summary>
+        /// Creates an instance of the specified implementation type and resolves constructor parameters from the provider.
+        /// </summary>
+        /// <typeparam name="T">The concrete type to instantiate.</typeparam>
+        /// <param name="provider">The service provider used to resolve constructor dependencies.</param>
+        /// <returns>A new object of type <typeparamref name="T"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="provider"/> is null.</exception>
+        /// <exception cref="DependencyResolutionException">
+        /// Thrown when the type cannot be constructed or one of its constructor dependencies cannot be resolved.
+        /// </exception>
+        public static T CreateInstance<T>(this IServiceProvider provider)
+        {
+            return (T)provider.CreateInstance(typeof(T));
         }
 
         /// <summary>

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace EasyToolkit.Core.Patterns
 {
@@ -111,47 +110,14 @@ namespace EasyToolkit.Core.Patterns
             if (cachedFactory != null)
                 return cachedFactory(provider);
 
-            var constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
-            if (constructors.Length == 0)
-                throw new DependencyResolutionException($"No public constructors found for type {type.FullName}");
-
-            var constructor = constructors.OrderByDescending(c => c.GetParameters().Length).First();
+            var constructor = ServiceActivator.SelectConstructor(type);
             var parameters = constructor.GetParameters();
-            var arguments = new object[parameters.Length];
+            var instance = ServiceActivator.InvokeConstructor(provider, constructor, parameters);
 
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                var parameter = parameters[i];
-                arguments[i] = ResolveParameter(provider, parameter);
-            }
-
-            var instance = constructor.Invoke(arguments);
-
-            var factory = BuildFactory(constructor, parameters);
+            var factory = ServiceActivator.BuildFactory(constructor, parameters);
             _registry.CacheFactory(type, factory);
 
             return instance;
-        }
-
-        private object ResolveParameter(IServiceProvider provider, ParameterInfo parameter)
-        {
-            return provider.GetService(parameter.ParameterType) ??
-                   throw new DependencyResolutionException(
-                       $"Unable to resolve parameter '{parameter.Name}' of type '{parameter.ParameterType.FullName}'");
-        }
-
-        private Func<IServiceProvider, object> BuildFactory(ConstructorInfo constructor, ParameterInfo[] parameters)
-        {
-            return provider =>
-            {
-                var arguments = new object[parameters.Length];
-                for (int i = 0; i < parameters.Length; i++)
-                {
-                    arguments[i] = ResolveParameter(provider, parameters[i]);
-                }
-
-                return constructor.Invoke(arguments);
-            };
         }
 
         /// <summary>
