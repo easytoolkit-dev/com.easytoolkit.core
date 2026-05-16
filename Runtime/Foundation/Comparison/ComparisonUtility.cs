@@ -30,12 +30,12 @@ namespace EasyToolkit.Core.Foundation
         {
             return mode switch
             {
-                ComparisonMode.LessThan => actual < target && !actual.IsApproximatelyOf(target),
-                ComparisonMode.LessThanOrEqualTo => actual < target || actual.IsApproximatelyOf(target),
+                ComparisonMode.LessThan => actual.IsLessThanAndNotApproximatelyOf(target),
+                ComparisonMode.LessThanOrEqualTo => actual.IsLessThanOrApproximatelyOf(target),
                 ComparisonMode.EqualTo => actual.IsApproximatelyOf(target),
                 ComparisonMode.NotEqualTo => !actual.IsApproximatelyOf(target),
-                ComparisonMode.GreaterThanOrEqualTo => actual > target || actual.IsApproximatelyOf(target),
-                ComparisonMode.GreaterThan => actual > target && !actual.IsApproximatelyOf(target),
+                ComparisonMode.GreaterThanOrEqualTo => actual.IsGreaterThanOrApproximatelyOf(target),
+                ComparisonMode.GreaterThan => actual.IsGreaterThanAndNotApproximatelyOf(target),
                 _ => false
             };
         }
@@ -56,12 +56,12 @@ namespace EasyToolkit.Core.Foundation
         {
             return mode switch
             {
-                ComparisonMode.LessThan => actual < target && !actual.IsApproximatelyOf(target, epsilon),
-                ComparisonMode.LessThanOrEqualTo => actual < target || actual.IsApproximatelyOf(target, epsilon),
+                ComparisonMode.LessThan => actual.IsLessThanAndNotApproximatelyOf(target, epsilon),
+                ComparisonMode.LessThanOrEqualTo => actual.IsLessThanOrApproximatelyOf(target, epsilon),
                 ComparisonMode.EqualTo => actual.IsApproximatelyOf(target, epsilon),
                 ComparisonMode.NotEqualTo => !actual.IsApproximatelyOf(target, epsilon),
-                ComparisonMode.GreaterThanOrEqualTo => actual > target || actual.IsApproximatelyOf(target, epsilon),
-                ComparisonMode.GreaterThan => actual > target && !actual.IsApproximatelyOf(target, epsilon),
+                ComparisonMode.GreaterThanOrEqualTo => actual.IsGreaterThanOrApproximatelyOf(target, epsilon),
+                ComparisonMode.GreaterThan => actual.IsGreaterThanAndNotApproximatelyOf(target, epsilon),
                 _ => false
             };
         }
@@ -114,12 +114,12 @@ namespace EasyToolkit.Core.Foundation
         {
             return mode switch
             {
-                ComparisonMode.LessThan => actual < target && !actual.IsApproximatelyOf(target),
-                ComparisonMode.LessThanOrEqualTo => actual < target || actual.IsApproximatelyOf(target),
+                ComparisonMode.LessThan => actual.IsLessThanAndNotApproximatelyOf(target),
+                ComparisonMode.LessThanOrEqualTo => actual.IsLessThanOrApproximatelyOf(target),
                 ComparisonMode.EqualTo => actual.IsApproximatelyOf(target),
                 ComparisonMode.NotEqualTo => !actual.IsApproximatelyOf(target),
-                ComparisonMode.GreaterThanOrEqualTo => actual > target || actual.IsApproximatelyOf(target),
-                ComparisonMode.GreaterThan => actual > target && !actual.IsApproximatelyOf(target),
+                ComparisonMode.GreaterThanOrEqualTo => actual.IsGreaterThanOrApproximatelyOf(target),
+                ComparisonMode.GreaterThan => actual.IsGreaterThanAndNotApproximatelyOf(target),
                 _ => false
             };
         }
@@ -136,12 +136,12 @@ namespace EasyToolkit.Core.Foundation
         {
             return mode switch
             {
-                ComparisonMode.LessThan => actual < target && !actual.IsApproximatelyOf(target, epsilon),
-                ComparisonMode.LessThanOrEqualTo => actual < target || actual.IsApproximatelyOf(target, epsilon),
+                ComparisonMode.LessThan => actual.IsLessThanAndNotApproximatelyOf(target, epsilon),
+                ComparisonMode.LessThanOrEqualTo => actual.IsLessThanOrApproximatelyOf(target, epsilon),
                 ComparisonMode.EqualTo => actual.IsApproximatelyOf(target, epsilon),
                 ComparisonMode.NotEqualTo => !actual.IsApproximatelyOf(target, epsilon),
-                ComparisonMode.GreaterThanOrEqualTo => actual > target || actual.IsApproximatelyOf(target, epsilon),
-                ComparisonMode.GreaterThan => actual > target && !actual.IsApproximatelyOf(target, epsilon),
+                ComparisonMode.GreaterThanOrEqualTo => actual.IsGreaterThanOrApproximatelyOf(target, epsilon),
+                ComparisonMode.GreaterThan => actual.IsGreaterThanAndNotApproximatelyOf(target, epsilon),
                 _ => false
             };
         }

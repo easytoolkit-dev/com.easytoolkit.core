@@ -120,6 +120,54 @@ namespace EasyToolkit.Core.Foundation
         }
 
         /// <summary>
+        /// Determines whether a floating-point value is greater than or approximately equal to another value.
+        /// </summary>
+        /// <param name="a">The first value to compare.</param>
+        /// <param name="b">The second value to compare.</param>
+        /// <param name="epsilon">The maximum allowed difference for approximate equality. When null, uses Mathf.Approximately default.</param>
+        /// <returns>True if <paramref name="a"/> is greater than <paramref name="b"/> or approximately equal to it, false otherwise.</returns>
+        public static bool IsGreaterThanOrApproximatelyOf(this float a, float b, float? epsilon = null)
+        {
+            return a > b || a.IsApproximatelyOf(b, epsilon);
+        }
+
+        /// <summary>
+        /// Determines whether a floating-point value is less than or approximately equal to another value.
+        /// </summary>
+        /// <param name="a">The first value to compare.</param>
+        /// <param name="b">The second value to compare.</param>
+        /// <param name="epsilon">The maximum allowed difference for approximate equality. When null, uses Mathf.Approximately default.</param>
+        /// <returns>True if <paramref name="a"/> is less than <paramref name="b"/> or approximately equal to it, false otherwise.</returns>
+        public static bool IsLessThanOrApproximatelyOf(this float a, float b, float? epsilon = null)
+        {
+            return a < b || a.IsApproximatelyOf(b, epsilon);
+        }
+
+        /// <summary>
+        /// Determines whether a floating-point value is greater than another value and not approximately equal to it.
+        /// </summary>
+        /// <param name="a">The first value to compare.</param>
+        /// <param name="b">The second value to compare.</param>
+        /// <param name="epsilon">The maximum allowed difference for approximate equality. When null, uses Mathf.Approximately default.</param>
+        /// <returns>True if <paramref name="a"/> is greater than <paramref name="b"/> and not approximately equal to it, false otherwise.</returns>
+        public static bool IsGreaterThanAndNotApproximatelyOf(this float a, float b, float? epsilon = null)
+        {
+            return a > b && !a.IsApproximatelyOf(b, epsilon);
+        }
+
+        /// <summary>
+        /// Determines whether a floating-point value is less than another value and not approximately equal to it.
+        /// </summary>
+        /// <param name="a">The first value to compare.</param>
+        /// <param name="b">The second value to compare.</param>
+        /// <param name="epsilon">The maximum allowed difference for approximate equality. When null, uses Mathf.Approximately default.</param>
+        /// <returns>True if <paramref name="a"/> is less than <paramref name="b"/> and not approximately equal to it, false otherwise.</returns>
+        public static bool IsLessThanAndNotApproximatelyOf(this float a, float b, float? epsilon = null)
+        {
+            return a < b && !a.IsApproximatelyOf(b, epsilon);
+        }
+
+        /// <summary>
         /// Determines whether two double-precision floating-point values are approximately equal.
         /// </summary>
         /// <param name="a">The first value to compare.</param>
@@ -153,6 +201,54 @@ namespace EasyToolkit.Core.Foundation
             {
                 return Math.Abs(a - b) < epsilon.Value;
             }
+        }
+
+        /// <summary>
+        /// Determines whether a double-precision floating-point value is greater than or approximately equal to another value.
+        /// </summary>
+        /// <param name="a">The first value to compare.</param>
+        /// <param name="b">The second value to compare.</param>
+        /// <param name="epsilon">The maximum allowed difference for approximate equality. When null, uses relative epsilon.</param>
+        /// <returns>True if <paramref name="a"/> is greater than <paramref name="b"/> or approximately equal to it, false otherwise.</returns>
+        public static bool IsGreaterThanOrApproximatelyOf(this double a, double b, double? epsilon = null)
+        {
+            return a > b || a.IsApproximatelyOf(b, epsilon);
+        }
+
+        /// <summary>
+        /// Determines whether a double-precision floating-point value is less than or approximately equal to another value.
+        /// </summary>
+        /// <param name="a">The first value to compare.</param>
+        /// <param name="b">The second value to compare.</param>
+        /// <param name="epsilon">The maximum allowed difference for approximate equality. When null, uses relative epsilon.</param>
+        /// <returns>True if <paramref name="a"/> is less than <paramref name="b"/> or approximately equal to it, false otherwise.</returns>
+        public static bool IsLessThanOrApproximatelyOf(this double a, double b, double? epsilon = null)
+        {
+            return a < b || a.IsApproximatelyOf(b, epsilon);
+        }
+
+        /// <summary>
+        /// Determines whether a double-precision floating-point value is greater than another value and not approximately equal to it.
+        /// </summary>
+        /// <param name="a">The first value to compare.</param>
+        /// <param name="b">The second value to compare.</param>
+        /// <param name="epsilon">The maximum allowed difference for approximate equality. When null, uses relative epsilon.</param>
+        /// <returns>True if <paramref name="a"/> is greater than <paramref name="b"/> and not approximately equal to it, false otherwise.</returns>
+        public static bool IsGreaterThanAndNotApproximatelyOf(this double a, double b, double? epsilon = null)
+        {
+            return a > b && !a.IsApproximatelyOf(b, epsilon);
+        }
+
+        /// <summary>
+        /// Determines whether a double-precision floating-point value is less than another value and not approximately equal to it.
+        /// </summary>
+        /// <param name="a">The first value to compare.</param>
+        /// <param name="b">The second value to compare.</param>
+        /// <param name="epsilon">The maximum allowed difference for approximate equality. When null, uses relative epsilon.</param>
+        /// <returns>True if <paramref name="a"/> is less than <paramref name="b"/> and not approximately equal to it, false otherwise.</returns>
+        public static bool IsLessThanAndNotApproximatelyOf(this double a, double b, double? epsilon = null)
+        {
+            return a < b && !a.IsApproximatelyOf(b, epsilon);
         }
 
         /// <summary>

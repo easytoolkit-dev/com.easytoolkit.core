@@ -236,6 +236,112 @@ namespace EasyToolkit.Core.Foundation.Tests
 
         #endregion
 
+        #region Approximately Comparison Extension Tests
+
+        /// <summary>
+        /// Verifies that greater-than-or-approximately comparison accepts greater and approximately equal float values.
+        /// </summary>
+        [Test]
+        public void IsGreaterThanOrApproximatelyOf_FloatGreaterOrSimilar_ReturnsTrue()
+        {
+            Assert.IsTrue(10.1f.IsGreaterThanOrApproximatelyOf(10f, 0.01f));
+            Assert.IsTrue(10.005f.IsGreaterThanOrApproximatelyOf(10f, 0.01f));
+        }
+
+        /// <summary>
+        /// Verifies that greater-than-or-approximately comparison rejects meaningfully smaller float values.
+        /// </summary>
+        [Test]
+        public void IsGreaterThanOrApproximatelyOf_FloatLessAndNotSimilar_ReturnsFalse()
+        {
+            Assert.IsFalse(9.98f.IsGreaterThanOrApproximatelyOf(10f, 0.01f));
+        }
+
+        /// <summary>
+        /// Verifies that less-than-or-approximately comparison accepts less and approximately equal float values.
+        /// </summary>
+        [Test]
+        public void IsLessThanOrApproximatelyOf_FloatLessOrSimilar_ReturnsTrue()
+        {
+            Assert.IsTrue(9.9f.IsLessThanOrApproximatelyOf(10f, 0.01f));
+            Assert.IsTrue(9.995f.IsLessThanOrApproximatelyOf(10f, 0.01f));
+        }
+
+        /// <summary>
+        /// Verifies that less-than-or-approximately comparison rejects meaningfully greater float values.
+        /// </summary>
+        [Test]
+        public void IsLessThanOrApproximatelyOf_FloatGreaterAndNotSimilar_ReturnsFalse()
+        {
+            Assert.IsFalse(10.02f.IsLessThanOrApproximatelyOf(10f, 0.01f));
+        }
+
+        /// <summary>
+        /// Verifies that strict greater-than comparison accepts only greater and not approximately equal float values.
+        /// </summary>
+        [Test]
+        public void IsGreaterThanAndNotApproximatelyOf_FloatGreaterAndNotSimilar_ReturnsTrueOnlyForStrictGreater()
+        {
+            Assert.IsTrue(10.02f.IsGreaterThanAndNotApproximatelyOf(10f, 0.01f));
+            Assert.IsFalse(10.005f.IsGreaterThanAndNotApproximatelyOf(10f, 0.01f));
+            Assert.IsFalse(9.98f.IsGreaterThanAndNotApproximatelyOf(10f, 0.01f));
+        }
+
+        /// <summary>
+        /// Verifies that strict less-than comparison accepts only less and not approximately equal float values.
+        /// </summary>
+        [Test]
+        public void IsLessThanAndNotApproximatelyOf_FloatLessAndNotSimilar_ReturnsTrueOnlyForStrictLess()
+        {
+            Assert.IsTrue(9.98f.IsLessThanAndNotApproximatelyOf(10f, 0.01f));
+            Assert.IsFalse(9.995f.IsLessThanAndNotApproximatelyOf(10f, 0.01f));
+            Assert.IsFalse(10.02f.IsLessThanAndNotApproximatelyOf(10f, 0.01f));
+        }
+
+        /// <summary>
+        /// Verifies that greater-than-or-approximately comparison accepts greater and approximately equal double values.
+        /// </summary>
+        [Test]
+        public void IsGreaterThanOrApproximatelyOf_DoubleGreaterOrSimilar_ReturnsTrue()
+        {
+            Assert.IsTrue(10.1d.IsGreaterThanOrApproximatelyOf(10d, 0.01d));
+            Assert.IsTrue(10.005d.IsGreaterThanOrApproximatelyOf(10d, 0.01d));
+        }
+
+        /// <summary>
+        /// Verifies that less-than-or-approximately comparison accepts less and approximately equal double values.
+        /// </summary>
+        [Test]
+        public void IsLessThanOrApproximatelyOf_DoubleLessOrSimilar_ReturnsTrue()
+        {
+            Assert.IsTrue(9.9d.IsLessThanOrApproximatelyOf(10d, 0.01d));
+            Assert.IsTrue(9.995d.IsLessThanOrApproximatelyOf(10d, 0.01d));
+        }
+
+        /// <summary>
+        /// Verifies that strict greater-than comparison accepts only greater and not approximately equal double values.
+        /// </summary>
+        [Test]
+        public void IsGreaterThanAndNotApproximatelyOf_DoubleGreaterAndNotSimilar_ReturnsTrueOnlyForStrictGreater()
+        {
+            Assert.IsTrue(10.02d.IsGreaterThanAndNotApproximatelyOf(10d, 0.01d));
+            Assert.IsFalse(10.005d.IsGreaterThanAndNotApproximatelyOf(10d, 0.01d));
+            Assert.IsFalse(9.98d.IsGreaterThanAndNotApproximatelyOf(10d, 0.01d));
+        }
+
+        /// <summary>
+        /// Verifies that strict less-than comparison accepts only less and not approximately equal double values.
+        /// </summary>
+        [Test]
+        public void IsLessThanAndNotApproximatelyOf_DoubleLessAndNotSimilar_ReturnsTrueOnlyForStrictLess()
+        {
+            Assert.IsTrue(9.98d.IsLessThanAndNotApproximatelyOf(10d, 0.01d));
+            Assert.IsFalse(9.995d.IsLessThanAndNotApproximatelyOf(10d, 0.01d));
+            Assert.IsFalse(10.02d.IsLessThanAndNotApproximatelyOf(10d, 0.01d));
+        }
+
+        #endregion
+
         #region Quadratic Bezier Point Tests
 
         /// <summary>
