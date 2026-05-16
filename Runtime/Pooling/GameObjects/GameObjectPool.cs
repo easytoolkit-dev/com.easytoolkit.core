@@ -88,6 +88,7 @@ namespace EasyToolkit.Core.Pooling
             }
 
             _activeInstances.Add(pooledInfo.Target, pooledInfo);
+            pooledInfo.Target.SetActive(true);
 
             pooledInfo.State = PooledGameObjectState.Active;
             pooledInfo.ElapsedTime = 0f;
@@ -114,8 +115,6 @@ namespace EasyToolkit.Core.Pooling
             pooledInfo.State = PooledGameObjectState.Idle;
             pooledInfo.ElapsedTime = 0f;
 
-            instance.transform.SetParent(_rootTransform, false);
-
             _activeInstances.Remove(instance);
             _idleInstances.Add(pooledInfo);
 
@@ -127,6 +126,8 @@ namespace EasyToolkit.Core.Pooling
                 }
             }
 
+            instance.transform.SetParent(_rootTransform, false);
+            instance.SetActive(false);
             return true;
         }
 
