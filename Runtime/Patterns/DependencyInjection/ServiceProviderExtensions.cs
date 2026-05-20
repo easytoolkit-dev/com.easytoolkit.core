@@ -71,5 +71,43 @@ namespace EasyToolkit.Core.Patterns
         {
             ServiceInjector.Inject(provider, target);
         }
+
+        /// <summary>
+        /// Injects services into fields marked with the specified attribute type on an existing target object.
+        /// </summary>
+        /// <param name="provider">The service provider used to resolve dependencies.</param>
+        /// <param name="target">The object that receives field injection.</param>
+        /// <param name="injectAttributeType">The attribute type that marks injectable fields.</param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="provider"/>, <paramref name="target"/>, or <paramref name="injectAttributeType"/> is null.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown when <paramref name="injectAttributeType"/> does not derive from <see cref="Attribute"/>.
+        /// </exception>
+        /// <exception cref="DependencyResolutionException">
+        /// Thrown when a marked field is invalid or its dependency cannot be resolved.
+        /// </exception>
+        public static void Inject(this IServiceProvider provider, object target, Type injectAttributeType)
+        {
+            ServiceInjector.Inject(provider, target, injectAttributeType);
+        }
+
+        /// <summary>
+        /// Injects services into fields marked with the specified attribute type on an existing target object.
+        /// </summary>
+        /// <typeparam name="TInjectAttribute">The attribute type that marks injectable fields.</typeparam>
+        /// <param name="provider">The service provider used to resolve dependencies.</param>
+        /// <param name="target">The object that receives field injection.</param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="provider"/> or <paramref name="target"/> is null.
+        /// </exception>
+        /// <exception cref="DependencyResolutionException">
+        /// Thrown when a marked field is invalid or its dependency cannot be resolved.
+        /// </exception>
+        public static void Inject<TInjectAttribute>(this IServiceProvider provider, object target)
+            where TInjectAttribute : Attribute
+        {
+            ServiceInjector.Inject(provider, target, typeof(TInjectAttribute));
+        }
     }
 }

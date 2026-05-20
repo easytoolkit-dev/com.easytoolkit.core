@@ -5,11 +5,11 @@ using System.Reflection;
 namespace EasyToolkit.Core.Patterns
 {
     /// <summary>
-    /// Performs field injection for services that use <see cref="InjectAttribute"/>.
+    /// Performs field injection for services that use injection marker attributes.
     /// </summary>
     internal static class ServiceInjector
     {
-        private static readonly Dictionary<Type, FieldInfo[]> FieldsByType = new();
+        private static readonly Dictionary<InjectableFieldCacheKey, FieldInfo[]> FieldsByCacheKey = new();
         private static readonly object SyncLock = new();
 
         /// <summary>
@@ -17,14 +17,24 @@ namespace EasyToolkit.Core.Patterns
         /// </summary>
         public static void Inject(IServiceProvider provider, object target)
         {
+            Inject(provider, target, typeof(InjectAttribute));
+        }
+
+        /// <summary>
+        /// Injects fields marked with the specified attribute type on the specified target.
+        /// </summary>
+        public static void Inject(IServiceProvider provider, object target, Type injectAttributeType)
+        {
             if (provider == null)
                 throw new ArgumentNullException(nameof(provider));
 
             if (target == null)
                 throw new ArgumentNullException(nameof(target));
 
+            ValidateInjectAttributeType(injectAttributeType);
+
             var targetType = target.GetType();
-            var fields = GetInjectableFields(targetType);
+            var fields = GetInjectableFields(targetType, injectAttributeType);
 
             foreach (var field in fields)
             {
@@ -51,20 +61,22 @@ namespace EasyToolkit.Core.Patterns
             }
         }
 
-        private static FieldInfo[] GetInjectableFields(Type type)
+        private static FieldInfo[] GetInjectableFields(Type type, Type injectAttributeType)
         {
+            var cacheKey = new InjectableFieldCacheKey(type, injectAttributeType);
+
             lock (SyncLock)
             {
-                if (FieldsByType.TryGetValue(type, out var fields))
+                if (FieldsByCacheKey.TryGetValue(cacheKey, out var fields))
                     return fields;
 
-                fields = BuildInjectableFields(type);
-                FieldsByType[type] = fields;
+                fields = BuildInjectableFields(type, injectAttributeType);
+                FieldsByCacheKey[cacheKey] = fields;
                 return fields;
             }
         }
 
-        private static FieldInfo[] BuildInjectableFields(Type type)
+        private static FieldInfo[] BuildInjectableFields(Type type, Type injectAttributeType)
         {
             var fields = new List<FieldInfo>();
 
@@ -79,7 +91,7 @@ namespace EasyToolkit.Core.Patterns
 
                 foreach (var field in declaredFields)
                 {
-                    if (!field.IsDefined(typeof(InjectAttribute), false))
+                    if (!field.IsDefined(injectAttributeType, false))
                         continue;
 
                     ValidateInjectableField(field, type);
@@ -88,6 +100,19 @@ namespace EasyToolkit.Core.Patterns
             }
 
             return fields.ToArray();
+        }
+
+        private static void ValidateInjectAttributeType(Type injectAttributeType)
+        {
+            if (injectAttributeType == null)
+                throw new ArgumentNullException(nameof(injectAttributeType));
+
+            if (!typeof(Attribute).IsAssignableFrom(injectAttributeType))
+            {
+                throw new ArgumentException(
+                    $"Injection marker type '{injectAttributeType.FullName}' must derive from '{typeof(Attribute).FullName}'.",
+                    nameof(injectAttributeType));
+            }
         }
 
         private static void ValidateInjectableField(FieldInfo field, Type targetType)
@@ -108,6 +133,37 @@ namespace EasyToolkit.Core.Patterns
             {
                 throw new DependencyResolutionException(
                     $"Injectable field '{field.Name}' on type '{targetType.FullName}' must not be readonly.");
+            }
+        }
+
+        private readonly struct InjectableFieldCacheKey : IEquatable<InjectableFieldCacheKey>
+        {
+            private readonly Type _targetType;
+            private readonly Type _injectAttributeType;
+
+            public InjectableFieldCacheKey(Type targetType, Type injectAttributeType)
+            {
+                _targetType = targetType;
+                _injectAttributeType = injectAttributeType;
+            }
+
+            public bool Equals(InjectableFieldCacheKey other)
+            {
+                return _targetType == other._targetType && _injectAttributeType == other._injectAttributeType;
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is InjectableFieldCacheKey other && Equals(other);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    return ((_targetType != null ? _targetType.GetHashCode() : 0) * 397)
+                        ^ (_injectAttributeType != null ? _injectAttributeType.GetHashCode() : 0);
+                }
             }
         }
     }

@@ -218,6 +218,71 @@ namespace EasyToolkit.Core.Patterns.Tests
         }
 
         /// <summary>
+        /// Verifies that externally created objects can receive field injection through a custom marker attribute.
+        /// </summary>
+        [Test]
+        public void Inject_CustomAttributeType_InjectsMarkedDependency()
+        {
+            // Arrange
+            var dependency = new TestDependency();
+            var target = new CustomFieldInjectedService();
+            var container = ServiceContainerBuilder.Build(ServiceDescriptor.Singleton<ITestDependency>(dependency));
+
+            // Act
+            container.Inject(target, typeof(CustomInjectAttribute));
+
+            // Assert
+            Assert.AreSame(dependency, target.Dependency);
+        }
+
+        /// <summary>
+        /// Verifies that generic custom marker injection uses the specified marker attribute.
+        /// </summary>
+        [Test]
+        public void Inject_GenericCustomAttributeType_InjectsMarkedDependency()
+        {
+            // Arrange
+            var dependency = new TestDependency();
+            var target = new CustomFieldInjectedService();
+            var container = ServiceContainerBuilder.Build(ServiceDescriptor.Singleton<ITestDependency>(dependency));
+
+            // Act
+            container.Inject<CustomInjectAttribute>(target);
+
+            // Assert
+            Assert.AreSame(dependency, target.Dependency);
+        }
+
+        /// <summary>
+        /// Verifies that injectable field caching is separated by marker attribute type.
+        /// </summary>
+        [Test]
+        public void Inject_DifferentAttributeTypes_CachesInjectableFieldsSeparately()
+        {
+            // Arrange
+            var defaultDependency = new TestDependency();
+            var customDependency = new CustomDependency();
+            var target = new MixedAttributeInjectedService();
+            var container = ServiceContainerBuilder.Build(
+                ServiceDescriptor.Singleton<ITestDependency>(defaultDependency),
+                ServiceDescriptor.Singleton<ICustomDependency>(customDependency));
+
+            // Act
+            container.Inject(target, typeof(CustomInjectAttribute));
+
+            // Assert
+            Assert.IsNull(target.DefaultDependency);
+            Assert.AreSame(customDependency, target.CustomDependency);
+
+            // Act
+            container.Inject(target);
+
+            // Assert
+            Assert.AreSame(defaultDependency, target.DefaultDependency);
+            Assert.AreSame(customDependency, target.CustomDependency);
+        }
+
+        /// <summary>
         /// Verifies that scoped dependencies are resolved from the active scope during field injection.
         /// </summary>
         [Test]
@@ -344,9 +409,28 @@ namespace EasyToolkit.Core.Patterns.Tests
             Assert.Throws<DependencyResolutionException>(() => container.Inject(target));
         }
 
+        /// <summary>
+        /// Verifies that custom marker injection rejects non-attribute marker types.
+        /// </summary>
+        [Test]
+        public void Inject_NonAttributeMarkerType_ThrowsArgumentException()
+        {
+            // Arrange
+            var container = ServiceContainerBuilder.Build();
+            var target = new FieldInjectedService();
+
+            // Act & Assert
+            Assert.Throws<ArgumentException>(() => container.Inject(target, typeof(FieldInjectedService)));
+        }
+
         #endregion
 
         private interface ITestDependency
+        {
+            Guid Id { get; }
+        }
+
+        private interface ICustomDependency
         {
             Guid Id { get; }
         }
@@ -359,6 +443,21 @@ namespace EasyToolkit.Core.Patterns.Tests
             }
 
             public Guid Id { get; }
+        }
+
+        private sealed class CustomDependency : ICustomDependency
+        {
+            public CustomDependency()
+            {
+                Id = Guid.NewGuid();
+            }
+
+            public Guid Id { get; }
+        }
+
+        [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
+        private sealed class CustomInjectAttribute : Attribute
+        {
         }
 
         private sealed class IncompatibleDependency
@@ -397,6 +496,35 @@ namespace EasyToolkit.Core.Patterns.Tests
             }
 
             public ITestDependency Dependency => _dependency;
+        }
+
+        private sealed class CustomFieldInjectedService
+        {
+            [CustomInject]
+            private ITestDependency _dependency;
+
+            public CustomFieldInjectedService()
+            {
+            }
+
+            public ITestDependency Dependency => _dependency;
+        }
+
+        private sealed class MixedAttributeInjectedService
+        {
+            [Inject]
+            private ITestDependency _defaultDependency;
+
+            [CustomInject]
+            private ICustomDependency _customDependency;
+
+            public MixedAttributeInjectedService()
+            {
+            }
+
+            public ITestDependency DefaultDependency => _defaultDependency;
+
+            public ICustomDependency CustomDependency => _customDependency;
         }
 
         private sealed class CallbackInjectedService : IInjected
