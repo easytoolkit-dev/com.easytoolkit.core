@@ -9,7 +9,7 @@ namespace EasyToolkit.Core.Pooling
     public interface IGameObjectPool : IPool<GameObject>
     {
         /// <summary>
-        /// Gets the original prefab used for instantiation.
+        /// Gets the original prefab used for instantiation, or null when the pool uses a runtime factory.
         /// </summary>
         GameObject Original { get; }
 

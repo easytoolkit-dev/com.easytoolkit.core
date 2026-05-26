@@ -14,6 +14,7 @@ namespace EasyToolkit.Core.Pooling
         private readonly List<PooledGameObjectInfo> _idleInstances = new();
 
         private readonly GameObject _original;
+        private readonly Func<GameObject> _factory;
         private readonly Transform _rootTransform;
         private readonly GameObjectPoolConfiguration _configuration;
 
@@ -33,6 +34,7 @@ namespace EasyToolkit.Core.Pooling
             : base(name)
         {
             _original = original ?? throw new ArgumentNullException(nameof(original));
+            _factory = CreatePrefabInstance;
             if (configuration == null)
             {
                 throw new ArgumentNullException(nameof(configuration));
@@ -41,17 +43,33 @@ namespace EasyToolkit.Core.Pooling
             _rootTransform = rootTransform;
             _configuration = configuration;
 
-            // Preallocate instances if specified
-            if (configuration.PreallocationCount > 0)
+            Initialize();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GameObjectPool"/> class.
+        /// </summary>
+        /// <param name="name">The name of the pool.</param>
+        /// <param name="factory">The factory that creates new GameObject instances.</param>
+        /// <param name="configuration">The configuration for the pool.</param>
+        /// <param name="rootTransform">The root Transform for pooled objects.</param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="name"/>, <paramref name="factory"/>, or <paramref name="configuration"/> is null.
+        /// </exception>
+        public GameObjectPool(string name, Func<GameObject> factory, GameObjectPoolConfiguration configuration, Transform rootTransform)
+            : base(name)
+        {
+            _original = null;
+            _factory = factory ?? throw new ArgumentNullException(nameof(factory));
+            if (configuration == null)
             {
-                PreallocateInstances(configuration.PreallocationCount);
+                throw new ArgumentNullException(nameof(configuration));
             }
 
-            // Set capacity if specified
-            if (configuration.MaxCapacity.HasValue)
-            {
-                Capacity = configuration.MaxCapacity.Value;
-            }
+            _rootTransform = rootTransform;
+            _configuration = configuration;
+
+            Initialize();
         }
 
         /// <inheritdoc />
@@ -79,7 +97,7 @@ namespace EasyToolkit.Core.Pooling
             }
             else
             {
-                var instance = UnityEngine.Object.Instantiate(_original, _rootTransform);
+                var instance = CreateInstance();
                 pooledInfo = new PooledGameObjectInfo(instance, this)
                 {
                     ActiveLifetime = _configuration.ActiveLifetime,
@@ -237,7 +255,7 @@ namespace EasyToolkit.Core.Pooling
         {
             for (int i = 0; i < count; i++)
             {
-                var instance = UnityEngine.Object.Instantiate(_original, _rootTransform);
+                var instance = CreateInstance();
                 instance.SetActive(false);
 
                 var pooledInfo = new PooledGameObjectInfo(instance, this)
@@ -250,6 +268,37 @@ namespace EasyToolkit.Core.Pooling
 
                 _idleInstances.Add(pooledInfo);
             }
+        }
+
+        private void Initialize()
+        {
+            if (_configuration.PreallocationCount > 0)
+            {
+                PreallocateInstances(_configuration.PreallocationCount);
+            }
+
+            if (_configuration.MaxCapacity.HasValue)
+            {
+                Capacity = _configuration.MaxCapacity.Value;
+            }
+        }
+
+        private GameObject CreateInstance()
+        {
+            var instance = _factory();
+            if (instance == null)
+            {
+                throw new InvalidOperationException(
+                    $"Game object pool '{Name}' factory returned null.");
+            }
+
+            instance.transform.SetParent(_rootTransform, false);
+            return instance;
+        }
+
+        private GameObject CreatePrefabInstance()
+        {
+            return UnityEngine.Object.Instantiate(_original, _rootTransform);
         }
 
         private void OnIntervalTick(float interval)

@@ -33,9 +33,6 @@ namespace EasyToolkit.Core.Pooling
         /// <param name="poolName">The name of the pool.</param>
         /// <param name="original">The original prefab for instantiation.</param>
         /// <returns>The newly created pool.</returns>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown when <paramref name="poolName"/> or <paramref name="original"/> is null.
-        /// </exception>
         /// <exception cref="InvalidOperationException">
         /// Thrown when a pool with the same name already exists.
         /// </exception>
@@ -45,15 +42,26 @@ namespace EasyToolkit.Core.Pooling
         }
 
         /// <summary>
+        /// Creates a new GameObject pool with default configuration.
+        /// </summary>
+        /// <param name="poolName">The name of the pool.</param>
+        /// <param name="factory">The factory that creates new GameObject instances.</param>
+        /// <returns>The newly created pool.</returns>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when a pool with the same name already exists or the factory returns null.
+        /// </exception>
+        public IGameObjectPool CreatePool(string poolName, Func<GameObject> factory)
+        {
+            return CreatePool(poolName, factory, new GameObjectPoolConfiguration());
+        }
+
+        /// <summary>
         /// Creates a new GameObject pool with custom configuration.
         /// </summary>
         /// <param name="poolName">The name of the pool.</param>
         /// <param name="original">The original prefab for instantiation.</param>
         /// <param name="configuration">The configuration for the pool.</param>
         /// <returns>The newly created pool.</returns>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown when <paramref name="poolName"/>, <paramref name="original"/>, or <paramref name="configuration"/> is null.
-        /// </exception>
         /// <exception cref="InvalidOperationException">
         /// Thrown when a pool with the same name already exists.
         /// </exception>
@@ -80,14 +88,47 @@ namespace EasyToolkit.Core.Pooling
                     $"Game object pool '{poolName}' already exists.");
             }
 
-            // Create a root GameObject for this pool
-            var poolRoot = new GameObject(poolName);
-            poolRoot.transform.SetParent(_rootTransform, false);
+            return CreatePoolCore(
+                poolName,
+                poolRoot => new GameObjectPool(poolName, original, configuration, poolRoot));
+        }
 
-            var pool = new GameObjectPool(poolName, original, configuration, poolRoot.transform);
-            _pools.Add(poolName, pool);
+        /// <summary>
+        /// Creates a new GameObject pool with custom configuration.
+        /// </summary>
+        /// <param name="poolName">The name of the pool.</param>
+        /// <param name="factory">The factory that creates new GameObject instances.</param>
+        /// <param name="configuration">The configuration for the pool.</param>
+        /// <returns>The newly created pool.</returns>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when a pool with the same name already exists or the factory returns null.
+        /// </exception>
+        public IGameObjectPool CreatePool(string poolName, Func<GameObject> factory, GameObjectPoolConfiguration configuration)
+        {
+            if (poolName == null)
+            {
+                throw new ArgumentNullException(nameof(poolName));
+            }
 
-            return pool;
+            if (factory == null)
+            {
+                throw new ArgumentNullException(nameof(factory));
+            }
+
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
+            if (_pools.ContainsKey(poolName))
+            {
+                throw new InvalidOperationException(
+                    $"Game object pool '{poolName}' already exists.");
+            }
+
+            return CreatePoolCore(
+                poolName,
+                poolRoot => new GameObjectPool(poolName, factory, configuration, poolRoot));
         }
 
         /// <summary>
@@ -205,6 +246,41 @@ namespace EasyToolkit.Core.Pooling
                 {
                     ticker.OnTick(deltaTime);
                 }
+            }
+        }
+
+        private IGameObjectPool CreatePoolCore(string poolName, Func<Transform, IGameObjectPool> poolFactory)
+        {
+            var poolRoot = new GameObject(poolName);
+            poolRoot.transform.SetParent(_rootTransform, false);
+
+            try
+            {
+                var pool = poolFactory(poolRoot.transform);
+                _pools.Add(poolName, pool);
+                return pool;
+            }
+            catch
+            {
+                DestroyGameObject(poolRoot);
+                throw;
+            }
+        }
+
+        private static void DestroyGameObject(GameObject target)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            if (Application.isPlaying)
+            {
+                UnityEngine.Object.Destroy(target);
+            }
+            else
+            {
+                UnityEngine.Object.DestroyImmediate(target);
             }
         }
     }

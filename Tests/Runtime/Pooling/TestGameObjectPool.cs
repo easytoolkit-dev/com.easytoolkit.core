@@ -77,6 +77,105 @@ namespace EasyToolkit.Core.Pooling.Tests
             Assert.That(pool.Transform.childCount, Is.EqualTo(2));
         }
 
+        /// <summary>
+        /// Verifies that a factory-backed pool creates runtime instances and manages their hierarchy.
+        /// </summary>
+        [Test]
+        public void CreatePool_Factory_RentsAndReleasesRuntimeInstances()
+        {
+            // Arrange
+            var pool = _manager.CreatePool(
+                "factory_pool",
+                () =>
+                {
+                    var instance = new GameObject("FactoryInstance");
+                    instance.AddComponent<TestPoolItem>();
+                    return instance;
+                });
+            var externalParent = new GameObject("ExternalParent");
+
+            try
+            {
+                // Act
+                var instance = pool.Rent();
+                var poolItem = instance.GetComponent<TestPoolItem>();
+                instance.transform.SetParent(externalParent.transform, false);
+
+                var released = pool.Release(instance);
+
+                // Assert
+                Assert.That(pool.Original, Is.Null);
+                Assert.That(instance.activeSelf, Is.False);
+                Assert.That(instance.transform.parent, Is.SameAs(pool.Transform));
+                Assert.That(released, Is.True);
+                Assert.That(pool.ActiveCount, Is.EqualTo(0));
+                Assert.That(pool.IdleCount, Is.EqualTo(1));
+                Assert.That(poolItem.RentCount, Is.EqualTo(1));
+                Assert.That(poolItem.ReleaseCount, Is.EqualTo(1));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(externalParent);
+            }
+        }
+
+        /// <summary>
+        /// Verifies that a factory-backed pool preallocates idle instances and reuses them.
+        /// </summary>
+        [Test]
+        public void CreatePool_FactoryPreallocation_ReusesIdleInstances()
+        {
+            // Arrange
+            int createCount = 0;
+            var pool = _manager.CreatePool(
+                "factory_pool",
+                () =>
+                {
+                    createCount++;
+                    return new GameObject($"FactoryInstance{createCount}");
+                },
+                new GameObjectPoolConfiguration(preallocationCount: 2));
+
+            // Act
+            var firstInstance = pool.Rent();
+            var released = pool.Release(firstInstance);
+            var secondInstance = pool.Rent();
+
+            // Assert
+            Assert.That(createCount, Is.EqualTo(2));
+            Assert.That(released, Is.True);
+            Assert.That(secondInstance, Is.SameAs(firstInstance));
+            Assert.That(pool.ActiveCount, Is.EqualTo(1));
+            Assert.That(pool.IdleCount, Is.EqualTo(1));
+        }
+
+        /// <summary>
+        /// Verifies that factory-backed pool creation rejects a null factory.
+        /// </summary>
+        [Test]
+        public void CreatePool_NullFactory_ThrowsArgumentNullException()
+        {
+            // Arrange, Act & Assert
+            Assert.Throws<ArgumentNullException>(() => _manager.CreatePool("factory_pool", (Func<GameObject>)null));
+        }
+
+        /// <summary>
+        /// Verifies that failed factory preallocation does not register a pool or leave an empty pool root.
+        /// </summary>
+        [Test]
+        public void CreatePool_FactoryReturnsNull_DoesNotRegisterPoolOrLeaveRoot()
+        {
+            // Arrange, Act & Assert
+            Assert.Throws<InvalidOperationException>(
+                () => _manager.CreatePool(
+                    "factory_pool",
+                    () => null,
+                    new GameObjectPoolConfiguration(preallocationCount: 1)));
+
+            Assert.That(_manager.HasPool("factory_pool"), Is.False);
+            Assert.That(_manager.Transform.childCount, Is.EqualTo(0));
+        }
+
         #endregion
 
         #region Lifecycle Tests
