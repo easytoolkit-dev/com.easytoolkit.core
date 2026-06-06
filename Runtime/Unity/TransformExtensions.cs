@@ -337,7 +337,7 @@ namespace EasyToolkit.Core.Unity
         /// <param name="transform">The transform to modify.</param>
         /// <param name="scale">The new scale.</param>
         /// <returns>The transform for method chaining.</returns>
-        public static Transform WithScale(this Transform transform, Vector3 scale)
+        public static Transform WithLocalScale(this Transform transform, Vector3 scale)
         {
             transform.localScale = scale;
             return transform;
@@ -349,7 +349,7 @@ namespace EasyToolkit.Core.Unity
         /// <param name="transform">The transform to modify.</param>
         /// <param name="uniformScale">The uniform scale value for all axes.</param>
         /// <returns>The transform for method chaining.</returns>
-        public static Transform WithScale(this Transform transform, float uniformScale)
+        public static Transform WithLocalScale(this Transform transform, float uniformScale)
         {
             transform.localScale = Vector3.one * uniformScale;
             return transform;
@@ -362,7 +362,7 @@ namespace EasyToolkit.Core.Unity
         /// <param name="scale">The new XY scale.</param>
         /// <param name="z">The Z scale to use.</param>
         /// <returns>The transform for method chaining.</returns>
-        public static Transform WithScale(this Transform transform, Vector2 scale, float z = 1f)
+        public static Transform WithLocalScale(this Transform transform, Vector2 scale, float z = 1f)
         {
             transform.localScale = scale.ToVector3(z);
             return transform;
@@ -374,7 +374,7 @@ namespace EasyToolkit.Core.Unity
         /// <param name="transform">The transform to modify.</param>
         /// <param name="x">The new X scale value.</param>
         /// <returns>The transform for method chaining.</returns>
-        public static Transform WithScaleX(this Transform transform, float x)
+        public static Transform WithLocalScaleX(this Transform transform, float x)
         {
             transform.localScale = transform.localScale.WithX(x);
             return transform;
@@ -386,7 +386,7 @@ namespace EasyToolkit.Core.Unity
         /// <param name="transform">The transform to modify.</param>
         /// <param name="y">The new Y scale value.</param>
         /// <returns>The transform for method chaining.</returns>
-        public static Transform WithScaleY(this Transform transform, float y)
+        public static Transform WithLocalScaleY(this Transform transform, float y)
         {
             transform.localScale = transform.localScale.WithY(y);
             return transform;
@@ -398,7 +398,7 @@ namespace EasyToolkit.Core.Unity
         /// <param name="transform">The transform to modify.</param>
         /// <param name="z">The new Z scale value.</param>
         /// <returns>The transform for method chaining.</returns>
-        public static Transform WithScaleZ(this Transform transform, float z)
+        public static Transform WithLocalScaleZ(this Transform transform, float z)
         {
             transform.localScale = transform.localScale.WithZ(z);
             return transform;
@@ -410,7 +410,7 @@ namespace EasyToolkit.Core.Unity
         /// <param name="transform">The transform to modify.</param>
         /// <param name="size">The new scale magnitude.</param>
         /// <returns>The transform for method chaining.</returns>
-        public static Transform WithScaleSquare(this Transform transform, float size)
+        public static Transform WithLocalScaleSquare(this Transform transform, float size)
         {
             transform.localScale = transform.localScale.normalized * size;
             return transform;
